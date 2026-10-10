@@ -321,7 +321,7 @@ export default function RealEstatePage() {
                     قطاع التطوير والاستثمار العقاري
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -335,7 +335,7 @@ export default function RealEstatePage() {
             </div>
 
             {/* الطرف الأيسر: شريط الإجراءات وأزرار التنقل السريع */}
-            <div className="flex items-center gap-2 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
+            <div className="flex items-center gap-2.5 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
               <Link
                 href="/real-estate/contracts"
                 className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition shadow-lg whitespace-nowrap active:scale-95 cursor-pointer"
@@ -368,7 +368,7 @@ export default function RealEstatePage() {
 
         {/* كروت المؤشرات الكلية للعقارات */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
             <span className="text-xs text-slate-400 font-semibold block">إجمالي القيمة السوقية للمحفظة</span>
             <div className="text-xl font-black font-mono mt-2" style={{ color: primaryCol }}>
               {formatNum(stats.totalPortfolioValue)} <span className="text-xs font-sans text-slate-500">د.ع</span>
@@ -376,7 +376,7 @@ export default function RealEstatePage() {
             <p className="text-[11px] text-slate-500 mt-1">لعدد {stats.totalCount} وحدات وعقارات مسجلة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
             <span className="text-xs text-slate-400 font-semibold block">المقبوض من الدفعات والأقساط</span>
             <div className="text-xl font-black font-mono text-emerald-400 mt-2">
               {formatNum(stats.totalCollected)} <span className="text-xs font-sans text-slate-500">د.ع</span>
@@ -384,7 +384,7 @@ export default function RealEstatePage() {
             <p className="text-[11px] text-slate-500 mt-1">مرحّلة كلياً لسندات القبض بالحسابات</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
             <span className="text-xs text-slate-400 font-semibold block">الوحدات المباعة والمستثمرة</span>
             <div className="text-xl font-black font-mono text-sky-400 mt-2">
               {stats.soldUnits} <span className="text-xs font-sans text-slate-500">وحدات</span>
@@ -392,7 +392,7 @@ export default function RealEstatePage() {
             <p className="text-[11px] text-slate-500 mt-1">بعقود بيع وأقساط جارية</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
             <span className="text-xs text-slate-400 font-semibold block">الوحدات الجاهزة والمتاحة للبيع</span>
             <div className="text-xl font-black font-mono text-amber-400 mt-2">
               {stats.availableUnits} <span className="text-xs font-sans text-slate-500">وحدات متاحة</span>
@@ -429,7 +429,7 @@ export default function RealEstatePage() {
             {canAdd && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="w-full sm:w-auto text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg cursor-pointer"
+                className="w-full sm:w-auto text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg cursor-pointer whitespace-nowrap"
                 style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
               >
                 <PlusCircle className="w-4 h-4" /> إضافة وحدة عقارية جديدة
@@ -450,11 +450,11 @@ export default function RealEstatePage() {
               const isSold = u.status === 'SOLD';
 
               return (
-                <div key={u.unit_id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition hover:border-slate-700">
+                <div key={u.unit_id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition hover:border-slate-700 shadow-md">
                   
                   {/* رأس بطاقة العقار */}
-                  <div className="p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                    <div className="space-y-1">
+                  <div className="p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div className="space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span 
                           className="font-mono font-bold text-xs px-2 py-0.5 rounded border"
@@ -465,17 +465,17 @@ export default function RealEstatePage() {
                         <h3 className="text-base font-bold text-white">{u.title}</h3>
                         
                         {/* وسم الفرع التابع له العقار */}
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 font-sans">
+                        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 font-sans whitespace-nowrap">
                           🏢 {u.branch_name || 'فرع الاستثمارات والتطوير العقاري'}
                         </span>
 
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
                           isSold ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                         }`}>
                           {isSold ? 'مباعة (أقساط)' : 'متاحة للبيع'}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-400 leading-relaxed">
                         {u.property_type} • المساحة: <strong className="text-slate-200">{u.area_sqm} م²</strong> • الموقع: <strong className="text-slate-200">{u.city} - {u.location}</strong>
                       </p>
                       {isSold && (
@@ -486,20 +486,20 @@ export default function RealEstatePage() {
                     </div>
 
                     {/* الأرقام المالية وإجراءات الوحدة */}
-                    <div className="flex items-center gap-6 self-stretch lg:self-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-800">
-                      <div className="text-center font-mono">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-800">
+                      <div className="text-right sm:text-center font-mono">
                         <span className="text-[10px] text-slate-500 block font-sans">سعر البيع</span>
-                        <span className="text-xs font-bold" style={{ color: primaryCol }}>{formatNum(u.price)} د.ع</span>
+                        <span className="text-xs font-bold whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(u.price)} د.ع</span>
                       </div>
 
                       {isSold && (
-                        <div className="text-center font-mono">
+                        <div className="text-right sm:text-center font-mono">
                           <span className="text-[10px] text-slate-500 block font-sans">المسدد / المتبقي</span>
-                          <span className="text-xs font-bold text-emerald-400">{formatNum(u.totalPaid)}</span> / <span className="text-xs text-rose-400">{formatNum(u.totalRemaining)}</span>
+                          <span className="text-xs font-bold text-emerald-400 whitespace-nowrap">{formatNum(u.totalPaid)}</span> / <span className="text-xs text-rose-400 whitespace-nowrap">{formatNum(u.totalRemaining)}</span>
                         </div>
                       )}
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mr-auto lg:mr-0">
                         {!isSold ? (
                           (canEdit || canAdd) && (
                             <button
@@ -507,7 +507,7 @@ export default function RealEstatePage() {
                                 setSellingUnit(u);
                                 setDownPayment(String(Math.round(Number(u.price) * 0.3)));
                               }}
-                              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 transition shadow cursor-pointer"
+                              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 transition shadow cursor-pointer whitespace-nowrap"
                             >
                               <Coins className="w-3.5 h-3.5" /> تسجيل بيع وأقساط
                             </button>
@@ -515,7 +515,7 @@ export default function RealEstatePage() {
                         ) : (
                           <button
                             onClick={() => setExpandedUnitId(isExpanded ? null : u.unit_id)}
-                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-1 cursor-pointer"
+                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
                             style={{ color: primaryCol }}
                           >
                             <span>{isExpanded ? 'إخفاء الأقساط' : 'جدول سداد الأقساط'}</span>
@@ -526,7 +526,7 @@ export default function RealEstatePage() {
                         {canDelete && (
                           <button
                             onClick={() => handleDeleteUnit(u)}
-                            className="p-1.5 bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl border border-rose-500/20 transition cursor-pointer"
+                            className="p-1.5 bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white rounded-xl border border-rose-500/20 transition cursor-pointer shrink-0"
                             title="حذف الوحدة"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -536,10 +536,10 @@ export default function RealEstatePage() {
                     </div>
                   </div>
 
-                  {/* الجزء الموسع: جدول الأقساط ومواعيد السداد */}
+                  {/* الجزء الموسع: جدول الأقساط ومواعيد السداد مع التمرير المحمي */}
                   {isExpanded && isSold && (
-                    <div className="bg-slate-950/80 p-5 border-t border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between">
+                    <div className="bg-slate-950/80 p-4 sm:p-5 border-t border-slate-800 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <h4 className="text-xs font-bold flex items-center gap-1.5" style={{ color: primaryCol }}>
                           <CreditCard className="w-4 h-4" /> جدول سداد الأقساط الشهرية المسجلة
                         </h4>
@@ -548,15 +548,15 @@ export default function RealEstatePage() {
                         </span>
                       </div>
 
-                      <div className="border border-slate-800 rounded-xl overflow-hidden">
-                        <table className="w-full text-right text-xs">
+                      <div className="w-full overflow-x-auto pb-2 border border-slate-800 rounded-xl">
+                        <table className="w-full min-w-[650px] text-right text-xs">
                           <thead className="bg-slate-900 text-slate-400 text-[11px]">
                             <tr>
-                              <th className="p-2.5">عنوان القسط / الدفعة</th>
-                              <th className="p-2.5">المبلغ المطلوب</th>
-                              <th className="p-2.5">تاريخ الاستحقاق</th>
-                              <th className="p-2.5 text-center">حالة السداد</th>
-                              <th className="p-2.5 text-center">الإجراء</th>
+                              <th className="p-2.5 whitespace-nowrap">عنوان القسط / الدفعة</th>
+                              <th className="p-2.5 whitespace-nowrap">المبلغ المطلوب</th>
+                              <th className="p-2.5 whitespace-nowrap">تاريخ الاستحقاق</th>
+                              <th className="p-2.5 text-center whitespace-nowrap">حالة السداد</th>
+                              <th className="p-2.5 text-center whitespace-nowrap">الإجراء</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-800 font-mono">
@@ -569,25 +569,25 @@ export default function RealEstatePage() {
                             ) : (
                               u.installments.map((inst: any) => (
                                 <tr key={inst.installment_id} className="hover:bg-slate-900/40">
-                                  <td className="p-2.5 font-bold text-white font-sans">{inst.installment_title}</td>
-                                  <td className="p-2.5 font-bold text-emerald-400">{formatNum(inst.amount)} د.ع</td>
-                                  <td className="p-2.5 text-slate-400">{String(inst.due_date || '').split('T')[0]}</td>
-                                  <td className="p-2.5 text-center font-sans">
+                                  <td className="p-2.5 font-bold text-white font-sans whitespace-nowrap">{inst.installment_title}</td>
+                                  <td className="p-2.5 font-bold text-emerald-400 whitespace-nowrap">{formatNum(inst.amount)} د.ع</td>
+                                  <td className="p-2.5 text-slate-400 whitespace-nowrap">{String(inst.due_date || '').split('T')[0]}</td>
+                                  <td className="p-2.5 text-center font-sans whitespace-nowrap">
                                     {inst.is_paid ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
                                         تم السداد وتوليد السند ✓
                                       </span>
                                     ) : (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">
                                         قيد الانتظار
                                       </span>
                                     )}
                                   </td>
-                                  <td className="p-2.5 text-center font-sans">
+                                  <td className="p-2.5 text-center font-sans whitespace-nowrap">
                                     {!inst.is_paid && (canEdit || canAdd) && (
                                       <button
                                         onClick={() => handlePayInstallment(inst, u)}
-                                        className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-[11px] transition shadow cursor-pointer"
+                                        className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-[11px] transition shadow cursor-pointer whitespace-nowrap"
                                       >
                                         تسجيل القبض
                                       </button>
@@ -611,18 +611,18 @@ export default function RealEstatePage() {
         {/* نافذة إضافة وحدة جديدة */}
         {showAddModal && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <Building className="w-4 h-4" style={{ color: primaryCol }} /> تسجيل وحدة عقارية جديدة
                 </h3>
-                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleAddUnit} className="space-y-3 text-xs">
-                <div className="grid grid-cols-2 gap-2">
+              <form onSubmit={handleAddUnit} className="space-y-3 text-xs flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">رمز الوحدة *</label>
                     <input
@@ -661,7 +661,7 @@ export default function RealEstatePage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">المساحة (م²) *</label>
                     <input
@@ -684,7 +684,7 @@ export default function RealEstatePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">المدينة</label>
                     <input
@@ -705,12 +705,12 @@ export default function RealEstatePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="px-5 py-2 text-slate-950 font-bold rounded-xl cursor-pointer shadow-md"
+                    className="px-5 py-2 text-slate-950 font-bold rounded-xl cursor-pointer shadow-md whitespace-nowrap"
                     style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                   >
                     {loading ? 'جاري الحفظ...' : 'حفظ الوحدة'}
@@ -724,20 +724,20 @@ export default function RealEstatePage() {
         {/* نافذة بيع وحدة وجدولة الأقساط */}
         {sellingUnit && (canEdit || canAdd) && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-emerald-400" /> بيع وحدة: {sellingUnit.title}
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+                  <Coins className="w-4 h-4 text-emerald-400 shrink-0" /> بيع وحدة: <span className="truncate">{sellingUnit.title}</span>
                 </h3>
-                <button onClick={() => setSellingUnit(null)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setSellingUnit(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSellUnit} className="space-y-3 text-xs">
-                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 font-mono flex justify-between">
-                  <span className="text-slate-400 font-sans">السعر الإجمالي للوحدة:</span>
-                  <span className="font-bold" style={{ color: primaryCol }}>{formatNum(sellingUnit.price)} د.ع</span>
+              <form onSubmit={handleSellUnit} className="space-y-3 text-xs flex-1">
+                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 font-mono flex justify-between items-center">
+                  <span className="text-slate-400 font-sans">السعر الإجمالي:</span>
+                  <span className="font-bold text-sm" style={{ color: primaryCol }}>{formatNum(sellingUnit.price)} د.ع</span>
                 </div>
 
                 <div>
@@ -763,7 +763,7 @@ export default function RealEstatePage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">الدفعة الأولى (المقدمة) د.ع *</label>
                     <input
@@ -789,13 +789,13 @@ export default function RealEstatePage() {
                   </div>
                 </div>
 
-                <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 leading-relaxed">
                   سيتم توليد سند قبض مالي للدفعة المقدمة فوراً، وجدولة بقية الأقساط شهرياً تلقائياً.
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button type="button" onClick={() => setSellingUnit(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
-                  <button type="submit" disabled={loading} className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl cursor-pointer">
+                  <button type="submit" disabled={loading} className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl cursor-pointer whitespace-nowrap">
                     {loading ? 'جاري التنفيذ...' : 'تأكيد البيع والأقساط'}
                   </button>
                 </div>

@@ -110,26 +110,6 @@ async function compressImage(file: File, maxWidth = 900, quality = 0.55): Promis
   });
 }
 
-// إرسال الإشعار المركزي المباشر إلى الخادم وقاعدة البيانات السحابية
-async function pushSystemNotification(title: string, message: string, sector: string, link: string, actionType: string = 'ADD') {
-  try {
-    await fetch('/api/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'ADD_NOTIFICATION',
-        action_type: actionType,
-        title,
-        message,
-        sector: sector || 'ADMIN_DOCS',
-        link: link || '/admin/documents'
-      })
-    });
-  } catch (e) {
-    console.error('Failed to dispatch notification to API', e);
-  }
-}
-
 // ترحيل ومزامنة الوثيقة للسيرفر وقاعدة البيانات السحابية
 async function syncDocToCloud(doc: OfficialDoc) {
   try {
@@ -140,6 +120,27 @@ async function syncDocToCloud(doc: OfficialDoc) {
     });
   } catch (e) {
     console.error('Failed to sync official document to cloud:', e);
+  }
+}
+
+// إرسال الإشعار المركزي المباشر إلى الخادم وقاعدة البيانات السحابية مع توثيق اسم المستخدم
+async function pushSystemNotification(title: string, message: string, sector: string, link: string, actionType: string = 'ADD', createdBy: string = '') {
+  try {
+    await fetch('/api/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'ADD_NOTIFICATION',
+        action_type: actionType,
+        title,
+        message,
+        sector: sector || 'ADMIN_DOCS',
+        link: link || '/admin/documents',
+        created_by: createdBy || 'الإدارة المركزية'
+      })
+    });
+  } catch (e) {
+    console.error('Failed to dispatch notification to API', e);
   }
 }
 
@@ -166,6 +167,7 @@ export default function AdministrativeDocumentsPage() {
   const [activeTab, setActiveTab] = useState<'OUTGOING' | 'INCOMING' | 'INTERNAL_ORDER'>('OUTGOING');
   const [siteOrigin, setSiteOrigin] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showOutgoingModal, setShowOutgoingModal] = useState(false);
   const [showIncomingModal, setShowIncomingModal] = useState(false);
@@ -712,69 +714,81 @@ export default function AdministrativeDocumentsPage() {
 
   const handleSaveOutgoing = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (!outRecipient.trim() || !outSubject.trim() || !outContent.trim()) {
       alert('يرجى ملء جميع الحقول المطلوبة للكتاب الصادر');
       return;
     }
 
-    const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
-    
-    let assignedBranchId = docBranchId;
-    if (isRestrictedBranch && currentUser?.assigned_branch_id) {
-      assignedBranchId = currentUser.assigned_branch_id;
-    } else if (!assignedBranchId || assignedBranchId === 'ALL') {
-      assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
-    }
+    setIsSubmitting(true);
+    try {
+      const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
+      
+      let assignedBranchId = docBranchId;
+      if (isRestrictedBranch && currentUser?.assigned_branch_id) {
+        assignedBranchId = currentUser.assigned_branch_id;
+      } else if (!assignedBranchId || assignedBranchId === 'ALL') {
+        assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
+      }
 
-    const assignedBranchName = resolveBranchName(assignedBranchId);
+      const assignedBranchName = resolveBranchName(assignedBranchId);
 
-    const docPayload: OfficialDoc = {
-      id: editingDocId || `OUT-${Date.now()}`,
-      branch_id: assignedBranchId,
-      branch_name: assignedBranchName,
-      type: 'OUTGOING',
-      priority: outPriority,
-      status: 'COMPLETED',
-      docNumber: outDocNumber.trim(),
-      docDate: outDocDate,
-      partyName: outRecipient.trim(),
-      subject: outSubject.trim(),
-      content: outContent.trim(),
-      attachments: outAttachments.trim(),
-      carbonCopy: outCarbonCopy.trim(),
-      signatoryTitle: outSignatoryTitle.trim(),
-      signatoryName: outSignatoryName.trim(),
-      scannedFileUrls: outScannedUrls,
-      createdAt: existingDoc?.createdAt || new Date().toISOString()
-    };
+      const docPayload: OfficialDoc = {
+        id: editingDocId || `OUT-${Date.now()}`,
+        branch_id: assignedBranchId,
+        branch_name: assignedBranchName,
+        type: 'OUTGOING',
+        priority: outPriority,
+        status: 'COMPLETED',
+        docNumber: outDocNumber.trim(),
+        docDate: outDocDate,
+        partyName: outRecipient.trim(),
+        subject: outSubject.trim(),
+        content: outContent.trim(),
+        attachments: outAttachments.trim(),
+        carbonCopy: outCarbonCopy.trim(),
+        signatoryTitle: outSignatoryTitle.trim(),
+        signatoryName: outSignatoryName.trim(),
+        scannedFileUrls: outScannedUrls,
+        createdAt: existingDoc?.createdAt || new Date().toISOString()
+      };
 
-    const updated = editingDocId 
-      ? documents.map(d => d.id === editingDocId ? docPayload : d)
-      : [docPayload, ...documents];
+      const updated = editingDocId 
+        ? documents.map(d => d.id === editingDocId ? docPayload : d)
+        : [docPayload, ...documents];
 
-    if (safeSaveToStorage(updated)) {
-      await syncDocToCloud(docPayload);
-      await pushSystemNotification(
-        editingDocId ? `تعديل كتاب صادر: ${docPayload.docNumber}` : `كتاب صادر رسمي: ${docPayload.docNumber}`,
-        `تم ${editingDocId ? 'تعديل' : 'إصدار'} كتاب رسمي في (${docPayload.branch_name}) موجه إلى (${docPayload.partyName}) بموضوع: ${docPayload.subject}`,
-        'ADMIN_DOCS',
-        '/admin/documents',
-        editingDocId ? 'UPDATE' : 'ADD'
-      );
+      if (safeSaveToStorage(updated)) {
+        await syncDocToCloud(docPayload);
 
-      setShowOutgoingModal(false);
-      setEditingDocId(null);
-      setSelectedDocForPrint(docPayload);
-      setOutDocNumber(generateCode('ص'));
-      setOutRecipient('');
-      setOutSubject('');
-      setOutContent('');
-      setOutScannedUrls([]);
+        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
+        await pushSystemNotification(
+          editingDocId ? `تعديل كتاب صادر: ${docPayload.docNumber}` : `كتاب صادر رسمي: ${docPayload.docNumber}`,
+          `تم ${editingDocId ? 'تعديل' : 'إصدار'} كتاب رسمي في (${docPayload.branch_name}) موجه إلى (${docPayload.partyName}) بموضوع: ${docPayload.subject}`,
+          'ADMIN_DOCS',
+          '/admin/documents',
+          editingDocId ? 'UPDATE' : 'ADD',
+          currentUser?.full_name || currentUser?.username || 'الإدارة المركزية'
+        );
+
+        setShowOutgoingModal(false);
+        setEditingDocId(null);
+        setSelectedDocForPrint(docPayload);
+        setOutDocNumber(generateCode('ص'));
+        setOutRecipient('');
+        setOutSubject('');
+        setOutContent('');
+        setOutScannedUrls([]);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSaveIncoming = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (!inSenderName.trim() || !inSubject.trim() || !inSenderNumber.trim()) {
       alert('يرجى ملء بيانات الجهة الوارد منها ورقم كتابها وتاريخه');
       return;
@@ -784,122 +798,140 @@ export default function AdministrativeDocumentsPage() {
       return;
     }
 
-    const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
-    
-    let assignedBranchId = docBranchId;
-    if (isRestrictedBranch && currentUser?.assigned_branch_id) {
-      assignedBranchId = currentUser.assigned_branch_id;
-    } else if (!assignedBranchId || assignedBranchId === 'ALL') {
-      assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
-    }
+    setIsSubmitting(true);
+    try {
+      const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
+      
+      let assignedBranchId = docBranchId;
+      if (isRestrictedBranch && currentUser?.assigned_branch_id) {
+        assignedBranchId = currentUser.assigned_branch_id;
+      } else if (!assignedBranchId || assignedBranchId === 'ALL') {
+        assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
+      }
 
-    const assignedBranchName = resolveBranchName(assignedBranchId);
+      const assignedBranchName = resolveBranchName(assignedBranchId);
 
-    const docPayload: OfficialDoc = {
-      id: editingDocId || `INC-${Date.now()}`,
-      branch_id: assignedBranchId,
-      branch_name: assignedBranchName,
-      type: 'INCOMING',
-      priority: inPriority,
-      status: 'COMPLETED',
-      docNumber: inDocNumber.trim(),
-      docDate: inDocDate,
-      senderDocNumber: inSenderNumber.trim(),
-      senderDocDate: inSenderDate,
-      partyName: inSenderName.trim(),
-      subject: inSubject.trim(),
-      attachments: inAttachments.trim(),
-      mainLetterUrl: inMainLetterUrl,
-      scannedFileUrls: inScannedUrls,
-      notes: inNotes.trim(),
-      createdAt: existingDoc?.createdAt || new Date().toISOString()
-    };
+      const docPayload: OfficialDoc = {
+        id: editingDocId || `INC-${Date.now()}`,
+        branch_id: assignedBranchId,
+        branch_name: assignedBranchName,
+        type: 'INCOMING',
+        priority: inPriority,
+        status: 'COMPLETED',
+        docNumber: inDocNumber.trim(),
+        docDate: inDocDate,
+        senderDocNumber: inSenderNumber.trim(),
+        senderDocDate: inSenderDate,
+        partyName: inSenderName.trim(),
+        subject: inSubject.trim(),
+        attachments: inAttachments.trim(),
+        mainLetterUrl: inMainLetterUrl,
+        scannedFileUrls: inScannedUrls,
+        notes: inNotes.trim(),
+        createdAt: existingDoc?.createdAt || new Date().toISOString()
+      };
 
-    const updated = editingDocId 
-      ? documents.map(d => d.id === editingDocId ? docPayload : d)
-      : [docPayload, ...documents];
+      const updated = editingDocId 
+        ? documents.map(d => d.id === editingDocId ? docPayload : d)
+        : [docPayload, ...documents];
 
-    if (safeSaveToStorage(updated)) {
-      await syncDocToCloud(docPayload);
-      await pushSystemNotification(
-        editingDocId ? `تعديل كتاب وارد: ${docPayload.docNumber}` : `كتاب وارد جديد: ${docPayload.docNumber}`,
-        `تم ${editingDocId ? 'تعديل' : 'تسجيل'} كتاب وارد لـ (${docPayload.branch_name}) من (${docPayload.partyName}) برقم كتابهم (${docPayload.senderDocNumber}) بموضوع: ${docPayload.subject}`,
-        'ADMIN_DOCS',
-        '/admin/documents',
-        editingDocId ? 'UPDATE' : 'ADD'
-      );
+      if (safeSaveToStorage(updated)) {
+        await syncDocToCloud(docPayload);
 
-      setShowIncomingModal(false);
-      setEditingDocId(null);
-      setSelectedDocForPrint(docPayload);
-      setInDocNumber(generateCode('و'));
-      setInSenderName('');
-      setInSenderNumber('');
-      setInSubject('');
-      setInMainLetterUrl('');
-      setInScannedUrls([]);
-      setInNotes('');
+        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
+        await pushSystemNotification(
+          editingDocId ? `تعديل كتاب وارد: ${docPayload.docNumber}` : `كتاب وارد جديد: ${docPayload.docNumber}`,
+          `تم ${editingDocId ? 'تعديل' : 'تسجيل'} كتاب وارد لـ (${docPayload.branch_name}) من (${docPayload.partyName}) برقم كتابهم (${docPayload.senderDocNumber}) بموضوع: ${docPayload.subject}`,
+          'ADMIN_DOCS',
+          '/admin/documents',
+          editingDocId ? 'UPDATE' : 'ADD',
+          currentUser?.full_name || currentUser?.username || 'الإدارة المركزية'
+        );
+
+        setShowIncomingModal(false);
+        setEditingDocId(null);
+        setSelectedDocForPrint(docPayload);
+        setInDocNumber(generateCode('و'));
+        setInSenderName('');
+        setInSenderNumber('');
+        setInSubject('');
+        setInMainLetterUrl('');
+        setInScannedUrls([]);
+        setInNotes('');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSaveOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (!orderSubject.trim() || !orderContent.trim()) {
       alert('يرجى ملء موضوع ونص الأمر الإداري');
       return;
     }
 
-    const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
-    
-    let assignedBranchId = docBranchId;
-    if (isRestrictedBranch && currentUser?.assigned_branch_id) {
-      assignedBranchId = currentUser.assigned_branch_id;
-    } else if (!assignedBranchId || assignedBranchId === 'ALL') {
-      assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
-    }
+    setIsSubmitting(true);
+    try {
+      const existingDoc = editingDocId ? documents.find(d => d.id === editingDocId) : null;
+      
+      let assignedBranchId = docBranchId;
+      if (isRestrictedBranch && currentUser?.assigned_branch_id) {
+        assignedBranchId = currentUser.assigned_branch_id;
+      } else if (!assignedBranchId || assignedBranchId === 'ALL') {
+        assignedBranchId = selectedBranchId && selectedBranchId !== 'ALL' ? selectedBranchId : 'BR-HQ-01';
+      }
 
-    const assignedBranchName = resolveBranchName(assignedBranchId);
+      const assignedBranchName = resolveBranchName(assignedBranchId);
 
-    const docPayload: OfficialDoc = {
-      id: editingDocId || `ORD-${Date.now()}`,
-      branch_id: assignedBranchId,
-      branch_name: assignedBranchName,
-      type: 'INTERNAL_ORDER',
-      priority: 'NORMAL',
-      status: 'COMPLETED',
-      docNumber: orderDocNumber.trim(),
-      docDate: orderDocDate,
-      partyName: orderRecipient.trim(),
-      subject: orderSubject.trim(),
-      content: orderContent.trim(),
-      attachments: orderAttachments.trim(),
-      signatoryTitle: orderSignatoryTitle.trim(),
-      signatoryName: orderSignatoryName.trim(),
-      scannedFileUrls: orderScannedUrls,
-      createdAt: existingDoc?.createdAt || new Date().toISOString()
-    };
+      const docPayload: OfficialDoc = {
+        id: editingDocId || `ORD-${Date.now()}`,
+        branch_id: assignedBranchId,
+        branch_name: assignedBranchName,
+        type: 'INTERNAL_ORDER',
+        priority: 'NORMAL',
+        status: 'COMPLETED',
+        docNumber: orderDocNumber.trim(),
+        docDate: orderDocDate,
+        partyName: orderRecipient.trim(),
+        subject: orderSubject.trim(),
+        content: orderContent.trim(),
+        attachments: orderAttachments.trim(),
+        signatoryTitle: orderSignatoryTitle.trim(),
+        signatoryName: orderSignatoryName.trim(),
+        scannedFileUrls: orderScannedUrls,
+        createdAt: existingDoc?.createdAt || new Date().toISOString()
+      };
 
-    const updated = editingDocId 
-      ? documents.map(d => d.id === editingDocId ? docPayload : d)
-      : [docPayload, ...documents];
+      const updated = editingDocId 
+        ? documents.map(d => d.id === editingDocId ? docPayload : d)
+        : [docPayload, ...documents];
 
-    if (safeSaveToStorage(updated)) {
-      await syncDocToCloud(docPayload);
-      await pushSystemNotification(
-        editingDocId ? `تعديل أمر إداري: ${docPayload.docNumber}` : `أمر إداري داخلي: ${docPayload.docNumber}`,
-        `تم ${editingDocId ? 'تعديل' : 'إصدار'} أمر إداري في (${docPayload.branch_name}) بموضوع: ${docPayload.subject}`,
-        'ADMIN_DOCS',
-        '/admin/documents',
-        editingDocId ? 'UPDATE' : 'ADD'
-      );
+      if (safeSaveToStorage(updated)) {
+        await syncDocToCloud(docPayload);
 
-      setShowOrderModal(false);
-      setEditingDocId(null);
-      setSelectedDocForPrint(docPayload);
-      setOrderDocNumber(generateCode('أ.إ'));
-      setOrderSubject('م / أمر إداري');
-      setOrderContent('');
-      setOrderScannedUrls([]);
+        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
+        await pushSystemNotification(
+          editingDocId ? `تعديل أمر إداري: ${docPayload.docNumber}` : `أمر إداري داخلي: ${docPayload.docNumber}`,
+          `تم ${editingDocId ? 'تعديل' : 'إصدار'} أمر إداري في (${docPayload.branch_name}) بموضوع: ${docPayload.subject}`,
+          'ADMIN_DOCS',
+          '/admin/documents',
+          editingDocId ? 'UPDATE' : 'ADD',
+          currentUser?.full_name || currentUser?.username || 'الإدارة المركزية'
+        );
+
+        setShowOrderModal(false);
+        setEditingDocId(null);
+        setSelectedDocForPrint(docPayload);
+        setOrderDocNumber(generateCode('أ.إ'));
+        setOrderSubject('م / أمر إداري');
+        setOrderContent('');
+        setOrderScannedUrls([]);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -928,7 +960,8 @@ export default function AdministrativeDocumentsPage() {
         `تم حذف ${docTypeLabel} ذي العدد (${docToDelete.docNumber}) والخاص بـ (${docToDelete.partyName}) بموضوع: ${docToDelete.subject}`,
         'ADMIN_DOCS',
         '/admin/documents',
-        'DELETE'
+        'DELETE',
+        currentUser?.full_name || currentUser?.username || 'الإدارة المركزية'
       );
     }
   };
@@ -1253,6 +1286,109 @@ export default function AdministrativeDocumentsPage() {
     <AuthGuard moduleName="admin_docs" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
+        <style jsx global>{`
+          @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
+            .print-official-sheet,
+            .print-attachment-sheet {
+              min-width: 760px !important;
+              margin: 0 auto !important;
+            }
+          }
+          @media print {
+            @page {
+              size: A4 portrait !important;
+              margin: 0 !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body, html {
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+            }
+            header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
+              display: none !important;
+              visibility: hidden !important;
+            }
+            .print-official-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              margin: 0 auto !important;
+              width: 210mm !important;
+              max-width: 210mm !important;
+              height: 282mm !important;
+              max-height: 282mm !important;
+              min-height: 0 !important;
+              padding: 0 !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              page-break-after: always !important;
+              break-after: page !important;
+            }
+            .print-attachment-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              margin: 0 auto !important;
+              width: 210mm !important;
+              max-width: 210mm !important;
+              height: 282mm !important;
+              max-height: 282mm !important;
+              min-height: 0 !important;
+              page-break-before: always !important;
+              break-before: page !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              page-break-after: always !important;
+              break-after: page !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              padding: 8mm 10mm !important;
+              overflow: hidden !important;
+            }
+            .print-attachment-sheet:last-child {
+              page-break-after: auto !important;
+              break-after: auto !important;
+            }
+            .print-attachment-img-container {
+              flex: 1 !important;
+              width: 100% !important;
+              max-height: 225mm !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
+            .print-attachment-img {
+              max-height: 220mm !important;
+              max-width: 190mm !important;
+              width: auto !important;
+              height: auto !important;
+              object-fit: contain !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
+          }
+        `}</style>
+
         {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
@@ -1788,10 +1924,11 @@ export default function AdministrativeDocumentsPage() {
                   <button type="button" onClick={() => { setShowOutgoingModal(false); setEditingDocId(null); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
                   <button 
                     type="submit" 
-                    className="px-6 py-2.5 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer"
+                    disabled={isSubmitting}
+                    className="px-6 py-2.5 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer disabled:opacity-50"
                     style={{ background: `linear-gradient(90deg, ${companySettings.primary_color || '#d97706'}, ${companySettings.secondary_color || '#ea580c'})` }}
                   >
-                    {editingDocId ? 'حفظ التعديلات' : 'اعتماد وإصدار الكتاب الصادر مع المرفقات'}
+                    {isSubmitting ? 'جاري الاعتماد...' : editingDocId ? 'حفظ التعديلات' : 'اعتماد وإصدار الكتاب الصادر مع المرفقات'}
                   </button>
                 </div>
               </form>
@@ -1920,7 +2057,7 @@ export default function AdministrativeDocumentsPage() {
                       placeholder="مثال: م / المصادقة على المخططات الفنية"
                       value={inSubject}
                       onChange={(e) => setInSubject(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none font-bold"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none font-bold"
                     />
                   </div>
                   <div>
@@ -2085,8 +2222,12 @@ export default function AdministrativeDocumentsPage() {
 
                 <div className="flex justify-end gap-2 pt-4 border-t border-slate-800">
                   <button type="button" onClick={() => { setShowIncomingModal(false); setEditingDocId(null); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
-                  <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer">
-                    {editingDocId ? 'حفظ التعديلات' : 'حفظ وأرشفة الكتاب الوارد'}
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="px-6 py-2.5 bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'جاري الأرشفة...' : editingDocId ? 'حفظ التعديلات' : 'حفظ وأرشفة الكتاب الوارد'}
                   </button>
                 </div>
               </form>
@@ -2288,8 +2429,12 @@ export default function AdministrativeDocumentsPage() {
 
                 <div className="flex justify-end gap-2 pt-4 border-t border-slate-800">
                   <button type="button" onClick={() => { setShowOrderModal(false); setEditingDocId(null); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
-                  <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer">
-                    {editingDocId ? 'حفظ التعديلات' : 'اعتماد وإصدار الأمر الإداري A4'}
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 text-slate-950 font-black rounded-xl shadow-lg cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'جاري الاعتماد...' : editingDocId ? 'حفظ التعديلات' : 'اعتماد وإصدار الأمر الإداري A4'}
                   </button>
                 </div>
               </form>
@@ -2418,7 +2563,7 @@ export default function AdministrativeDocumentsPage() {
 
                     <div className="relative z-10 flex flex-col flex-1">
                       
-                      {/* ترويسة الصفحة A4 الرسمية الأصلية الفخمة دون نصوص إضافية مشوهة */}
+                      {/* ترويسة الصفحة A4 الرسمية الأصلية الفخمة */}
                       {hasLetterhead ? (
                         <div className="w-full border-b border-slate-200">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2576,7 +2721,7 @@ export default function AdministrativeDocumentsPage() {
                       </div>
                     </div>
 
-                    {/* تذييل الصفحة المطبوعة المحكم بدقة ورقة A4 */}
+                    {/* تذييل الصفحة المطبوعة */}
                     <div className="relative z-10 w-full bg-white mt-auto">
                       <div className="mx-10 pt-2 pb-1 border-t border-slate-300 text-[10px] text-slate-700 space-y-0.5 font-medium">
                         <div className="flex items-center justify-between">
@@ -2647,9 +2792,9 @@ export default function AdministrativeDocumentsPage() {
                     <div 
                       id={`att-${aIdx}`}
                       key={aIdx} 
-                      className="print-attachment-sheet w-full bg-white text-slate-950 shadow-2xl print:shadow-none relative overflow-hidden font-sans p-6 md:p-8 border border-slate-300 flex flex-col justify-start items-center min-h-[1080px] max-h-[1115px] print:min-h-0 print:border-none print:m-0"
+                      className="print-attachment-sheet w-full bg-white text-slate-950 shadow-2xl print:shadow-none relative overflow-hidden font-sans p-6 md:p-8 border border-slate-300 flex flex-col justify-between items-center min-h-[1080px] max-h-[1115px] print:min-h-0 print:border-none print:m-0"
                     >
-                      <div className="w-full flex items-center justify-between border-b-2 border-slate-900 pb-2.5 mb-3">
+                      <div className="w-full flex items-center justify-between border-b-2 border-slate-900 pb-2.5 mb-2">
                         <div className="flex items-center gap-2.5">
                           <div className="w-9 h-9 relative flex items-center justify-center">
                             {hasLogo ? (
@@ -2670,17 +2815,17 @@ export default function AdministrativeDocumentsPage() {
                             صفحة المرفق ({aIdx + 1} من {attachmentsList.length})
                           </span>
                           <p className="text-[9px] text-slate-600 font-sans">
-                            تابع للوثيقة: <strong className="font-mono text-slate-900">{doc.docNumber}</strong> بتاريخ: <strong className="font-mono">{doc.docDate}</strong>
+                            تابع للوثيقة: <strong className="font-mono text-slate-950">{doc.docNumber}</strong> بتاريخ: <strong className="font-mono">{doc.docDate}</strong>
                           </p>
                         </div>
                       </div>
 
-                      <div className="w-full flex-1 flex flex-col items-center justify-center p-1 relative group">
+                      <div className="print-attachment-img-container w-full flex-1 flex flex-col items-center justify-center p-1 relative group my-auto">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={attUrl} 
                           alt={`مرفق ${aIdx + 1}`} 
-                          className="max-w-full max-h-[850px] w-auto h-auto object-contain border border-slate-200 rounded-xl shadow-lg"
+                          className="print-attachment-img max-w-full max-h-[720px] w-auto h-auto object-contain border border-slate-200 rounded-xl shadow-lg"
                         />
                         
                         <button

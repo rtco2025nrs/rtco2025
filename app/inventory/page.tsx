@@ -437,11 +437,10 @@ export default function InventoryPage() {
     <AuthGuard moduleName="inventory" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل */}
+        {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
             
-            {/* الطرف الأيمن: الأيقونة والعنوان والشارة */}
             <div className="flex items-center gap-4">
               <div 
                 className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
@@ -458,7 +457,7 @@ export default function InventoryPage() {
                     قطاع التجارة العامة والمخزن المركزي وإدارة التوريدات
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -471,7 +470,6 @@ export default function InventoryPage() {
               </div>
             </div>
 
-            {/* الطرف الأيسر: شريط الإجراءات */}
             <div className="flex items-center gap-2 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
               <Link 
                 href="/inventory/installments" 
@@ -508,7 +506,7 @@ export default function InventoryPage() {
             </div>
             <button 
               onClick={() => setActiveTab('LOW_STOCK')}
-              className="bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+              className="bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap"
             >
               عرض قائمة النواقص ➔
             </button>
@@ -544,22 +542,22 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-auto">
+          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
             <button
               onClick={() => setQuickRange('THIS_MONTH')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا الشهر
             </button>
             <button
               onClick={() => setQuickRange('THIS_YEAR')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا العام
             </button>
             <button
               onClick={() => setQuickRange('ALL')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
               style={{ color: primaryCol }}
             >
               <RotateCcw className="w-3.5 h-3.5" /> الكل
@@ -569,7 +567,7 @@ export default function InventoryPage() {
 
         {/* المؤشرات المالية والتشغيلية الموحدة */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-sky-500/5">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-sky-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -586,7 +584,7 @@ export default function InventoryPage() {
             <p className="text-[12px] text-slate-500 mt-2">إيرادات البيع التجاري المقيدة بحسابات الصندوق</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -603,7 +601,7 @@ export default function InventoryPage() {
             <p className="text-[12px] text-slate-500 mt-2">المبيعات بعد استبعاد تكلفة البضاعة المباشرة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -620,7 +618,7 @@ export default function InventoryPage() {
             <p className="text-[12px] text-slate-500 mt-2">إجمالي مشتريات المخزن في هذه الفترة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -674,7 +672,7 @@ export default function InventoryPage() {
             {canAdd && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="text-slate-950 font-bold px-4 py-2.5 rounded-2xl text-[13px] flex items-center gap-1.5 transition shadow-md cursor-pointer"
+                className="text-slate-950 font-bold px-4 py-2.5 rounded-2xl text-[13px] flex items-center gap-1.5 transition shadow-md cursor-pointer whitespace-nowrap"
                 style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
               >
                 <PlusCircle className="w-4 h-4" /> تعريف صنف جديد
@@ -687,7 +685,7 @@ export default function InventoryPage() {
         {activeTab === 'ITEMS_LIST' && (
           <div className="max-w-7xl mx-auto mt-6 space-y-4 print:hidden">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-2xl border border-slate-800/80">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                 <div className="relative flex-1 sm:w-72">
                   <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
                   <input 
@@ -718,19 +716,19 @@ export default function InventoryPage() {
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-[14px]">
+              <div className="w-full overflow-x-auto pb-2">
+                <table className="w-full min-w-[850px] text-right text-[14px]">
                   <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[12px]">
                     <tr>
-                      <th className="p-3.5">الرمز</th>
-                      <th className="p-3.5">اسم الصنف / المادة</th>
-                      <th className="p-3.5">الفرع</th>
-                      <th className="p-3.5">التصنيف</th>
-                      <th className="p-3.5">الرصيد المتاح</th>
-                      <th className="p-3.5">سعر التكلفة</th>
-                      <th className="p-3.5">حد الأمان والطلب</th>
-                      <th className="p-3.5">إجمالي القيمة</th>
-                      <th className="p-3.5 text-center">إجراءات وأذونات</th>
+                      <th className="p-3.5 whitespace-nowrap">الرمز</th>
+                      <th className="p-3.5 whitespace-nowrap">اسم الصنف / المادة</th>
+                      <th className="p-3.5 whitespace-nowrap">الفرع</th>
+                      <th className="p-3.5 whitespace-nowrap">التصنيف</th>
+                      <th className="p-3.5 whitespace-nowrap">الرصيد المتاح</th>
+                      <th className="p-3.5 whitespace-nowrap">سعر التكلفة</th>
+                      <th className="p-3.5 whitespace-nowrap">حد الأمان والطلب</th>
+                      <th className="p-3.5 whitespace-nowrap">إجمالي القيمة</th>
+                      <th className="p-3.5 text-center whitespace-nowrap">إجراءات وأذونات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/80 font-mono text-[13px]">
@@ -748,29 +746,31 @@ export default function InventoryPage() {
 
                         return (
                           <tr key={item.item_id} className="hover:bg-slate-800/40 transition">
-                            <td className="p-3.5 font-bold" style={{ color: primaryCol }}>{item.item_code}</td>
-                            <td className="p-3.5 font-bold text-white font-sans flex items-center gap-2">
-                              <span>{item.name || item.item_name}</span>
-                              {isLow && (
-                                <span className="inline-flex items-center gap-1 text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2.5 py-0.5 rounded-full font-bold">
-                                  <AlertTriangle className="w-3 h-3" /> يحتاج طلب
-                                </span>
-                              )}
+                            <td className="p-3.5 font-bold whitespace-nowrap" style={{ color: primaryCol }}>{item.item_code}</td>
+                            <td className="p-3.5 font-bold text-white font-sans whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <span>{item.name || item.item_name}</span>
+                                {isLow && (
+                                  <span className="inline-flex items-center gap-1 text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                                    <AlertTriangle className="w-3 h-3" /> يحتاج طلب
+                                  </span>
+                                )}
+                              </div>
                             </td>
-                            <td className="p-3.5 font-sans">
+                            <td className="p-3.5 font-sans whitespace-nowrap">
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-950 text-sky-400 border border-sky-500/30">
                                 📍 {item.branch_name || 'فرع التجارة والمخازن'}
                               </span>
                             </td>
-                            <td className="p-3.5 text-slate-300 font-sans">{item.category}</td>
-                            <td className="p-3.5 font-bold text-emerald-400 text-sm">
+                            <td className="p-3.5 text-slate-300 font-sans whitespace-nowrap">{item.category}</td>
+                            <td className="p-3.5 font-bold text-emerald-400 text-sm whitespace-nowrap">
                               {formatNum(qty)} <span className="text-xs font-sans text-slate-400">{item.unit}</span>
                             </td>
-                            <td className="p-3.5 text-slate-200 font-bold">{formatNum(cost)} د.ع</td>
-                            <td className="p-3.5 text-slate-400">{min} {item.unit}</td>
-                            <td className="p-3.5 font-bold text-sky-400">{formatNum(totalVal)} د.ع</td>
-                            <td className="p-3.5 text-center font-sans">
-                              <div className="flex items-center justify-center gap-2">
+                            <td className="p-3.5 text-slate-200 font-bold whitespace-nowrap">{formatNum(cost)} د.ع</td>
+                            <td className="p-3.5 text-slate-400 whitespace-nowrap">{min} {item.unit}</td>
+                            <td className="p-3.5 font-bold text-sky-400 whitespace-nowrap">{formatNum(totalVal)} د.ع</td>
+                            <td className="p-3.5 text-center font-sans whitespace-nowrap">
+                              <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                 {canAdd && (
                                   <>
                                     <button
@@ -781,7 +781,7 @@ export default function InventoryPage() {
                                         setIsExternalSale(false);
                                         setTargetProjectId('');
                                       }}
-                                      className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                      className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
                                     >
                                       <ArrowDownLeft className="w-3.5 h-3.5" /> توريد (IN)
                                     </button>
@@ -793,7 +793,7 @@ export default function InventoryPage() {
                                         setIsExternalSale(true);
                                         setTargetProjectId('');
                                       }}
-                                      className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                      className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
                                     >
                                       <Store className="w-3.5 h-3.5" /> بيع / صرف (OUT)
                                     </button>
@@ -802,10 +802,10 @@ export default function InventoryPage() {
                                 {canDelete && (
                                   <button
                                     onClick={() => handleDeleteItem(item)}
-                                    className="p-1 text-slate-500 hover:text-rose-400 transition cursor-pointer"
+                                    className="p-1.5 bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white rounded-lg border border-slate-700 transition cursor-pointer shrink-0"
                                     title="حذف الصنف"
                                   >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 )}
                               </div>
@@ -825,7 +825,7 @@ export default function InventoryPage() {
         {activeTab === 'TRANSACTIONS_LOG' && (
           <div className="max-w-7xl mx-auto mt-6 space-y-4 print:hidden">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+              <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                 <h4 className="text-[14px] font-bold text-white flex items-center gap-2">
                   <FileText className="w-4 h-4" style={{ color: primaryCol }} /> سجل أذونات التوريد، الصرف للمشاريع، والبيع التجاري
                 </h4>
@@ -834,19 +834,19 @@ export default function InventoryPage() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-right font-mono text-[13px]">
+              <div className="w-full overflow-x-auto pb-2">
+                <table className="w-full min-w-[850px] text-right font-mono text-[13px]">
                   <thead className="bg-slate-950 text-slate-400 text-[12px] border-b border-slate-800">
                     <tr>
-                      <th className="p-3.5">نوع الإذن</th>
-                      <th className="p-3.5">المادة</th>
-                      <th className="p-3.5">الكمية</th>
-                      <th className="p-3.5">سعر الوحدة</th>
-                      <th className="p-3.5">المبلغ الإجمالي</th>
-                      <th className="p-3.5">الجهة / المشروع / المشتري</th>
-                      <th className="p-3.5">التاريخ</th>
-                      <th className="p-3.5 text-center">طباعة الإذن</th>
-                      {canDelete && <th className="p-3.5 text-center">حذف</th>}
+                      <th className="p-3.5 whitespace-nowrap">نوع الإذن</th>
+                      <th className="p-3.5 whitespace-nowrap">المادة</th>
+                      <th className="p-3.5 whitespace-nowrap">الكمية</th>
+                      <th className="p-3.5 whitespace-nowrap">سعر الوحدة</th>
+                      <th className="p-3.5 whitespace-nowrap">المبلغ الإجمالي</th>
+                      <th className="p-3.5 whitespace-nowrap">الجهة / المشروع / المشتري</th>
+                      <th className="p-3.5 whitespace-nowrap">التاريخ</th>
+                      <th className="p-3.5 text-center whitespace-nowrap">طباعة الإذن</th>
+                      {canDelete && <th className="p-3.5 text-center whitespace-nowrap">حذف</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/80">
@@ -859,7 +859,7 @@ export default function InventoryPage() {
                         const isIN = tr.trans_type === 'IN';
                         return (
                           <tr key={tr.trans_id} className="hover:bg-slate-800/40 transition">
-                            <td className="p-3.5 font-sans">
+                            <td className="p-3.5 font-sans whitespace-nowrap">
                               {isIN ? (
                                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit">
                                   <ArrowDownLeft className="w-3.5 h-3.5" /> توريد واستيراد (IN)
@@ -877,23 +877,23 @@ export default function InventoryPage() {
                                 </span>
                               )}
                             </td>
-                            <td className="p-3.5 font-sans font-bold text-white">
+                            <td className="p-3.5 font-sans font-bold text-white whitespace-nowrap">
                               {tr.item_name || tr.name} <span className="text-[11px] text-slate-500 font-mono">({tr.item_code})</span>
                             </td>
-                            <td className="p-3.5 font-black text-white">
+                            <td className="p-3.5 font-black text-white whitespace-nowrap">
                               {formatNum(tr.quantity)} <span className="text-xs text-slate-400 font-sans">{tr.unit}</span>
                             </td>
-                            <td className="p-3.5 text-slate-300 font-bold">{formatNum(tr.unit_price)} د.ع</td>
-                            <td className="p-3.5 font-black" style={{ color: primaryCol }}>{formatNum(tr.total_amount)} د.ع</td>
-                            <td className="p-3.5 font-sans text-slate-200">
+                            <td className="p-3.5 text-slate-300 font-bold whitespace-nowrap">{formatNum(tr.unit_price)} د.ع</td>
+                            <td className="p-3.5 font-black whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(tr.total_amount)} د.ع</td>
+                            <td className="p-3.5 font-sans text-slate-200 whitespace-nowrap">
                               {tr.project_name ? (
                                 <span className="font-bold" style={{ color: primaryCol }}>مشروع: {tr.project_name}</span>
                               ) : (
                                 <span>{tr.supplier_or_recipient || 'المخزن العام'}</span>
                               )}
                             </td>
-                            <td className="p-3.5 text-slate-500">{String(tr.created_at || '').substring(0, 10)}</td>
-                            <td className="p-3.5 text-center font-sans">
+                            <td className="p-3.5 text-slate-500 whitespace-nowrap">{String(tr.created_at || '').substring(0, 10)}</td>
+                            <td className="p-3.5 text-center font-sans whitespace-nowrap">
                               <button
                                 onClick={async () => {
                                   await loadSettings();
@@ -907,7 +907,7 @@ export default function InventoryPage() {
                               </button>
                             </td>
                             {canDelete && (
-                              <td className="p-3.5 text-center font-sans">
+                              <td className="p-3.5 text-center font-sans whitespace-nowrap">
                                 <button
                                   onClick={() => handleDeleteTransaction(tr.trans_id)}
                                   className="p-1.5 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg border border-rose-500/20 transition cursor-pointer"
@@ -947,27 +947,29 @@ export default function InventoryPage() {
                   const min = Number(item.min_reorder_level ?? item.min_qty ?? 5);
 
                   return (
-                    <div key={item.item_id} className="bg-slate-900 border border-rose-500/30 p-6 rounded-3xl space-y-3.5 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="font-mono text-xs font-bold" style={{ color: primaryCol }}>{item.item_code}</span>
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 font-sans">
-                          رصيد حرج
-                        </span>
-                      </div>
-
-                      <div>
-                        <h4 className="font-bold text-white text-base">{item.name || item.item_name}</h4>
-                        <p className="text-[13px] text-slate-400 mt-0.5">{item.category} • {item.location || item.warehouse_location}</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl font-mono text-[13px]">
-                        <div>
-                          <span className="text-slate-500 block text-[11px] font-sans">الرصيد المتوفر</span>
-                          <strong className="text-rose-400 text-sm">{qty} {item.unit}</strong>
+                    <div key={item.item_id} className="bg-slate-900 border border-rose-500/30 p-5 sm:p-6 rounded-3xl space-y-3.5 shadow-xl flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                          <span className="font-mono text-xs font-bold" style={{ color: primaryCol }}>{item.item_code}</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 font-sans">
+                            رصيد حرج
+                          </span>
                         </div>
+
                         <div>
-                          <span className="text-slate-500 block text-[11px] font-sans">حد الأمان الأدنى</span>
-                          <strong className="text-slate-300 text-sm">{min} {item.unit}</strong>
+                          <h4 className="font-bold text-white text-base">{item.name || item.item_name}</h4>
+                          <p className="text-[13px] text-slate-400 mt-0.5">{item.category} • {item.location || item.warehouse_location}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl font-mono text-[13px]">
+                          <div>
+                            <span className="text-slate-500 block text-[11px] font-sans">الرصيد المتوفر</span>
+                            <strong className="text-rose-400 text-sm">{qty} {item.unit}</strong>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block text-[11px] font-sans">حد الأمان الأدنى</span>
+                            <strong className="text-slate-300 text-sm">{min} {item.unit}</strong>
+                          </div>
                         </div>
                       </div>
 
@@ -997,153 +999,156 @@ export default function InventoryPage() {
           </div>
         )}
 
-        {/* مستند إذن الصرف / الاستلام المخزني الرسمي للطباعة A4 مع شريط التوثيق والفرع المعتمد */}
+        {/* مستند إذن الصرف / الاستلام المخزني الرسمي للطباعة A4 */}
         {printedReceipt && (() => {
           const transBranchName = resolveBranchName(printedReceipt.branch_id);
 
           return (
-            <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-4 print:p-0 print:bg-white print:static">
-              <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-4 print:hidden shadow-xl">
+            <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
+              <div className="sticky top-0 z-50 w-full max-w-[210mm] flex flex-col sm:flex-row items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden shadow-xl gap-3">
                 <button 
                   onClick={() => window.print()} 
-                  className="text-slate-950 font-bold px-6 py-2.5 rounded-xl text-[14px] flex items-center gap-2 transition cursor-pointer shadow-lg"
+                  className="text-slate-950 font-bold px-6 py-2.5 rounded-xl text-[14px] flex items-center justify-center gap-2 transition cursor-pointer shadow-lg w-full sm:w-auto whitespace-nowrap"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
                   <Printer className="w-4 h-4" /> طباعة الإذن المخزني الرسمي (A4)
                 </button>
-                <button onClick={() => setPrintedReceipt(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
+                <button onClick={() => setPrintedReceipt(null)} className="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 rounded-xl transition border border-slate-700 cursor-pointer shrink-0 self-end sm:self-auto">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="w-full max-w-3xl bg-white text-slate-900 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4">
-                
-                {/* 1. الترويسة الأصلية للشركة دون المساس بها */}
-                {hasLetterhead ? (
-                  <div className="w-full border-b pb-3 mb-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
-                        {hasLogo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                        ) : (
-                          <Image src="/logo.png" alt="شركة البرج المتألق" width={64} height={64} className="object-contain" />
-                        )}
+              <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
+                <div className="print-official-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
+                  
+                  <div className="relative z-10 flex flex-col flex-1">
+                    {/* 1. الترويسة الأصلية للشركة دون المساس بها */}
+                    {hasLetterhead ? (
+                      <div className="w-full border-b pb-3 mb-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
+                            {hasLogo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                            ) : (
+                              <Image src="/logo.png" alt="شركة البرج المتألق" width={64} height={64} className="object-contain" />
+                            )}
+                          </div>
+                          <div>
+                            <h1 className="text-xl sm:text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                            <p className="text-xs text-slate-600 font-bold">{companySettings.tagline}</p>
+                            <p className="text-[11px] text-slate-500 font-mono hidden sm:block">{companySettings.address}</p>
+                          </div>
+                        </div>
+                        <div className="text-left font-mono">
+                          <div 
+                            className="border-2 px-3 py-1 font-black text-xs uppercase text-slate-950 rounded-lg inline-block whitespace-nowrap"
+                            style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
+                          >
+                            {printedReceipt.trans_type === 'IN' ? 'إذن استلام وتوريد مخزني (GRN)' : 'إذن صرف مواد وبضائع (Goods Issue)'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع مأطر، اليسار التاريخ */}
+                    <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800 mt-2">
+                      <div className="flex items-center gap-1.5" dir="rtl">
+                        <span className="text-slate-500 font-bold">العدد :</span>
+                        <span className="font-mono text-slate-950 text-sm tracking-wide">
+                          {printedReceipt.trans_code || printedReceipt.trans_id}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-center">
+                        <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs whitespace-nowrap">
+                          {transBranchName}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5" dir="rtl">
+                        <span className="text-slate-500 font-bold">التاريخ :</span>
+                        <span className="font-mono text-slate-950 text-sm tracking-wider">
+                          {String(printedReceipt.created_at || '').substring(0, 10)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[14px] font-semibold mt-3">
+                      <div>
+                        <span className="text-slate-500 block text-xs">الجهة المستلمة / المورد / المشروع:</span>
+                        <span className="text-slate-950 font-bold">
+                          {printedReceipt.project_name ? `مشروع مقاولة: ${printedReceipt.project_name}` : printedReceipt.supplier_or_recipient || '---'}
+                        </span>
                       </div>
                       <div>
-                        <h1 className="text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                        <p className="text-xs text-slate-600 font-bold">{companySettings.tagline}</p>
-                        <p className="text-[11px] text-slate-500 font-mono">{companySettings.address}</p>
+                        <span className="text-slate-500 block text-xs">نوع ومسار العملية:</span>
+                        <span className="text-slate-950 font-bold">
+                          {printedReceipt.trans_type === 'IN' 
+                            ? 'شراء وتوريد للمخزن المركزي' 
+                            : printedReceipt.purpose === 'PROJECT_ISSUE' || printedReceipt.project_id
+                            ? 'صرف مباشر لموقع المشروع الإنشائي' 
+                            : 'بيع تجاري خارجي'}
+                        </span>
                       </div>
                     </div>
-                    <div className="text-left font-mono">
-                      <div 
-                        className="border-2 px-3 py-1 font-black text-xs uppercase text-slate-950 rounded-lg inline-block"
-                        style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                      >
-                        {printedReceipt.trans_type === 'IN' ? 'إذن استلام وتوريد مخزني (GRN)' : 'إذن صرف مواد وبضائع (Goods Issue)'}
+
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0 mt-3">
+                      <table className="w-full min-w-[500px] text-right font-mono text-[13px]">
+                        <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold text-xs">
+                          <tr>
+                            <th className="p-3 whitespace-nowrap">رمز الصنف</th>
+                            <th className="p-3 whitespace-nowrap">اسم المادة والمواصفات</th>
+                            <th className="p-3 whitespace-nowrap">الكمية المسلمة</th>
+                            <th className="p-3 whitespace-nowrap">سعر الوحدة</th>
+                            <th className="p-3 whitespace-nowrap">المبلغ الإجمالي</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          <tr>
+                            <td className="p-3 font-bold whitespace-nowrap" style={{ color: primaryCol }}>{printedReceipt.item_code}</td>
+                            <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">{printedReceipt.item_name || printedReceipt.name}</td>
+                            <td className="p-3 font-black text-slate-950 whitespace-nowrap">{formatNum(printedReceipt.quantity)} {printedReceipt.unit}</td>
+                            <td className="p-3 text-slate-800 whitespace-nowrap">{formatNum(printedReceipt.unit_price)} د.ع</td>
+                            <td className="p-3 font-black whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(printedReceipt.total_amount)} د.ع</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {printedReceipt.notes && (
+                      <div className="text-[13px] text-slate-600 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 mt-3">
+                        <strong>البيان والملاحظات: </strong> {printedReceipt.notes}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-auto pt-6">
+                    <div className="grid grid-cols-3 gap-8 pt-8 text-center border-t border-slate-200 text-xs">
+                      <div>
+                        <p className="font-bold text-slate-700">أمين المخزن المختص</p>
+                        <div className="border-b border-dashed border-slate-400 w-28 sm:w-36 mx-auto mt-8"></div>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-700">المستلم الميداني / العميل</p>
+                        <div className="border-b border-dashed border-slate-400 w-28 sm:w-36 mx-auto mt-8"></div>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-700">مصادقة الإدارة العامة</p>
+                        <div className="border-b border-dashed border-slate-400 w-28 sm:w-36 mx-auto mt-8"></div>
                       </div>
                     </div>
-                  </div>
-                )}
 
-                {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع مأطر، اليسار التاريخ */}
-                <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800">
-                  {/* اليمين: العدد ورقم الإذن */}
-                  <div className="flex items-center gap-1.5" dir="rtl">
-                    <span className="text-slate-500 font-bold">العدد :</span>
-                    <span className="font-mono text-slate-950 text-sm tracking-wide">
-                      {printedReceipt.trans_code || printedReceipt.trans_id}
-                    </span>
+                    <div className="mt-8 pt-3 border-t text-[10px] text-slate-500 flex justify-between font-mono">
+                      <span>{companySettings.company_name} - {transBranchName}</span>
+                      <span>هاتف: {companySettings.phone_primary} {companySettings.phone_secondary && `| ${companySettings.phone_secondary}`}</span>
+                    </div>
                   </div>
-
-                  {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
-                  <div className="flex items-center justify-center">
-                    <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
-                      {transBranchName}
-                    </span>
-                  </div>
-
-                  {/* اليسار: التاريخ */}
-                  <div className="flex items-center gap-1.5" dir="rtl">
-                    <span className="text-slate-500 font-bold">التاريخ :</span>
-                    <span className="font-mono text-slate-950 text-sm tracking-wider">
-                      {String(printedReceipt.created_at || '').substring(0, 10)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[14px] font-semibold">
-                  <div>
-                    <span className="text-slate-500 block text-xs">الجهة المستلمة / المورد / المشروع:</span>
-                    <span className="text-slate-950 font-bold">
-                      {printedReceipt.project_name ? `مشروع مقاولة: ${printedReceipt.project_name}` : printedReceipt.supplier_or_recipient || '---'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block text-xs">نوع ومسار العملية:</span>
-                    <span className="text-slate-950 font-bold">
-                      {printedReceipt.trans_type === 'IN' 
-                        ? 'شراء وتوريد للمخزن المركزي' 
-                        : printedReceipt.purpose === 'PROJECT_ISSUE' || printedReceipt.project_id
-                        ? 'صرف مباشر لموقع المشروع الإنشائي' 
-                        : 'بيع تجاري خارجي'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-right font-mono text-[13px]">
-                    <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold text-xs">
-                      <tr>
-                        <th className="p-3">رمز الصنف</th>
-                        <th className="p-3">اسم المادة والمواصفات</th>
-                        <th className="p-3">الكمية المسلمة</th>
-                        <th className="p-3">سعر الوحدة</th>
-                        <th className="p-3">المبلغ الإجمالي</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      <tr>
-                        <td className="p-3 font-bold" style={{ color: primaryCol }}>{printedReceipt.item_code}</td>
-                        <td className="p-3 font-bold font-sans text-slate-950">{printedReceipt.item_name || printedReceipt.name}</td>
-                        <td className="p-3 font-black text-slate-950">{formatNum(printedReceipt.quantity)} {printedReceipt.unit}</td>
-                        <td className="p-3 text-slate-800">{formatNum(printedReceipt.unit_price)} د.ع</td>
-                        <td className="p-3 font-black" style={{ color: primaryCol }}>{formatNum(printedReceipt.total_amount)} د.ع</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                {printedReceipt.notes && (
-                  <div className="text-[13px] text-slate-600 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
-                    <strong>البيان والملاحظات: </strong> {printedReceipt.notes}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-3 gap-8 pt-12 text-center border-t border-slate-200 text-xs">
-                  <div>
-                    <p className="font-bold text-slate-700">أمين المخزن المختص</p>
-                    <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-700">المستلم الميداني / العميل</p>
-                    <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-700">مصادقة الإدارة العامة</p>
-                    <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-3 border-t text-[10px] text-slate-500 flex justify-between font-mono">
-                  <span>{companySettings.company_name} - {transBranchName}</span>
-                  <span>هاتف: {companySettings.phone_primary} {companySettings.phone_secondary && `| ${companySettings.phone_secondary}`}</span>
                 </div>
               </div>
             </div>
@@ -1153,20 +1158,20 @@ export default function InventoryPage() {
         {/* نافذة تعريف صنف جديد */}
         {showAddModal && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Package className="w-4 h-4" style={{ color: primaryCol }} /> تعريف صنف / بضاعة جديدة بالمخزن
                 </h3>
-                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateItem} className="space-y-3.5 text-[14px]">
-                <div className="grid grid-cols-2 gap-2">
+              <form onSubmit={handleCreateItem} className="space-y-3.5 text-[14px] flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">رمز الصنف (Code) *</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">رمز الصنف (Code) *</label>
                     <input
                       type="text"
                       required
@@ -1177,11 +1182,11 @@ export default function InventoryPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">القطاع / التصنيف</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">القطاع / التصنيف</label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer text-xs"
                     >
                       <option value="مواد إنشائية وبناء">مواد إنشائية وبناء</option>
                       <option value="كهربائيات وتأسيسات">كهربائيات وتأسيسات</option>
@@ -1194,24 +1199,24 @@ export default function InventoryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">اسم الصنف والمواصفات *</label>
+                  <label className="block text-slate-400 mb-1 font-semibold text-xs">اسم الصنف والمواصفات *</label>
                   <input
                     type="text"
                     required
                     placeholder="حديد تسليح 12 ملم، سمنت مقاوم، كيبل..."
                     value={itemName}
                     onChange={(e) => setItemName(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 text-xs"
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">الوحدة</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">الوحدة</label>
                     <select
                       value={unit}
                       onChange={(e) => setUnit(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer text-xs"
                     >
                       <option value="طن">طن</option>
                       <option value="كيس">كيس</option>
@@ -1223,65 +1228,65 @@ export default function InventoryPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">الرصيد الافتتاحي</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">الرصيد الافتتاحي</label>
                     <input
                       type="number"
                       value={initialQty}
                       onChange={(e) => setInitialQty(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">حد إعادة الطلب *</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">حد إعادة الطلب *</label>
                     <input
                       type="number"
                       required
                       value={minQty}
                       onChange={(e) => setMinQty(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-rose-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-rose-500 text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">سعر التكلفة التقديري (د.ع)</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">سعر التكلفة التقديري (د.ع)</label>
                     <input
                       type="number"
                       placeholder="0"
                       value={unitCost}
                       onChange={(e) => setUnitCost(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">سعر البيع التجاري (د.ع)</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">سعر البيع التجاري (د.ع)</label>
                     <input
                       type="number"
                       placeholder="0"
                       value={sellingPrice}
                       onChange={(e) => setSellingPrice(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none text-xs"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">موقع التخزين بالمخزن</label>
+                  <label className="block text-slate-400 mb-1 font-semibold text-xs">موقع التخزين بالمخزن</label>
                   <input
                     type="text"
                     value={warehouseLocation}
                     onChange={(e) => setWarehouseLocation(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none text-xs"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer text-xs">إلغاء</button>
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className="px-5 py-2 text-slate-950 font-bold rounded-xl transition cursor-pointer shadow-md"
+                    className="px-5 py-2 text-slate-950 font-bold rounded-xl transition cursor-pointer shadow-md text-xs whitespace-nowrap"
                     style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                   >
                     {loading ? 'جاري الحفظ...' : 'حفظ وتعريف الصنف'}
@@ -1295,52 +1300,54 @@ export default function InventoryPage() {
         {/* نافذة حركة مخزنية تجارية */}
         {selectedItemForTrans && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
                   {transType === 'IN' ? (
-                    <ArrowDownLeft className="w-4 h-4 text-emerald-400" />
+                    <ArrowDownLeft className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : isExternalSale ? (
-                    <Store className="w-4 h-4 text-sky-400" />
+                    <Store className="w-4 h-4 text-sky-400 shrink-0" />
                   ) : (
-                    <ArrowUpRight className="w-4 h-4" style={{ color: primaryCol }} />
+                    <ArrowUpRight className="w-4 h-4 shrink-0" style={{ color: primaryCol }} />
                   )}
-                  {transType === 'IN' 
-                    ? 'إذن استلام وتوريد بضاعة للمخزن' 
-                    : isExternalSale 
-                    ? 'إذن بيع تجاري خارجي' 
-                    : 'إذن صرف مواد لمشروع مقاولة'}
+                  <span className="truncate">
+                    {transType === 'IN' 
+                      ? 'إذن استلام وتوريد بضاعة للمخزن' 
+                      : isExternalSale 
+                      ? 'إذن بيع تجاري خارجي' 
+                      : 'إذن صرف مواد لمشروع مقاولة'}
+                  </span>
                 </h3>
-                <button onClick={() => setSelectedItemForTrans(null)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setSelectedItemForTrans(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleStockTransaction} className="space-y-3.5 text-[14px]">
+              <form onSubmit={handleStockTransaction} className="space-y-3.5 text-[14px] flex-1">
                 <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
-                  <p className="text-slate-300">الصنف: <strong className="text-white">{selectedItemForTrans.name || selectedItemForTrans.item_name}</strong></p>
+                  <p className="text-slate-300 text-xs">الصنف: <strong className="text-white text-sm">{selectedItemForTrans.name || selectedItemForTrans.item_name}</strong></p>
                   <p className="text-slate-400 font-mono text-xs">
                     الرصيد المتوفر بالمخزن: <strong className="text-emerald-400">{formatNum(selectedItemForTrans.quantity_on_hand ?? selectedItemForTrans.current_qty ?? 0)} {selectedItemForTrans.unit}</strong>
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">نوع الإذن</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">نوع الإذن</label>
                     <select
                       value={transType}
                       onChange={(e) => {
                         setTransType(e.target.value as any);
                         if (e.target.value === 'IN') setIsExternalSale(false);
                       }}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer text-xs"
                     >
                       <option value="IN">توريد واستلام للمخزن (IN)</option>
                       <option value="OUT">صرف أو بيع بضاعة (OUT)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">الكمية ({selectedItemForTrans.unit}) *</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">الكمية ({selectedItemForTrans.unit}) *</label>
                     <input
                       type="number"
                       step="any"
@@ -1348,13 +1355,13 @@ export default function InventoryPage() {
                       placeholder="0"
                       value={transQty}
                       onChange={(e) => setTransQty(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-xs"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-slate-400 mb-1 font-semibold text-xs">
                     {transType === 'IN' ? 'سعر الشراء والتكلفة للوحدة (د.ع)' : isExternalSale ? 'سعر البيع للعميل (د.ع) *' : 'سعر التحميل للمشروع (د.ع)'}
                   </label>
                   <input
@@ -1362,7 +1369,7 @@ export default function InventoryPage() {
                     step="any"
                     value={transPrice}
                     onChange={(e) => setTransPrice(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none text-xs"
                   />
                   <span className="text-xs mt-1 block font-mono font-bold" style={{ color: primaryCol }}>
                     الإجمالي المحسوب: {formatNum((Number(transQty) || 0) * (Number(transPrice) || 0))} د.ع
@@ -1375,14 +1382,14 @@ export default function InventoryPage() {
                       <ShoppingBag className="w-3.5 h-3.5" /> مسار صرف البضاعة:
                     </label>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => {
                           setIsExternalSale(true);
                           setTargetProjectId('');
                         }}
-                        className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                           isExternalSale 
                             ? 'bg-sky-500/20 text-sky-300 border-sky-500/50' 
                             : 'bg-slate-800 text-slate-400 border-slate-700'
@@ -1396,7 +1403,7 @@ export default function InventoryPage() {
                         onClick={() => {
                           setIsExternalSale(false);
                         }}
-                        className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                           !isExternalSale 
                             ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
                             : 'bg-slate-800 text-slate-400 border-slate-700'
@@ -1416,7 +1423,7 @@ export default function InventoryPage() {
                             placeholder="العميل أو الجهة المشترية"
                             value={partyName}
                             onChange={(e) => setPartyName(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-sky-500 text-[14px]"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-sky-500 text-xs"
                           />
                         </div>
                         <p className="text-[11px] text-sky-400">
@@ -1429,7 +1436,7 @@ export default function InventoryPage() {
                         <select
                           value={targetProjectId}
                           onChange={(e) => setTargetProjectId(e.target.value)}
-                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 mt-1 text-[14px] cursor-pointer"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 mt-1 text-xs cursor-pointer"
                           required
                         >
                           <option value="">-- اختر المشروع لتنزيل التكلفة عليه --</option>
@@ -1449,34 +1456,34 @@ export default function InventoryPage() {
 
                 {transType === 'IN' && (
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">المورد / المجهز</label>
+                    <label className="block text-slate-400 mb-1 font-semibold text-xs">المورد / المجهز</label>
                     <input
                       type="text"
                       placeholder="اسم المورد أو رقم بيان الاستيراد"
                       value={partyName}
                       onChange={(e) => setPartyName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none text-xs"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">ملاحظات وبيان الإذن</label>
+                  <label className="block text-slate-400 mb-1 font-semibold text-xs">ملاحظات وبيان الإذن</label>
                   <input
                     type="text"
                     placeholder="رقم الوصل، رقم السيارة، موقع التسليم..."
                     value={transNotes}
                     onChange={(e) => setTransNotes(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none text-xs"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                  <button type="button" onClick={() => setSelectedItemForTrans(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
+                  <button type="button" onClick={() => setSelectedItemForTrans(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl cursor-pointer text-xs">إلغاء</button>
                   <button 
                     type="submit" 
                     disabled={loading} 
-                    className={`px-5 py-2 font-bold rounded-xl text-slate-950 transition cursor-pointer shadow-md ${
+                    className={`px-5 py-2 font-bold rounded-xl text-slate-950 transition cursor-pointer shadow-md text-xs whitespace-nowrap ${
                       transType === 'IN' 
                         ? 'bg-emerald-500 hover:bg-emerald-400' 
                         : isExternalSale 

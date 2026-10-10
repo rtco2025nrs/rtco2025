@@ -556,6 +556,64 @@ export default function FinancialReportsPage() {
     <AuthGuard moduleName="vouchers" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
+        {/* تنسيقات الطباعة النموذجية لورقة A4 المعزولة والمحكمة */}
+        <style jsx global>{`
+          @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
+            .print-official-sheet {
+              min-width: 760px !important;
+              margin: 0 auto !important;
+            }
+          }
+          @media print {
+            @page {
+              size: A4 portrait !important;
+              margin: 0 !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body, html {
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
+              display: none !important;
+              visibility: hidden !important;
+            }
+            .print-official-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              margin: 0 auto !important;
+              width: 100% !important;
+              max-width: 210mm !important;
+              height: 280mm !important;
+              max-height: 280mm !important;
+              min-height: 0 !important;
+              padding: 6mm 10mm !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              page-break-after: auto !important;
+              break-after: auto !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+            }
+          }
+        `}</style>
+
         {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
@@ -590,7 +648,7 @@ export default function FinancialReportsPage() {
                     التقرير المالي التنفيذي وتحليل الاستثمار الموحد
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -651,7 +709,7 @@ export default function FinancialReportsPage() {
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <span className="px-2 text-xs font-mono font-bold" style={{ color: primaryCol }}>تنقل شهري</span>
+              <span className="px-2 text-xs font-mono font-bold whitespace-nowrap" style={{ color: primaryCol }}>تنقل شهري</span>
               <button 
                 onClick={() => handleShiftMonth('NEXT')} 
                 className="p-1.5 hover:bg-slate-800 text-slate-300 rounded-lg transition cursor-pointer"
@@ -682,22 +740,22 @@ export default function FinancialReportsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-auto">
+          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
             <button
               onClick={() => setQuickRange('THIS_MONTH')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا الشهر
             </button>
             <button
               onClick={() => setQuickRange('THIS_YEAR')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا العام
             </button>
             <button
               onClick={() => setQuickRange('ALL')}
-              className="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
               style={isAllTime ? { backgroundColor: primaryCol, color: '#020617', fontWeight: 'bold' } : { backgroundColor: '#1e293b', color: primaryCol }}
             >
               <RotateCcw className="w-3.5 h-3.5" /> الكل
@@ -707,7 +765,7 @@ export default function FinancialReportsPage() {
 
         {/* المؤشرات المالية الإجمالية العامة للشركة */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -724,7 +782,7 @@ export default function FinancialReportsPage() {
             <p className="text-[11px] text-slate-500 mt-2">المقاولات + النقل + التجارة + مبيعات العقارات</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -741,7 +799,7 @@ export default function FinancialReportsPage() {
             <p className="text-[11px] text-slate-500 mt-2">المشاريع + صيانة الأسطول + المشتريات + الرواتب</p>
           </div>
 
-          <div className={`bg-slate-900 border p-5 rounded-3xl relative overflow-hidden shadow-xl ${summary.grandNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-500/40 bg-rose-500/5'}`}>
+          <div className={`bg-slate-900 border p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center ${summary.grandNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-500/40 bg-rose-500/5'}`}>
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-300 font-semibold block flex items-center gap-1.5">
@@ -751,14 +809,14 @@ export default function FinancialReportsPage() {
                   {formatNum(summary.grandNetProfit)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-xl text-xs font-bold font-mono">
+              <div className="px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-xl text-xs font-bold font-mono whitespace-nowrap">
                 {summary.overallMargin}% هامش
               </div>
             </div>
             <p className="text-[11px] text-slate-400 mt-2 font-sans">صافي التدفق بعد حسم كافة النفقات والالتزامات</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
@@ -847,7 +905,7 @@ export default function FinancialReportsPage() {
               <p className="text-xs text-slate-400 mt-0.5">المستخلصات، الإنفاق الميداني، والتحليل الزمني للمشاريع عبر شهور العام</p>
             </div>
             <span 
-              className="text-xs font-mono font-bold px-3 py-1 rounded-xl border"
+              className="text-xs font-mono font-bold px-3 py-1 rounded-xl border whitespace-nowrap"
               style={{ backgroundColor: `${primaryCol}10`, color: primaryCol, borderColor: `${primaryCol}30` }}
             >
               عقود المشاريع: {formatNum(summary.totalProjectsContract)} د.ع
@@ -861,15 +919,15 @@ export default function FinancialReportsPage() {
                 <div className="space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المقبوض الفعلي:</span>
-                    <strong className="text-emerald-400 text-sm">{formatNum(summary.totalProjectsReceived)} د.ع</strong>
+                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(summary.totalProjectsReceived)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">التكاليف المنصرفة:</span>
-                    <strong className="text-rose-400 text-sm">{formatNum(summary.totalProjectsCosts)} د.ع</strong>
+                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(summary.totalProjectsCosts)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border" style={{ borderColor: `${primaryCol}30` }}>
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي السيولة النقدية:</span>
-                    <strong className="text-base" style={{ color: primaryCol }}>{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</strong>
+                    <strong className="text-base whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</strong>
                   </div>
                 </div>
               </div>
@@ -881,7 +939,7 @@ export default function FinancialReportsPage() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4" style={{ color: primaryCol }} /> المسار الزمني لتدفقات المقاولات (المبالغ عبر الوقت)
                 </span>
-                <span className="text-[10px] font-mono" style={{ color: primaryCol }}>تتبع شهري 2026</span>
+                <span className="text-[10px] font-mono whitespace-nowrap" style={{ color: primaryCol }}>تتبع شهري 2026</span>
               </div>
               <div className="w-full h-64 min-h-[260px] pt-2" dir="ltr">
                 <ResponsiveContainer width="100%" height={260}>
@@ -919,7 +977,7 @@ export default function FinancialReportsPage() {
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">المبيعات، التوريدات، وهوامش الربح التجاري للمواد والبضائع عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-3 py-1 rounded-xl">
+            <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
               هامش الربح: {tradeFinance.margin}%
             </span>
           </div>
@@ -931,15 +989,15 @@ export default function FinancialReportsPage() {
                 <div className="space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المبيعات المحققة:</span>
-                    <strong className="text-emerald-400 text-sm">{formatNum(tradeFinance.salesRevenue)} د.ع</strong>
+                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(tradeFinance.salesRevenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المشتريات والتوريد:</span>
-                    <strong className="text-rose-400 text-sm">{formatNum(tradeFinance.purchasesExpenses)} د.ع</strong>
+                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(tradeFinance.purchasesExpenses)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-sky-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي الربح التجاري:</span>
-                    <strong className="text-sky-400 text-base">{formatNum(tradeFinance.netProfit)} د.ع</strong>
+                    <strong className="text-sky-400 text-base whitespace-nowrap">{formatNum(tradeFinance.netProfit)} د.ع</strong>
                   </div>
                 </div>
               </div>
@@ -951,7 +1009,7 @@ export default function FinancialReportsPage() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-sky-400" /> المخطط الخطي للمبيعات والمشتريات عبر الوقت
                 </span>
-                <span className="text-[10px] text-sky-400 font-mono">تتبع شهري 2026</span>
+                <span className="text-[10px] text-sky-400 font-mono whitespace-nowrap">تتبع شهري 2026</span>
               </div>
               <div className="w-full h-64 min-h-[260px] pt-2" dir="ltr">
                 <ResponsiveContainer width="100%" height={260}>
@@ -980,7 +1038,7 @@ export default function FinancialReportsPage() {
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">عوائد رحلات الشحن، تكاليف الصيانة والوقود، والربحية الصافية للآليات</p>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-xl">
+            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
               الرحلات المكتملة: {fleetFinance.tripsCount} رحلة
             </span>
           </div>
@@ -992,15 +1050,15 @@ export default function FinancialReportsPage() {
                 <div className="space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">إيراد النقل المحصل:</span>
-                    <strong className="text-emerald-400 text-sm">{formatNum(fleetFinance.revenue)} د.ع</strong>
+                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(fleetFinance.revenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الصيانة والوقود:</span>
-                    <strong className="text-rose-400 text-sm">{formatNum(fleetFinance.expenses)} د.ع</strong>
+                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(fleetFinance.expenses)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-emerald-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي دخل الأسطول:</span>
-                    <strong className="text-emerald-400 text-base">{formatNum(fleetFinance.net)} د.ع</strong>
+                    <strong className="text-emerald-400 text-base whitespace-nowrap">{formatNum(fleetFinance.net)} د.ع</strong>
                   </div>
                 </div>
               </div>
@@ -1012,7 +1070,7 @@ export default function FinancialReportsPage() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-emerald-400" /> المخطط الزمني لأداء الأسطول (الإيراد vs الصيانة)
                 </span>
-                <span className="text-[10px] text-emerald-400 font-mono">تتبع شهري 2026</span>
+                <span className="text-[10px] text-emerald-400 font-mono whitespace-nowrap">تتبع شهري 2026</span>
               </div>
               <div className="w-full h-64 min-h-[260px] pt-2" dir="ltr">
                 <ResponsiveContainer width="100%" height={260}>
@@ -1050,7 +1108,7 @@ export default function FinancialReportsPage() {
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">عقود البيع، المتحصلات المالية، ونسب إشغال الوحدات عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-xl">
+            <span className="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
               المباع: {realEstateFinance.soldCount} من أصل {realEstateFinance.unitsCount} وحدة
             </span>
           </div>
@@ -1062,15 +1120,15 @@ export default function FinancialReportsPage() {
                 <div className="space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">إجمالي مبيعات العقارات:</span>
-                    <strong className="text-purple-400 text-sm">{formatNum(realEstateFinance.revenue)} د.ع</strong>
+                    <strong className="text-purple-400 text-sm whitespace-nowrap">{formatNum(realEstateFinance.revenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">عدد الوحدات الاستثمارية:</span>
-                    <strong className="text-white text-sm">{realEstateFinance.unitsCount} وحدة</strong>
+                    <strong className="text-white text-sm whitespace-nowrap">{realEstateFinance.unitsCount} وحدة</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-purple-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">نسبة التحقيق والإشغال:</span>
-                    <strong className="text-purple-300 text-base">
+                    <strong className="text-purple-300 text-base whitespace-nowrap">
                       {realEstateFinance.unitsCount > 0 ? ((realEstateFinance.soldCount / realEstateFinance.unitsCount) * 100).toFixed(0) : 0}%
                     </strong>
                   </div>
@@ -1084,7 +1142,7 @@ export default function FinancialReportsPage() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-purple-400" /> المسار الزمني لتحصيل مبيعات العقارات
                 </span>
-                <span className="text-[10px] text-purple-400 font-mono">تتبع شهري 2026</span>
+                <span className="text-[10px] text-purple-400 font-mono whitespace-nowrap">تتبع شهري 2026</span>
               </div>
               <div className="w-full h-64 min-h-[260px] pt-2" dir="ltr">
                 <ResponsiveContainer width="100%" height={260}>
@@ -1117,7 +1175,7 @@ export default function FinancialReportsPage() {
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">مسير الرواتب المعتمد، البدلات، وتطور الإنفاق على الكوادر عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-xl">
+            <span className="text-xs font-mono font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
               إجمالي الكوادر: {hrFinance.count} موظف
             </span>
           </div>
@@ -1129,15 +1187,15 @@ export default function FinancialReportsPage() {
                 <div className="space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الرواتب المنصرفة بالفترة:</span>
-                    <strong className="text-rose-400 text-sm">{formatNum(hrFinance.totalSalaries)} د.ع</strong>
+                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(hrFinance.totalSalaries)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الكتلة الشهرية الثابتة:</span>
-                    <strong className="text-white text-sm">{formatNum(hrFinance.monthlyPayroll)} د.ع</strong>
+                    <strong className="text-white text-sm whitespace-nowrap">{formatNum(hrFinance.monthlyPayroll)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-rose-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">عدد الكوادر النشطة:</span>
-                    <strong className="text-rose-400 text-base">{hrFinance.count} موظف نشط</strong>
+                    <strong className="text-rose-400 text-base whitespace-nowrap">{hrFinance.count} موظف نشط</strong>
                   </div>
                 </div>
               </div>
@@ -1149,7 +1207,7 @@ export default function FinancialReportsPage() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-rose-400" /> التطور الزمني لمنصرفات الرواتب والأجور
                 </span>
-                <span className="text-[10px] text-rose-400 font-mono">تتبع شهري 2026</span>
+                <span className="text-[10px] text-rose-400 font-mono whitespace-nowrap">تتبع شهري 2026</span>
               </div>
               <div className="w-full h-64 min-h-[260px] pt-2" dir="ltr">
                 <ResponsiveContainer width="100%" height={260}>
@@ -1176,151 +1234,158 @@ export default function FinancialReportsPage() {
         {/* ------------------------------------------------------------- */}
         {/* التقرير المالي الرسمي للطباعة A4 المخصص للإدارة العليا */}
         {/* ------------------------------------------------------------- */}
-        <div className="w-full max-w-5xl mx-auto bg-white text-slate-900 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-2xl mt-14 print:border-none print:shadow-none print:p-0 print:m-0 space-y-4">
-          
-          {/* 1. الترويسة الرسمية للشركة دون المساس بها */}
-          {hasLetterhead ? (
-            <div className="w-full border-b pb-3 mb-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+        <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none mt-14">
+          <div className="print-official-sheet w-full max-w-5xl mx-auto bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
+            
+            <div className="relative z-10 flex flex-col flex-1 space-y-4">
+              {/* 1. الترويسة الرسمية للشركة دون المساس بها */}
+              {hasLetterhead ? (
+                <div className="w-full border-b pb-3 mb-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+                </div>
+              ) : (
+                <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200 shrink-0">
+                      {hasLogo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                      ) : (
+                        <Image src="/logo.png" alt="شركة البرج المتألق" width={64} height={64} className="object-contain" priority />
+                      )}
+                    </div>
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                      <p className="text-xs text-slate-600 font-bold mt-0.5">{companySettings.tagline}</p>
+                      <p className="text-[11px] text-slate-500 font-mono mt-0.5 hidden sm:block">{companySettings.address} | {companySettings.phone_primary}</p>
+                    </div>
+                  </div>
+                  <div className="text-left flex flex-col items-end">
+                    <div 
+                      className="border-2 px-3 sm:px-4 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-wider text-slate-950 rounded-xl whitespace-nowrap"
+                      style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
+                    >
+                      التقرير المالي التنفيذي الموحد
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] font-mono mt-2 text-slate-600 whitespace-nowrap">الفترة: {startDate || 'منذ التأسيس'} إلى {endDate || 'اليوم'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع فقط مأطر، اليسار التاريخ */}
+              <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800">
+                {/* اليمين: العدد ورقم التقرير */}
+                <div className="flex items-center gap-1.5" dir="rtl">
+                  <span className="text-slate-500 font-bold">العدد :</span>
+                  <span className="font-mono text-slate-950 text-sm tracking-wide">
+                    م/ 2026
+                  </span>
+                </div>
+
+                {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
+                <div className="flex items-center justify-center">
+                  <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs whitespace-nowrap">
+                    {currentBranchLabel}
+                  </span>
+                </div>
+
+                {/* اليسار: التاريخ */}
+                <div className="flex items-center gap-1.5" dir="rtl">
+                  <span className="text-slate-500 font-bold">التاريخ :</span>
+                  <span className="font-mono text-slate-950 text-sm tracking-wider">
+                    {new Date().toISOString().split('T')[0]}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 bg-slate-50 border border-slate-200 p-3 sm:p-4 rounded-2xl text-xs font-mono text-center">
+                <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <span className="text-slate-500 block text-[10px] font-sans">إجمالي الإيرادات المجمعة</span>
+                  <span className="text-sm sm:text-base font-black text-emerald-700 whitespace-nowrap">{formatNum(summary.grandTotalRevenue)} د.ع</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <span className="text-slate-500 block text-[10px] font-sans">إجمالي المصروفات والتشغيل</span>
+                  <span className="text-sm sm:text-base font-black text-rose-700 whitespace-nowrap">{formatNum(summary.grandTotalExpenses)} د.ع</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  <span className="text-slate-500 block text-[10px] font-sans">صافي أرباح الشركة العام</span>
+                  <span className="text-sm sm:text-base font-black text-sky-700 whitespace-nowrap">{formatNum(summary.grandNetProfit)} د.ع</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-black text-xs sm:text-sm text-slate-900">جدول الأداء المالي المنعزل والمفصل لكل قطاع:</h3>
+                <div className="border border-slate-200 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
+                  <table className="w-full min-w-[650px] text-xs text-right font-mono">
+                    <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
+                      <tr>
+                        <th className="p-3 whitespace-nowrap">القطاع / الوحدة التشغيلية</th>
+                        <th className="p-3 whitespace-nowrap">الإيراد / المقبوض</th>
+                        <th className="p-3 whitespace-nowrap">المصروف والتكاليف</th>
+                        <th className="p-3 whitespace-nowrap">الموقف / البيان</th>
+                        <th className="p-3 text-left whitespace-nowrap">الصافي المالي للقطاع</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-[11px]">
+                      <tr>
+                        <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">1. قطاع المقاولات والمشاريع الهندسية</td>
+                        <td className="p-3 text-emerald-700 font-bold whitespace-nowrap">{formatNum(summary.totalProjectsReceived)} د.ع</td>
+                        <td className="p-3 text-rose-700 font-bold whitespace-nowrap">{formatNum(summary.totalProjectsCosts)} د.ع</td>
+                        <td className="p-3 text-slate-500 font-sans whitespace-nowrap">{projects.length} مشاريع منجزة وقائمة</td>
+                        <td className="p-3 text-left font-black text-slate-950 whitespace-nowrap">{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">2. قطاع التجارة العامة والمخزن المركزي</td>
+                        <td className="p-3 text-emerald-700 font-bold whitespace-nowrap">{formatNum(tradeFinance.salesRevenue)} د.ع</td>
+                        <td className="p-3 text-rose-700 font-bold whitespace-nowrap">{formatNum(tradeFinance.purchasesExpenses)} د.ع</td>
+                        <td className="p-3 text-slate-500 font-sans whitespace-nowrap">مبيعات واستيراد بضائع</td>
+                        <td className="p-3 text-left font-black text-sky-700 whitespace-nowrap">{formatNum(tradeFinance.netProfit)} د.ع</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">3. قطاع أسطول النقل العام واللوجستيات</td>
+                        <td className="p-3 text-emerald-700 font-bold whitespace-nowrap">{formatNum(fleetFinance.revenue)} د.ع</td>
+                        <td className="p-3 text-rose-700 font-bold whitespace-nowrap">{formatNum(fleetFinance.expenses)} د.ع</td>
+                        <td className="p-3 text-slate-500 font-sans whitespace-nowrap">{fleetFinance.tripsCount} رحلة نقل مكتملة</td>
+                        <td className="p-3 text-left font-black text-emerald-700 whitespace-nowrap">{formatNum(fleetFinance.net)} د.ع</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">4. قطاع العقارات والاستثمار</td>
+                        <td className="p-3 text-emerald-700 font-bold whitespace-nowrap">{formatNum(realEstateFinance.revenue)} د.ع</td>
+                        <td className="p-3 text-rose-700 font-bold whitespace-nowrap">0 د.ع</td>
+                        <td className="p-3 text-slate-500 font-sans whitespace-nowrap">{realEstateFinance.soldCount} وحدات مباعة ومحصلة</td>
+                        <td className="p-3 text-left font-black text-purple-700 whitespace-nowrap">{formatNum(realEstateFinance.revenue)} د.ع</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-bold font-sans text-slate-950 whitespace-nowrap">5. قطاع الموارد البشرية والرواتب والأجور</td>
+                        <td className="p-3 text-slate-400 whitespace-nowrap">---</td>
+                        <td className="p-3 text-rose-700 font-bold whitespace-nowrap">{formatNum(hrFinance.totalSalaries)} د.ع</td>
+                        <td className="p-3 text-slate-500 font-sans whitespace-nowrap">{hrFinance.count} كوادر نشطة</td>
+                        <td className="p-3 text-left font-black text-rose-700 whitespace-nowrap">-{formatNum(hrFinance.totalSalaries)} د.ع</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200 shrink-0">
-                  {hasLogo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                  ) : (
-                    <Image src="/logo.png" alt="شركة البرج المتألق" width={64} height={64} className="object-contain" priority />
-                  )}
+
+            <div className="mt-auto pt-6">
+              <div className="grid grid-cols-3 gap-8 pt-6 text-center border-t border-slate-200">
+                <div>
+                  <p className="font-bold text-xs text-slate-700">مدير الحسابات والمالية</p>
+                  <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-8"></div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                  <p className="text-xs text-slate-600 font-bold mt-0.5">{companySettings.tagline}</p>
-                  <p className="text-[11px] text-slate-500 font-mono mt-0.5">{companySettings.address} | {companySettings.phone_primary}</p>
+                  <p className="font-bold text-xs text-slate-700">المدقق المالي الداخلي</p>
+                  <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-8"></div>
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-slate-700">المدير المفوض للشركة</p>
+                  <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-8"></div>
                 </div>
               </div>
-              <div className="text-left flex flex-col items-end">
-                <div 
-                  className="border-2 px-4 py-1.5 font-black text-xs uppercase tracking-wider text-slate-950 rounded-xl"
-                  style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                >
-                  التقرير المالي التنفيذي الموحد
-                </div>
-                <p className="text-[11px] font-mono mt-2 text-slate-600">الفترة: {startDate || 'منذ التأسيس'} إلى {endDate || 'اليوم'}</p>
-              </div>
-            </div>
-          )}
-
-          {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع فقط مأطر، اليسار التاريخ */}
-          <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800">
-            {/* اليمين: العدد ورقم التقرير */}
-            <div className="flex items-center gap-1.5" dir="rtl">
-              <span className="text-slate-500 font-bold">العدد :</span>
-              <span className="font-mono text-slate-950 text-sm tracking-wide">
-                م/ 2026
-              </span>
             </div>
 
-            {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
-            <div className="flex items-center justify-center">
-              <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
-                {currentBranchLabel}
-              </span>
-            </div>
-
-            {/* اليسار: التاريخ */}
-            <div className="flex items-center gap-1.5" dir="rtl">
-              <span className="text-slate-500 font-bold">التاريخ :</span>
-              <span className="font-mono text-slate-950 text-sm tracking-wider">
-                {new Date().toISOString().split('T')[0]}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs font-mono text-center">
-            <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-slate-500 block text-[10px] font-sans">إجمالي الإيرادات المجمعة</span>
-              <span className="text-base font-black text-emerald-700">{formatNum(summary.grandTotalRevenue)} د.ع</span>
-            </div>
-            <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-slate-500 block text-[10px] font-sans">إجمالي المصروفات والتشغيل</span>
-              <span className="text-base font-black text-rose-700">{formatNum(summary.grandTotalExpenses)} د.ع</span>
-            </div>
-            <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-slate-500 block text-[10px] font-sans">صافي أرباح الشركة العام</span>
-              <span className="text-base font-black text-sky-700">{formatNum(summary.grandNetProfit)} د.ع</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="font-black text-xs text-slate-900">جدول الأداء المالي المنعزل والمفصل لكل قطاع:</h3>
-            <div className="border border-slate-200 rounded-2xl overflow-hidden">
-              <table className="w-full text-xs text-right font-mono">
-                <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold text-[11px]">
-                  <tr>
-                    <th className="p-3">القطاع / الوحدة التشغيلية</th>
-                    <th className="p-3">الإيراد / المقبوض</th>
-                    <th className="p-3">المصروف والتكاليف</th>
-                    <th className="p-3">الموقف / البيان</th>
-                    <th className="p-3 text-left">الصافي المالي للقطاع</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-[11px]">
-                  <tr>
-                    <td className="p-3 font-bold font-sans text-slate-950">1. قطاع المقاولات والمشاريع الهندسية</td>
-                    <td className="p-3 text-emerald-700 font-bold">{formatNum(summary.totalProjectsReceived)} د.ع</td>
-                    <td className="p-3 text-rose-700 font-bold">{formatNum(summary.totalProjectsCosts)} د.ع</td>
-                    <td className="p-3 text-slate-500 font-sans">{projects.length} مشاريع منجزة وقائمة</td>
-                    <td className="p-3 text-left font-black text-slate-950">{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-bold font-sans text-slate-950">2. قطاع التجارة العامة والمخزن المركزي</td>
-                    <td className="p-3 text-emerald-700 font-bold">{formatNum(tradeFinance.salesRevenue)} د.ع</td>
-                    <td className="p-3 text-rose-700 font-bold">{formatNum(tradeFinance.purchasesExpenses)} د.ع</td>
-                    <td className="p-3 text-slate-500 font-sans">مبيعات واستيراد بضائع</td>
-                    <td className="p-3 text-left font-black text-sky-700">{formatNum(tradeFinance.netProfit)} د.ع</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-bold font-sans text-slate-950">3. قطاع أسطول النقل العام واللوجستيات</td>
-                    <td className="p-3 text-emerald-700 font-bold">{formatNum(fleetFinance.revenue)} د.ع</td>
-                    <td className="p-3 text-rose-700 font-bold">{formatNum(fleetFinance.expenses)} د.ع</td>
-                    <td className="p-3 text-slate-500 font-sans">{fleetFinance.tripsCount} رحلة نقل مكتملة</td>
-                    <td className="p-3 text-left font-black text-emerald-700">{formatNum(fleetFinance.net)} د.ع</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-bold font-sans text-slate-950">4. قطاع العقارات والاستثمار</td>
-                    <td className="p-3 text-emerald-700 font-bold">{formatNum(realEstateFinance.revenue)} د.ع</td>
-                    <td className="p-3 text-rose-700 font-bold">0 د.ع</td>
-                    <td className="p-3 text-slate-500 font-sans">{realEstateFinance.soldCount} وحدات مباعة ومحصلة</td>
-                    <td className="p-3 text-left font-black text-purple-700">{formatNum(realEstateFinance.revenue)} د.ع</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3 font-bold font-sans text-slate-950">5. قطاع الموارد البشرية والرواتب والأجور</td>
-                    <td className="p-3 text-slate-400">---</td>
-                    <td className="p-3 text-rose-700 font-bold">{formatNum(hrFinance.totalSalaries)} د.ع</td>
-                    <td className="p-3 text-slate-500 font-sans">{hrFinance.count} كوادر نشطة</td>
-                    <td className="p-3 text-left font-black text-rose-700">-{formatNum(hrFinance.totalSalaries)} د.ع</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-8 pt-10 text-center border-t border-slate-200">
-            <div>
-              <p className="font-bold text-xs text-slate-700">مدير الحسابات والمالية</p>
-              <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-10"></div>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-slate-700">المدقق المالي الداخلي</p>
-              <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-10"></div>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-slate-700">المدير المفوض للشركة</p>
-              <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-10"></div>
-            </div>
           </div>
         </div>
 

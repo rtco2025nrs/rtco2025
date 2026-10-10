@@ -251,13 +251,13 @@ export default function CaptainDashboard() {
 
   return (
     <AuthGuard moduleName="fleet" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 font-sans max-w-md mx-auto flex flex-col justify-between pb-8 text-xs">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 font-cairo max-w-md mx-auto flex flex-col justify-between pb-8 text-xs">
         
         <div className="space-y-4">
           {/* الترويسة الميدانية */}
           <div className="flex items-center justify-between bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 bg-slate-800 flex items-center justify-center" style={{ borderColor: primaryCol }}>
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 bg-slate-800 flex items-center justify-center shrink-0" style={{ borderColor: primaryCol }}>
                 {currentUser.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={currentUser.avatar_url} alt={currentUser.full_name} className="w-full h-full object-cover" />
@@ -266,25 +266,25 @@ export default function CaptainDashboard() {
                 )}
               </div>
               <div>
-                <p className="text-xs font-bold text-white leading-tight">{currentUser.full_name}</p>
-                <span className="text-[10px] font-semibold block" style={{ color: primaryCol }}>كابتن أسطول النقل الميداني</span>
+                <p className="text-xs font-bold text-white leading-tight truncate max-w-[140px]">{currentUser.full_name}</p>
+                <span className="text-[10px] font-semibold block mt-0.5 whitespace-nowrap" style={{ color: primaryCol }}>كابتن أسطول النقل الميداني</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button 
                 onClick={() => {
                   loadSettings();
                   loadData(currentUser.full_name);
                 }}
-                className="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-xl cursor-pointer"
-                title="تحديث"
+                className="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-xl cursor-pointer transition"
+                title="تحديث البيانات"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
               <button 
                 onClick={handleLogout}
-                className="p-2 bg-slate-800 text-rose-400 hover:text-white rounded-xl cursor-pointer"
+                className="p-2 bg-slate-800 text-rose-400 hover:text-white rounded-xl cursor-pointer transition"
                 title="تسجيل الخروج"
               >
                 <LogOut className="w-4 h-4" />
@@ -294,17 +294,18 @@ export default function CaptainDashboard() {
 
           {/* بطاقة الشاحنة المخصصة */}
           {assignedVehicle ? (
-            <div className="bg-slate-900 border p-4 rounded-2xl flex items-center justify-between" style={{ borderColor: `${primaryCol}40` }}>
-              <div>
+            <div className="bg-slate-900 border p-4 rounded-2xl flex items-center justify-between gap-3" style={{ borderColor: `${primaryCol}40` }}>
+              <div className="truncate">
                 <span className="text-[10px] text-slate-400 block font-semibold">شاحنتك المخصصة:</span>
-                <h3 className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5">
-                  <Truck className="w-4 h-4" style={{ color: primaryCol }} /> {assignedVehicle.vehicle_name}
+                <h3 className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5 truncate">
+                  <Truck className="w-4 h-4 shrink-0" style={{ color: primaryCol }} /> 
+                  <span className="truncate">{assignedVehicle.vehicle_name}</span>
                 </h3>
                 <p className="text-[11px] text-slate-400 font-mono mt-0.5">
                   لوحة: <strong className="text-slate-200">{assignedVehicle.plate_number}</strong>
                 </p>
               </div>
-              <div className="text-left font-mono">
+              <div className="text-left font-mono shrink-0">
                 <span className="text-[10px] text-slate-500 block">مستوى الوقود</span>
                 <span className="text-sm font-bold text-emerald-400">{assignedVehicle.current_fuel_pct}%</span>
               </div>
@@ -319,29 +320,33 @@ export default function CaptainDashboard() {
           {/* تفاصيل المهمة الجارية */}
           {activeTrip ? (
             <div className="bg-slate-900 border-2 p-5 rounded-3xl space-y-4 shadow-xl" style={{ borderColor: `${primaryCol}80` }}>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span 
-                  className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border"
+                  className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border whitespace-nowrap"
                   style={{ backgroundColor: `${primaryCol}20`, color: primaryCol, borderColor: `${primaryCol}40` }}
                 >
-                  <Navigation className="w-3.5 h-3.5 animate-pulse" /> مهمتك الجارية الآن
+                  <Navigation className="w-3.5 h-3.5 animate-pulse shrink-0" /> مهمتك الجارية الآن
                 </span>
                 <button
                   onClick={() => openGoogleMapsDirections(activeTrip.origin, activeTrip.destination)}
-                  className="bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                  className="bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap"
                 >
-                  <Compass className="w-3.5 h-3.5" /> الخريطة والملاحة
+                  <Compass className="w-3.5 h-3.5 shrink-0" /> الخريطة والملاحة
                 </button>
               </div>
 
               {/* تفاصيل الحمولة */}
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1"><Package className="w-3.5 h-3.5" style={{ color: primaryCol }} /> المادة:</span>
-                  <span className="font-bold text-white text-sm">{activeTrip.cargo_description}</span>
+              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-400 flex items-center gap-1 whitespace-nowrap">
+                    <Package className="w-3.5 h-3.5 shrink-0" style={{ color: primaryCol }} /> المادة:
+                  </span>
+                  <span className="font-bold text-white text-xs truncate">{activeTrip.cargo_description}</span>
                 </div>
-                <div className="flex items-center justify-between pt-1 border-t border-slate-800">
-                  <span className="text-slate-400 flex items-center gap-1"><Weight className="w-3.5 h-3.5 text-sky-400" /> الوزن:</span>
+                <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+                  <span className="text-slate-400 flex items-center gap-1 whitespace-nowrap">
+                    <Weight className="w-3.5 h-3.5 text-sky-400 shrink-0" /> الوزن:
+                  </span>
                   <span className="font-mono font-bold" style={{ color: primaryCol }}>{activeTrip.cargo_weight_tons} طن</span>
                 </div>
               </div>
@@ -350,9 +355,9 @@ export default function CaptainDashboard() {
               <div className="space-y-2">
                 <div className="flex items-start gap-2">
                   <div className="w-2.5 h-2.5 rounded-full mt-1 shrink-0" style={{ backgroundColor: primaryCol }}></div>
-                  <div>
+                  <div className="truncate">
                     <span className="text-[10px] text-slate-500 block">الانطلاق (التحميل):</span>
-                    <strong className="text-slate-200">{activeTrip.origin}</strong>
+                    <strong className="text-slate-200 block truncate">{activeTrip.origin}</strong>
                   </div>
                 </div>
 
@@ -360,9 +365,9 @@ export default function CaptainDashboard() {
 
                 <div className="flex items-start gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 shrink-0"></div>
-                  <div>
+                  <div className="truncate">
                     <span className="text-[10px] text-slate-500 block">الوصول والتفريغ:</span>
-                    <strong className="text-emerald-400">{activeTrip.destination}</strong>
+                    <strong className="text-emerald-400 block truncate">{activeTrip.destination}</strong>
                   </div>
                 </div>
               </div>
@@ -372,7 +377,7 @@ export default function CaptainDashboard() {
                 <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400 font-semibold flex items-center gap-1">
-                      <Timer className="w-3.5 h-3.5 text-emerald-400" /> مسار الطريق:
+                      <Timer className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> مسار الطريق:
                     </span>
                     <span className="font-mono font-bold text-white">{progress.progressPct}%</span>
                   </div>
@@ -394,7 +399,7 @@ export default function CaptainDashboard() {
                 <button
                   onClick={handleCompleteDelivery}
                   disabled={loading}
-                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
                 >
                   <CheckCircle2 className="w-5 h-5" /> تأكيد الوصول وتسليم الشحنة
                 </button>
@@ -413,9 +418,9 @@ export default function CaptainDashboard() {
             {canEdit && (
               <button
                 onClick={() => setShowLocationBox(!showLocationBox)}
-                className="bg-slate-900 hover:bg-slate-800 border border-slate-800 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1 font-bold text-xs cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 border border-slate-800 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1 font-bold text-xs cursor-pointer transition shadow-sm"
               >
-                <MapPin className="w-4 h-4" style={{ color: primaryCol }} />
+                <MapPin className="w-4 h-4 shrink-0" style={{ color: primaryCol }} />
                 <span>تحديث موقعي الميداني</span>
               </button>
             )}
@@ -423,9 +428,9 @@ export default function CaptainDashboard() {
             {(canAdd || canEdit) && (
               <button
                 onClick={() => setShowFuelModal(true)}
-                className="bg-slate-900 hover:bg-slate-800 border border-slate-800 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1 font-bold text-xs cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 border border-slate-800 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1 font-bold text-xs cursor-pointer transition shadow-sm"
               >
-                <Fuel className="w-4 h-4 text-purple-400" />
+                <Fuel className="w-4 h-4 text-purple-400 shrink-0" />
                 <span>تسجيل وصل وقود</span>
               </button>
             )}
@@ -446,7 +451,7 @@ export default function CaptainDashboard() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="text-slate-950 px-3 rounded-xl font-bold cursor-pointer"
+                  className="text-slate-950 px-3 rounded-xl font-bold cursor-pointer transition"
                   style={{ backgroundColor: primaryCol }}
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -460,19 +465,19 @@ export default function CaptainDashboard() {
         {/* نافذة تسجيل الوقود */}
         {showFuelModal && (canAdd || canEdit) && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-xs rounded-3xl p-5 shadow-2xl text-right space-y-3">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-xs rounded-3xl p-5 shadow-2xl text-right space-y-3 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h3 className="font-bold text-white flex items-center gap-1.5 text-xs">
-                  <Fuel className="w-4 h-4 text-purple-400" /> تسجيل وقود للشاحنة
+                  <Fuel className="w-4 h-4 text-purple-400 shrink-0" /> تسجيل وقود للشاحنة
                 </h3>
-                <button onClick={() => setShowFuelModal(false)} className="text-slate-400 cursor-pointer">
+                <button onClick={() => setShowFuelModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleAddFuel} className="space-y-2.5 text-xs">
+              <form onSubmit={handleAddFuel} className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-slate-400 mb-1">المبلغ (د.ع) *</label>
+                  <label className="block text-slate-400 mb-1 font-semibold">المبلغ (د.ع) *</label>
                   <input
                     type="number"
                     required
@@ -483,27 +488,27 @@ export default function CaptainDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">اسم المحطة أو الموقع</label>
+                  <label className="block text-slate-400 mb-1 font-semibold">اسم المحطة أو الموقع</label>
                   <input
                     type="text"
                     value={fuelStation}
                     onChange={(e) => setFuelStation(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none focus:border-purple-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-1">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
                   <button
                     type="button"
                     onClick={() => setShowFuelModal(false)}
-                    className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer"
+                    className="px-3 py-1.5 bg-slate-800 text-slate-300 hover:text-white rounded-xl cursor-pointer transition"
                   >
                     إلغاء
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl cursor-pointer"
+                    className="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl cursor-pointer transition shadow-md whitespace-nowrap"
                   >
                     حفظ الوصل
                   </button>
@@ -514,7 +519,7 @@ export default function CaptainDashboard() {
         )}
 
         <div className="pt-4 text-center">
-          <Link href="/fleet" className="text-slate-500 hover:text-slate-300 text-xs inline-flex items-center gap-1 font-semibold">
+          <Link href="/fleet" className="text-slate-500 hover:text-slate-300 text-xs inline-flex items-center gap-1 font-semibold transition">
             <Truck className="w-3.5 h-3.5" /> العودة للوحة الإدارة العامة
           </Link>
         </div>

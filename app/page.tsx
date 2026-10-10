@@ -351,9 +351,12 @@ export default function DashboardPage() {
           reason
         })
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         alert(`تمت إعادة فتح شهر (${month}) بنجاح.`);
         await fetchGovernanceData();
+      } else {
+        alert(data.error || 'فشلت عملية فتح الشهر');
       }
     } catch (err: any) {
       alert(err.message);
@@ -434,7 +437,6 @@ export default function DashboardPage() {
       fetchNotifications();
     }
 
-    // فحص دوري كل 30 ثانية لتجنب الضغط على السيرفر
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -997,7 +999,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* رسم المخطط الخطي بصيغة SVG نقي بدون مكاتب خارجية */}
-                <div className="w-full overflow-x-auto mt-4">
+                <div className="w-full overflow-x-auto mt-4 pb-2">
                   {timelineData.length === 0 ? (
                     <div className="text-center py-12 text-slate-500 text-xs">
                       لا توجد بيانات مالية مسجلة حتى الآن لهذا الفرع لتوليد المخطط البياني.
@@ -1436,8 +1438,8 @@ export default function DashboardPage() {
                 </Link>
               </div>
 
-              <div className="overflow-x-auto rounded-2xl border border-slate-800">
-                <table className="w-full text-xs text-right whitespace-nowrap">
+              <div className="w-full overflow-x-auto rounded-2xl border border-slate-800 pb-2">
+                <table className="w-full min-w-[700px] text-xs text-right whitespace-nowrap">
                   <thead className="bg-[#10182b] text-slate-400 border-b border-slate-800 text-[11px]">
                     <tr>
                       <th className="p-3.5">رمز الفرع</th>
@@ -1510,11 +1512,11 @@ export default function DashboardPage() {
 
         {/* النافذة الشاملة لمركز الرقابة والأرشفة السحابية وإقفال الفترات */}
         {showGovernanceModal && isSuperAdmin && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-[#0c1220] border border-slate-700 w-full max-w-5xl rounded-3xl p-6 md:p-8 shadow-2xl text-right space-y-6 my-8">
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-[#0c1220] border border-slate-700 w-full max-w-5xl rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="bg-emerald-500/20 p-2.5 rounded-2xl border border-emerald-500/40 text-emerald-400">
+                  <div className="bg-emerald-500/20 p-2.5 rounded-2xl border border-emerald-500/40 text-emerald-400 shrink-0">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
@@ -1564,7 +1566,7 @@ export default function DashboardPage() {
               {closedPeriods.length > 0 && (
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
                   <span className="font-bold text-slate-300">الفترات المالية المقفلة حالياً:</span>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {closedPeriods.map(p => (
                       <div key={p.period_id} className="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
                         <div>
@@ -1582,22 +1584,22 @@ export default function DashboardPage() {
 
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-white flex items-center gap-1.5"><History className="w-4 h-4 text-sky-400" /> سجل التدقيق الرقابي للحركات (Audit Trail)</h4>
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden max-h-56 overflow-y-auto">
-                  <table className="w-full text-right text-xs">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden max-h-56 overflow-y-auto w-full overflow-x-auto">
+                  <table className="w-full min-w-[500px] text-right text-xs">
                     <thead className="bg-slate-900 text-slate-400 sticky top-0 text-[11px]">
                       <tr>
-                        <th className="p-2.5">المسؤول</th>
-                        <th className="p-2.5">النوع</th>
-                        <th className="p-2.5">القطاع</th>
-                        <th className="p-2.5">البيان</th>
+                        <th className="p-2.5 whitespace-nowrap">المسؤول</th>
+                        <th className="p-2.5 whitespace-nowrap">النوع</th>
+                        <th className="p-2.5 whitespace-nowrap">القطاع</th>
+                        <th className="p-2.5 whitespace-nowrap">البيان</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800 font-mono text-[11px]">
                       {auditLogs.map(l => (
                         <tr key={l.log_id} className="hover:bg-slate-900/40">
-                          <td className="p-2.5 font-sans font-bold text-white">{l.user_name}</td>
-                          <td className="p-2.5" style={{ color: primaryCol }}>{l.action_type}</td>
-                          <td className="p-2.5 font-sans text-slate-300">{l.sector}</td>
+                          <td className="p-2.5 font-sans font-bold text-white whitespace-nowrap">{l.user_name}</td>
+                          <td className="p-2.5 whitespace-nowrap" style={{ color: primaryCol }}>{l.action_type}</td>
+                          <td className="p-2.5 font-sans text-slate-300 whitespace-nowrap">{l.sector}</td>
                           <td className="p-2.5 font-sans text-slate-400">{l.description}</td>
                         </tr>
                       ))}
@@ -1611,8 +1613,8 @@ export default function DashboardPage() {
 
         {/* النافذة الشاملة لإدارة المستخدمين */}
         {showManageModal && isSuperAdmin && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-[#0c1220] border border-slate-700 w-full max-w-4xl rounded-3xl p-6 md:p-8 shadow-2xl text-right space-y-6 my-8">
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-[#0c1220] border border-slate-700 w-full max-w-4xl rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-2">
                   <Users className="w-6 h-6" style={{ color: primaryCol }} />
@@ -1623,7 +1625,7 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
                 <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs">
                   <h4 className="font-bold" style={{ color: primaryCol }}>{isEditing ? 'تعديل الحساب' : 'إنشاء حساب جديد'}</h4>
                   {formMessage && <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 font-semibold">{formMessage}</div>}
@@ -1644,7 +1646,7 @@ export default function DashboardPage() {
                       <label className="block text-slate-400 mb-1">المسمى الوظيفي</label>
                       <input type="text" value={formJobTitle} onChange={(e) => setFormJobTitle(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white" />
                     </div>
-                    <button type="submit" disabled={formSubmitting} className="w-full py-2.5 text-slate-950 font-bold rounded-xl transition cursor-pointer shadow-md" style={{ backgroundColor: primaryCol }}>
+                    <button type="submit" disabled={formSubmitting} className="w-full py-2.5 text-slate-950 font-bold rounded-xl transition cursor-pointer shadow-md mt-2 whitespace-nowrap" style={{ backgroundColor: primaryCol }}>
                       {formSubmitting ? 'جاري الحفظ...' : isEditing ? 'تحديث البيانات' : 'تفعيل الحساب'}
                     </button>
                   </form>
@@ -1652,23 +1654,23 @@ export default function DashboardPage() {
 
                 <div className="md:col-span-2 space-y-2">
                   <span className="text-xs font-bold text-white">الحسابات المسجلة بالمنظومة:</span>
-                  <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden max-h-80 overflow-y-auto">
-                    <table className="w-full text-right text-xs">
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden max-h-80 overflow-y-auto w-full overflow-x-auto">
+                    <table className="w-full min-w-[400px] text-right text-xs">
                       <thead className="bg-slate-900 text-slate-400 border-b border-slate-800 text-[11px] sticky top-0">
                         <tr>
-                          <th className="p-3">الموظف</th>
-                          <th className="p-3">اسم الدخول</th>
-                          <th className="p-3">الرتبة</th>
-                          <th className="p-3 text-center">إجراءات</th>
+                          <th className="p-3 whitespace-nowrap">الموظف</th>
+                          <th className="p-3 whitespace-nowrap">اسم الدخول</th>
+                          <th className="p-3 whitespace-nowrap">الرتبة</th>
+                          <th className="p-3 text-center whitespace-nowrap">إجراءات</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800">
                         {usersList.map((u) => (
                           <tr key={u.user_id} className="hover:bg-slate-900/50">
-                            <td className="p-3 font-bold text-white">{u.full_name}</td>
-                            <td className="p-3 font-mono text-slate-400">{u.username}</td>
-                            <td className="p-3">{u.is_super_admin ? 'المدير المفوض' : (u.job_title || 'موظف')}</td>
-                            <td className="p-3 text-center flex items-center justify-center gap-1.5">
+                            <td className="p-3 font-bold text-white whitespace-nowrap">{u.full_name}</td>
+                            <td className="p-3 font-mono text-slate-400 whitespace-nowrap">{u.username}</td>
+                            <td className="p-3 whitespace-nowrap">{u.is_super_admin ? 'المدير المفوض' : (u.job_title || 'موظف')}</td>
+                            <td className="p-3 text-center flex items-center justify-center gap-1.5 whitespace-nowrap">
                               <button onClick={() => handleStartEdit(u)} className="p-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg border border-slate-700 cursor-pointer" style={{ color: primaryCol }}><Edit3 className="w-3.5 h-3.5" /></button>
                               {!u.is_super_admin && u.user_id !== currentUser?.user_id && (
                                 <button onClick={() => handleDeleteUser(u)} className="p-1.5 bg-slate-900 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg border border-rose-500/30 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>

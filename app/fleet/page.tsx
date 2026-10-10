@@ -663,11 +663,68 @@ export default function FleetPage() {
     <AuthGuard moduleName="fleet" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل */}
+        {/* تنسيقات الطباعة الصارمة لورقة A4 المعزولة */}
+        <style jsx global>{`
+          @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
+            .print-official-sheet {
+              min-width: 760px !important;
+              margin: 0 auto !important;
+            }
+          }
+          @media print {
+            @page {
+              size: A4 portrait !important;
+              margin: 0 !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body, html {
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
+              display: none !important;
+              visibility: hidden !important;
+            }
+            .print-official-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              margin: 0 auto !important;
+              width: 100% !important;
+              max-width: 210mm !important;
+              height: 280mm !important;
+              max-height: 280mm !important;
+              min-height: 0 !important;
+              padding: 6mm 10mm !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              page-break-after: auto !important;
+              break-after: auto !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+            }
+          }
+        `}</style>
+
+        {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
             
-            {/* الطرف الأيمن: الشعار والعنوان والشارة */}
             <div className="flex items-center gap-4">
               <div 
                 className="w-14 h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl"
@@ -697,7 +754,7 @@ export default function FleetPage() {
                     المركز المالي لقطاع النقل العام واللوجستيات
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -710,7 +767,6 @@ export default function FleetPage() {
               </div>
             </div>
 
-            {/* الطرف الأيسر: شارة المستخدم وأزرار التنقل السريع */}
             <div className="flex items-center gap-2.5 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
               <button
                 onClick={() => loadData(selectedBranchId)}
@@ -732,7 +788,7 @@ export default function FleetPage() {
                 <div className="text-right">
                   <p className="text-xs font-bold text-white leading-tight truncate max-w-[120px]">{currentUser.full_name}</p>
                   <span 
-                    className="px-1.5 py-0.2 rounded text-[9px] font-bold border inline-block mt-0.5"
+                    className="px-1.5 py-0.2 rounded text-[9px] font-bold border inline-block mt-0.5 whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     {isSuperAdmin ? 'الإدارة العليا' : currentUser.job_title || 'كابتن الأسطول'}
@@ -760,7 +816,7 @@ export default function FleetPage() {
 
         {/* بطاقات الموقف المالي لقطاع النقل العام */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900/90 border border-emerald-500/30 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5">
+          <div className="bg-slate-900/90 border border-emerald-500/30 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-emerald-300 font-semibold block flex items-center gap-1.5">
@@ -777,7 +833,7 @@ export default function FleetPage() {
             <p className="text-[11px] text-slate-400 mt-2">من واقع أجور نقل الشحنات والمهام المنجزة</p>
           </div>
 
-          <div className="bg-slate-900/90 border border-rose-500/30 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5">
+          <div className="bg-slate-900/90 border border-rose-500/30 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-rose-300 font-semibold block flex items-center gap-1.5">
@@ -791,13 +847,13 @@ export default function FleetPage() {
                 <Wrench className="w-5 h-5" />
               </div>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 font-mono">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 font-mono flex-wrap gap-1">
               <span>إيجار خارجي: {formatNum(transportFinance.externalRentalExpenses)}</span>
               <span>وقود وصيانة: {formatNum(transportFinance.fuelExpenses + transportFinance.maintenanceExpenses)}</span>
             </div>
           </div>
 
-          <div className={`bg-slate-900/90 border p-5 rounded-3xl relative overflow-hidden shadow-xl ${
+          <div className={`bg-slate-900/90 border p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center ${
             transportFinance.netProfit >= 0 ? 'border-sky-500/50 bg-sky-500/10' : 'border-rose-500/50 bg-rose-500/10'
           }`}>
             <div className="flex justify-between items-start">
@@ -809,14 +865,14 @@ export default function FleetPage() {
                   {formatNum(transportFinance.netProfit)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="px-2 py-1 bg-sky-500/20 text-sky-300 rounded-xl text-xs font-bold font-mono">
+              <div className="px-2 py-1 bg-sky-500/20 text-sky-300 rounded-xl text-xs font-bold font-mono whitespace-nowrap">
                 {transportFinance.profitMargin}% هامش
               </div>
             </div>
             <p className="text-[11px] text-slate-300 mt-2 font-sans">معادلة الأرباح معزولة كلياً ومباشرة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-[13px] text-slate-400 font-semibold block">إجمالي المواد المنقولة</span>
@@ -836,10 +892,10 @@ export default function FleetPage() {
 
         {/* شريط التبويبات والتحكم */}
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pt-6 pb-3 gap-3 print:hidden">
-          <div className="flex gap-2">
+          <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
             <button
               onClick={() => setActiveTab('VEHICLES')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'VEHICLES' ? 'text-slate-950 font-black shadow-lg' : 'bg-slate-900 text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'VEHICLES' ? { backgroundColor: primaryCol } : {}}
@@ -848,7 +904,7 @@ export default function FleetPage() {
             </button>
             <button
               onClick={() => setActiveTab('FINANCES')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'FINANCES' ? 'text-slate-950 font-black shadow-lg' : 'bg-slate-900 text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'FINANCES' ? { backgroundColor: primaryCol } : {}}
@@ -857,7 +913,7 @@ export default function FleetPage() {
             </button>
             <button
               onClick={() => setActiveTab('MAINTENANCE')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'MAINTENANCE' ? 'text-slate-950 font-black shadow-lg' : 'bg-slate-900 text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'MAINTENANCE' ? { backgroundColor: primaryCol } : {}}
@@ -866,13 +922,13 @@ export default function FleetPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end">
             <button
               onClick={async () => {
                 await loadSettings();
                 setShowReportModal(true);
               }}
-              className="bg-slate-900 hover:bg-slate-800 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition border cursor-pointer"
+              className="bg-slate-900 hover:bg-slate-800 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition border cursor-pointer whitespace-nowrap"
               style={{ color: primaryCol, borderColor: `${primaryCol}40` }}
             >
               <FileText className="w-4 h-4" /> طباعة السجل الرسمي
@@ -881,7 +937,7 @@ export default function FleetPage() {
             {canManageVouchers && (
               <button
                 onClick={() => setShowMaintenanceModal(true)}
-                className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-purple-600/20 cursor-pointer"
+                className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-purple-600/20 cursor-pointer whitespace-nowrap"
               >
                 <Fuel className="w-4 h-4" /> قيد وقود / صيانة
               </button>
@@ -891,14 +947,14 @@ export default function FleetPage() {
               <>
                 <button
                   onClick={handleOpenTripModal}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer whitespace-nowrap"
                 >
                   <Navigation className="w-4 h-4" /> مهمة نقل جديدة
                 </button>
 
                 <button
                   onClick={() => setShowAddVehicleModal(true)}
-                  className="text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer"
+                  className="text-slate-950 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer whitespace-nowrap"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
                   <PlusCircle className="w-4 h-4" /> إضافة آلية
@@ -912,7 +968,7 @@ export default function FleetPage() {
         {activeTab === 'VEHICLES' && (
           <>
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 print:hidden">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                 <div className="relative flex-1 sm:w-72">
                   <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
                   <input 
@@ -937,7 +993,7 @@ export default function FleetPage() {
 
               <button
                 onClick={exportTripsToCSV}
-                className="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
               >
                 <FileSpreadsheet className="w-4 h-4" style={{ color: primaryCol }} /> تصدير السجل المالي (CSV)
               </button>
@@ -954,13 +1010,13 @@ export default function FleetPage() {
                 const profit = rev - rent;
 
                 return (
-                  <div key={extTrip.trip_id} className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 hover:border-slate-700 transition shadow-xl flex flex-col justify-between">
+                  <div key={extTrip.trip_id} className="bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-4 hover:border-slate-700 transition shadow-xl flex flex-col justify-between">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-bold text-white">{extTrip.external_truck_info}</h3>
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-amber-500/15 text-amber-400 border-amber-500/30">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-amber-500/15 text-amber-400 border-amber-500/30 whitespace-nowrap">
                               في الطريق (مستأجرة)
                             </span>
                           </div>
@@ -971,7 +1027,7 @@ export default function FleetPage() {
 
                         <button
                           onClick={() => openGoogleMapsDirections(extTrip.origin, extTrip.destination)}
-                          className="text-xs bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 px-3 py-1.5 rounded-xl border border-sky-500/30 transition flex items-center gap-1 shrink-0 cursor-pointer"
+                          className="text-xs bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 px-3 py-1.5 rounded-xl border border-sky-500/30 transition flex items-center gap-1 shrink-0 cursor-pointer whitespace-nowrap"
                         >
                           <Compass className="w-3.5 h-3.5" /> الخريطة
                         </button>
@@ -980,15 +1036,15 @@ export default function FleetPage() {
                       <div className="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800/80 text-xs font-mono text-center">
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">أجور العميل</span>
-                          <span className="font-bold text-emerald-400 text-[11px]">+{formatNum(rev)}</span>
+                          <span className="font-bold text-emerald-400 text-[11px] whitespace-nowrap">+{formatNum(rev)}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">كلفة الإيجار</span>
-                          <span className="font-bold text-rose-400 text-[11px]">-{formatNum(rent)}</span>
+                          <span className="font-bold text-rose-400 text-[11px] whitespace-nowrap">-{formatNum(rent)}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">صافي الربح</span>
-                          <span className="font-bold text-[11px] text-sky-400">+{formatNum(profit)}</span>
+                          <span className="font-bold text-[11px] text-sky-400 whitespace-nowrap">+{formatNum(profit)}</span>
                         </div>
                       </div>
 
@@ -1004,7 +1060,7 @@ export default function FleetPage() {
                         </p>
                         <div className="pt-1.5 border-t border-slate-800/80 text-xs text-amber-300 flex items-center justify-between">
                           <span className="truncate">الحمولة: <strong>{extTrip.cargo_description}</strong></span>
-                          <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold font-sans">بمهمة</span>
+                          <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold font-sans whitespace-nowrap">بمهمة</span>
                         </div>
                       </div>
 
@@ -1046,7 +1102,7 @@ export default function FleetPage() {
                     {canEdit && (
                       <button
                         onClick={() => handleCompleteTrip(extTrip)}
-                        className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 mt-2 cursor-pointer"
+                        className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl text-xs transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 mt-2 cursor-pointer whitespace-nowrap"
                       >
                         <CheckCircle2 className="w-4 h-4" /> تأكيد وصول وتسليم الشحنة
                       </button>
@@ -1091,19 +1147,18 @@ export default function FleetPage() {
                   : null;
 
                 return (
-                  <div key={v.vehicle_id || v.id} className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 hover:border-slate-700 transition shadow-xl flex flex-col justify-between">
+                  <div key={v.vehicle_id || v.id} className="bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-4 hover:border-slate-700 transition shadow-xl flex flex-col justify-between">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-bold text-white">{v.vehicle_name}</h3>
                             
-                            {/* وسم الفرع التابع له الشاحنة */}
-                            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 font-sans">
+                            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 font-sans whitespace-nowrap">
                               🏢 {v.branch_name || 'فرع النقل العام واللوجستيات'}
                             </span>
 
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusBadge}`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${statusBadge}`}>
                               {statusTitle}
                             </span>
                           </div>
@@ -1122,7 +1177,7 @@ export default function FleetPage() {
                                 setUpdateMileage(v.current_mileage?.toString() || '');
                                 setUpdateFuel(v.current_fuel_pct?.toString() || '100');
                               }}
-                              className="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer"
+                              className="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer whitespace-nowrap"
                               style={{ color: primaryCol }}
                               title="تحديث الحالة الميدانية"
                             >
@@ -1146,15 +1201,15 @@ export default function FleetPage() {
                       <div className="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800/80 text-xs font-mono text-center">
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">الإيراد المستقل</span>
-                          <span className="font-bold text-emerald-400 text-[11px]">{formatNum(vFinance.revenue)}</span>
+                          <span className="font-bold text-emerald-400 text-[11px] whitespace-nowrap">{formatNum(vFinance.revenue)}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">المصروف والوقود</span>
-                          <span className="font-bold text-rose-400 text-[11px]">{formatNum(vFinance.expenses)}</span>
+                          <span className="font-bold text-rose-400 text-[11px] whitespace-nowrap">{formatNum(vFinance.expenses)}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-400 block font-sans">صافي الأرباح</span>
-                          <span className={`font-bold text-[11px] ${vFinance.net >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
+                          <span className={`font-bold text-[11px] whitespace-nowrap ${vFinance.net >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
                             {formatNum(vFinance.net)}
                           </span>
                         </div>
@@ -1173,7 +1228,7 @@ export default function FleetPage() {
                         {activeTrip && (
                           <div className="pt-1.5 border-t border-slate-800/80 text-xs text-amber-300 flex items-center justify-between">
                             <span className="truncate">الحمولة: <strong>{activeTrip.cargo_description}</strong> ({activeTrip.cargo_weight_tons} طن)</span>
-                            <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold font-sans">بمهمة</span>
+                            <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold font-sans whitespace-nowrap">بمهمة</span>
                           </div>
                         )}
                       </div>
@@ -1182,11 +1237,11 @@ export default function FleetPage() {
                       <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                         <div className="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/80">
                           <span className="text-[10px] text-slate-500 font-sans block">العداد</span>
-                          <span className="font-bold text-white text-[12px]">{formatNum(v.current_mileage)} كم</span>
+                          <span className="font-bold text-white text-[12px] whitespace-nowrap">{formatNum(v.current_mileage)} كم</span>
                         </div>
                         <div className="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/80">
                           <span className="text-[10px] text-slate-500 font-sans block">الوقود</span>
-                          <span className="font-bold text-emerald-400 text-[12px]">{fuelPct}%</span>
+                          <span className="font-bold text-emerald-400 text-[12px] whitespace-nowrap">{fuelPct}%</span>
                         </div>
                         <div className="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/80">
                           <span className="text-[10px] text-slate-500 font-sans block">الكابتن المسؤول</span>
@@ -1242,7 +1297,7 @@ export default function FleetPage() {
 
                           <button
                             onClick={() => openGoogleMapsDirections(activeTrip.origin, activeTrip.destination)}
-                            className="w-full bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/30 font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 transition mt-2 cursor-pointer"
+                            className="w-full bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 border border-sky-500/30 font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 transition mt-2 cursor-pointer whitespace-nowrap"
                           >
                             <Compass className="w-3.5 h-3.5" /> فتح مسار الخريطة في Google Maps
                           </button>
@@ -1267,8 +1322,8 @@ export default function FleetPage() {
             </div>
 
             {/* جدول سجل العمليات المنفذة */}
-            <div className="max-w-7xl mx-auto mt-8 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 print:hidden shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="max-w-7xl mx-auto mt-8 bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-4 print:hidden shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-800 pb-3">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <Navigation className="w-4 h-4" style={{ color: primaryCol }} /> سجل أجور وعمليات النقل العام المنفذة
@@ -1278,21 +1333,21 @@ export default function FleetPage() {
                 <span className="text-xs text-slate-400 font-mono">العدد: {trips.length} رحلة</span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-xs">
+              <div className="w-full overflow-x-auto pb-2">
+                <table className="w-full min-w-[850px] text-right text-xs">
                   <thead className="bg-slate-800/60 text-slate-400 border-b border-slate-800 text-[11px]">
                     <tr>
-                      <th className="p-3">الشاحنة</th>
-                      <th className="p-3">المادة / الحمولة</th>
-                      <th className="p-3">مسار التحرك والخرائط</th>
-                      <th className="p-3 text-center">الوزن</th>
-                      <th className="p-3">أجور النقل</th>
-                      <th className="p-3">كلفة الإيجار</th>
-                      <th className="p-3">صافي الربح</th>
-                      <th className="p-3">الكابتن</th>
-                      <th className="p-3">المنافيست</th>
-                      <th className="p-3 text-center">الحالة</th>
-                      <th className="p-3 text-center">الإجراء</th>
+                      <th className="p-3 whitespace-nowrap">الشاحنة</th>
+                      <th className="p-3 whitespace-nowrap">المادة / الحمولة</th>
+                      <th className="p-3 whitespace-nowrap">مسار التحرك والخرائط</th>
+                      <th className="p-3 text-center whitespace-nowrap">الوزن</th>
+                      <th className="p-3 whitespace-nowrap">أجور النقل</th>
+                      <th className="p-3 whitespace-nowrap">كلفة الإيجار</th>
+                      <th className="p-3 whitespace-nowrap">صافي الربح</th>
+                      <th className="p-3 whitespace-nowrap">الكابتن</th>
+                      <th className="p-3 whitespace-nowrap">المنافيست</th>
+                      <th className="p-3 text-center whitespace-nowrap">الحالة</th>
+                      <th className="p-3 text-center whitespace-nowrap">الإجراء</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 font-sans text-xs">
@@ -1326,7 +1381,7 @@ export default function FleetPage() {
                                 <span className="text-emerald-400 font-bold">{t.destination}</span>
                                 <button
                                   onClick={() => openGoogleMapsDirections(t.origin, t.destination)}
-                                  className="text-[11px] bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition shrink-0 mr-1 cursor-pointer"
+                                  className="text-[11px] bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition shrink-0 mr-1 cursor-pointer whitespace-nowrap"
                                   title="فتح المسار في Google Maps"
                                 >
                                   <Compass className="w-3.5 h-3.5" /> الخريطة
@@ -1344,26 +1399,26 @@ export default function FleetPage() {
                             <td className="p-3 text-slate-300 whitespace-nowrap">{t.captain_name || t.external_driver_name}</td>
                             <td className="p-3 whitespace-nowrap">
                               {t.manifest_doc_url ? (
-                                <a href={t.manifest_doc_url} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline flex items-center gap-1 text-xs">
+                                <a href={t.manifest_doc_url} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline flex items-center gap-1 text-xs whitespace-nowrap">
                                   عرض <ExternalLink className="w-3.5 h-3.5" />
                                 </a>
                               ) : (
-                                <span className="text-slate-500">---</span>
+                                <span className="text-slate-500 whitespace-nowrap">---</span>
                               )}
                             </td>
                             <td className="p-3 text-center whitespace-nowrap">
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
                                 isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30 animate-pulse'
                               }`}>
                                 {isCompleted ? 'تم التسليم ✓' : 'في الطريق 🚚'}
                               </span>
                             </td>
                             <td className="p-3 text-center whitespace-nowrap">
-                              <div className="flex items-center justify-center gap-1.5">
+                              <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                 {!isCompleted && canEdit && (
                                   <button
                                     onClick={() => handleCompleteTrip(t)}
-                                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2.5 py-1 rounded-xl text-xs transition shadow cursor-pointer"
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2.5 py-1 rounded-xl text-xs transition shadow cursor-pointer whitespace-nowrap"
                                   >
                                     تأكيد الوصول
                                   </button>
@@ -1371,7 +1426,7 @@ export default function FleetPage() {
                                 {canDelete && (
                                   <button
                                     onClick={() => handleDeleteTrip(t)}
-                                    className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white p-1.5 rounded-xl border border-rose-500/30 transition cursor-pointer"
+                                    className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white p-1.5 rounded-xl border border-rose-500/30 transition cursor-pointer shrink-0"
                                     title="حذف سجل الرحلة"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -1393,8 +1448,8 @@ export default function FleetPage() {
         {/* 2. تبويب تقرير الأرباح والحسابات المعزولة */}
         {activeTab === 'FINANCES' && (
           <div className="max-w-7xl mx-auto space-y-6 mt-4">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-6 shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-800 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-400" /> بيان الأرباح والخسائر المستقل لقطاع النقل العام
@@ -1403,7 +1458,7 @@ export default function FleetPage() {
                 </div>
                 <button
                   onClick={exportTripsToCSV}
-                  className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                  className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap self-start sm:self-auto"
                 >
                   <Download className="w-3.5 h-3.5" /> تصدير تقرير الأرباح
                 </button>
@@ -1436,17 +1491,17 @@ export default function FleetPage() {
                 <h4 className="text-xs font-bold text-white mb-3 flex items-center gap-1.5">
                   <Truck className="w-4 h-4 text-emerald-400" /> تفصيل الأرباح التشغيلية لشاحنات أسطول الشركة الداخلي
                 </h4>
-                <div className="border border-slate-800 rounded-2xl overflow-hidden">
-                  <table className="w-full text-right text-[14px]">
+                <div className="border border-slate-800 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2">
+                  <table className="w-full min-w-[700px] text-right text-[14px]">
                     <thead className="bg-slate-800/80 text-slate-400 text-[12px]">
                       <tr>
-                        <th className="p-3.5">الآلية واللوحة</th>
-                        <th className="p-3.5">السائق المكلف</th>
-                        <th className="p-3.5">إجمالي الإيرادات</th>
-                        <th className="p-3.5">إجمالي المصروفات</th>
-                        <th className="p-3.5">صافي الأرباح</th>
-                        <th className="p-3.5 text-center">التقييم الربحي</th>
-                        <th className="p-3.5 text-center">الإجراء</th>
+                        <th className="p-3.5 whitespace-nowrap">الآلية واللوحة</th>
+                        <th className="p-3.5 whitespace-nowrap">السائق المكلف</th>
+                        <th className="p-3.5 whitespace-nowrap">إجمالي الإيرادات</th>
+                        <th className="p-3.5 whitespace-nowrap">إجمالي المصروفات</th>
+                        <th className="p-3.5 whitespace-nowrap">صافي الأرباح</th>
+                        <th className="p-3.5 text-center whitespace-nowrap">التقييم الربحي</th>
+                        <th className="p-3.5 text-center whitespace-nowrap">الإجراء</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800 font-mono text-[13px]">
@@ -1455,14 +1510,14 @@ export default function FleetPage() {
                         const f = vehicleFinancialMap.get(vId) || { revenue: 0, expenses: 0, net: 0 };
                         return (
                           <tr key={vId} className="hover:bg-slate-800/30">
-                            <td className="p-3.5 font-bold text-white font-sans">{v.vehicle_name} ({v.plate_number})</td>
-                            <td className="p-3.5 font-sans text-slate-300">{v.assigned_driver}</td>
-                            <td className="p-3.5 text-emerald-400 font-bold">{formatNum(f.revenue)} د.ع</td>
-                            <td className="p-3.5 text-rose-400 font-bold">{formatNum(f.expenses)} د.ع</td>
-                            <td className={`p-3.5 font-black ${f.net >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
+                            <td className="p-3.5 font-bold text-white font-sans whitespace-nowrap">{v.vehicle_name} ({v.plate_number})</td>
+                            <td className="p-3.5 font-sans text-slate-300 whitespace-nowrap">{v.assigned_driver}</td>
+                            <td className="p-3.5 text-emerald-400 font-bold whitespace-nowrap">{formatNum(f.revenue)} د.ع</td>
+                            <td className="p-3.5 text-rose-400 font-bold whitespace-nowrap">{formatNum(f.expenses)} د.ع</td>
+                            <td className={`p-3.5 font-black whitespace-nowrap ${f.net >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
                               {formatNum(f.net)} د.ع
                             </td>
-                            <td className="p-3.5 text-center font-sans">
+                            <td className="p-3.5 text-center font-sans whitespace-nowrap">
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                                 f.net > 0 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
                                 f.net === 0 ? 'bg-slate-800 text-slate-400' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
@@ -1470,7 +1525,7 @@ export default function FleetPage() {
                                 {f.net > 0 ? 'رابحة ومجدية' : f.net === 0 ? 'متعادلة' : 'تتطلب مراجعة'}
                               </span>
                             </td>
-                            <td className="p-3.5 text-center font-sans">
+                            <td className="p-3.5 text-center font-sans whitespace-nowrap">
                               {canDelete && (
                                 <button
                                   onClick={() => handleDeleteVehicle(v)}
@@ -1494,17 +1549,17 @@ export default function FleetPage() {
                 <h4 className="text-xs font-bold mb-3 flex items-center gap-1.5" style={{ color: primaryCol }}>
                   <Coins className="w-4 h-4" style={{ color: primaryCol }} /> تفصيل الأرباح التشغيلية للتريلات والشاحنات المستأجرة (كل آلية على حدة)
                 </h4>
-                <div className="border rounded-2xl overflow-hidden bg-slate-950/40" style={{ borderColor: `${primaryCol}30` }}>
-                  <table className="w-full text-right text-[14px]">
+                <div className="border rounded-2xl overflow-hidden bg-slate-950/40 w-full overflow-x-auto pb-2" style={{ borderColor: `${primaryCol}30` }}>
+                  <table className="w-full min-w-[700px] text-right text-[14px]">
                     <thead className="text-[12px] border-b" style={{ backgroundColor: `${primaryCol}10`, color: primaryCol, borderBottomColor: `${primaryCol}20` }}>
                       <tr>
-                        <th className="p-3.5">وصف الشاحنة ورقم اللوحة</th>
-                        <th className="p-3.5">السائق / جهة التأجير</th>
-                        <th className="p-3.5 text-center">عدد النقلات</th>
-                        <th className="p-3.5">أجور العميل (الإيراد)</th>
-                        <th className="p-3.5">كلفة الإيجار (المصروف)</th>
-                        <th className="p-3.5">صافي ربح الشركة</th>
-                        <th className="p-3.5 text-center">التقييم الربحي</th>
+                        <th className="p-3.5 whitespace-nowrap">وصف الشاحنة ورقم اللوحة</th>
+                        <th className="p-3.5 whitespace-nowrap">السائق / جهة التأجير</th>
+                        <th className="p-3.5 text-center whitespace-nowrap">عدد النقلات</th>
+                        <th className="p-3.5 whitespace-nowrap">أجور العميل (الإيراد)</th>
+                        <th className="p-3.5 whitespace-nowrap">كلفة الإيجار (المصروف)</th>
+                        <th className="p-3.5 whitespace-nowrap">صافي ربح الشركة</th>
+                        <th className="p-3.5 text-center whitespace-nowrap">التقييم الربحي</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800 font-mono text-[13px]">
@@ -1515,16 +1570,16 @@ export default function FleetPage() {
                       ) : (
                         externalTrucksFinancialList.map((ext, idx) => (
                           <tr key={idx} className="hover:bg-slate-800/30">
-                            <td className="p-3.5 font-bold text-white font-sans">{ext.truckName}</td>
-                            <td className="p-3.5 font-sans text-slate-300">
+                            <td className="p-3.5 font-bold text-white font-sans whitespace-nowrap">{ext.truckName}</td>
+                            <td className="p-3.5 font-sans text-slate-300 whitespace-nowrap">
                               {ext.driverName} {ext.driverPhone ? `(${ext.driverPhone})` : ''}
                             </td>
-                            <td className="p-3.5 text-white font-bold text-center font-mono">{ext.tripsCount} نقلة</td>
-                            <td className="p-3.5 text-emerald-400 font-bold">+{formatNum(ext.totalRevenue)} د.ع</td>
-                            <td className="p-3.5 text-rose-400 font-bold">-{formatNum(ext.totalRentalCost)} د.ع</td>
-                            <td className="p-3.5 text-sky-400 font-black">+{formatNum(ext.netProfit)} د.ع</td>
-                            <td className="p-3.5 text-center font-sans">
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <td className="p-3.5 text-white font-bold text-center font-mono whitespace-nowrap">{ext.tripsCount} نقلة</td>
+                            <td className="p-3.5 text-emerald-400 font-bold whitespace-nowrap">+{formatNum(ext.totalRevenue)} د.ع</td>
+                            <td className="p-3.5 text-rose-400 font-bold whitespace-nowrap">-{formatNum(ext.totalRentalCost)} د.ع</td>
+                            <td className="p-3.5 text-sky-400 font-black whitespace-nowrap">+{formatNum(ext.netProfit)} د.ع</td>
+                            <td className="p-3.5 text-center font-sans whitespace-nowrap">
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
                                 وساطة ناجحة ✓
                               </span>
                             </td>
@@ -1543,8 +1598,8 @@ export default function FleetPage() {
         {/* 3. تبويب قيود الوقود والصيانة */}
         {activeTab === 'MAINTENANCE' && (
           <div className="max-w-7xl mx-auto space-y-6 mt-4">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="bg-slate-900 border border-slate-800 p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-800 pb-3">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-purple-400" /> سجل قيود الصيانة وتكاليف الوقود المستقلة
@@ -1554,24 +1609,24 @@ export default function FleetPage() {
                 {canManageVouchers && (
                   <button
                     onClick={() => setShowMaintenanceModal(true)}
-                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1 shadow-lg shadow-purple-600/20 cursor-pointer"
+                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shadow-lg shadow-purple-600/20 cursor-pointer whitespace-nowrap self-start sm:self-auto"
                   >
                     <PlusCircle className="w-3.5 h-3.5" /> تسجيل قيد صيانة جديد
                   </button>
                 )}
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-[14px]">
+              <div className="w-full overflow-x-auto pb-2">
+                <table className="w-full min-w-[750px] text-right text-[14px]">
                   <thead className="bg-slate-800/60 text-slate-400 border-b border-slate-800 text-[12px]">
                     <tr>
-                      <th className="p-3">الشاحنة</th>
-                      <th className="p-3">نوع القيد</th>
-                      <th className="p-3">البيان والتفاصيل</th>
-                      <th className="p-3">المبلغ المصروف</th>
-                      <th className="p-3">العداد عند الخدمة</th>
-                      <th className="p-3">المحطة / الورشة</th>
-                      <th className="p-3">تاريخ القيد</th>
+                      <th className="p-3 whitespace-nowrap">الشاحنة</th>
+                      <th className="p-3 whitespace-nowrap">نوع القيد</th>
+                      <th className="p-3 whitespace-nowrap">البيان والتفاصيل</th>
+                      <th className="p-3 whitespace-nowrap">المبلغ المصروف</th>
+                      <th className="p-3 whitespace-nowrap">العداد عند الخدمة</th>
+                      <th className="p-3 whitespace-nowrap">المحطة / الورشة</th>
+                      <th className="p-3 whitespace-nowrap">تاريخ القيد</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 font-mono text-[13px]">
@@ -1585,9 +1640,9 @@ export default function FleetPage() {
                         const isFuel = m.log_type === 'FUEL';
                         return (
                           <tr key={m.log_id} className="hover:bg-slate-800/30 transition">
-                            <td className="p-3.5 font-bold text-white font-sans">{m.vehicle_name} ({m.plate_number})</td>
-                            <td className="p-3.5 font-sans">
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            <td className="p-3.5 font-bold text-white font-sans whitespace-nowrap">{m.vehicle_name} ({m.plate_number})</td>
+                            <td className="p-3.5 font-sans whitespace-nowrap">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${
                                 isOil ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                                 isFuel ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                                 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
@@ -1596,10 +1651,10 @@ export default function FleetPage() {
                               </span>
                             </td>
                             <td className="p-3.5 font-sans text-slate-200">{m.description}</td>
-                            <td className="p-3.5 font-bold text-rose-400">{formatNum(m.cost)} د.ع</td>
-                            <td className="p-3.5 text-slate-300">{formatNum(m.mileage_at_service)} كم</td>
-                            <td className="p-3.5 font-sans text-slate-400">{m.performed_by}</td>
-                            <td className="p-3.5 text-slate-500 text-[11px]">{String(m.service_date || '').split('T')[0]}</td>
+                            <td className="p-3.5 font-bold text-rose-400 whitespace-nowrap">{formatNum(m.cost)} د.ع</td>
+                            <td className="p-3.5 text-slate-300 whitespace-nowrap">{formatNum(m.mileage_at_service)} كم</td>
+                            <td className="p-3.5 font-sans text-slate-400 whitespace-nowrap">{m.performed_by}</td>
+                            <td className="p-3.5 text-slate-500 text-[11px] whitespace-nowrap">{String(m.service_date || '').split('T')[0]}</td>
                           </tr>
                         );
                       })
@@ -1614,20 +1669,20 @@ export default function FleetPage() {
         {/* نافذة تسجيل مهمة جديدة */}
         {showNewTripModal && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-amber-400" /> إطلاق مهمة نقل وتسجيل إيراد مستقل
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                  <Navigation className="w-4 h-4 text-amber-400 shrink-0" /> تسجيل مهمة نقل وإيراد مستقل
                 </h3>
-                <button onClick={() => setShowNewTripModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setShowNewTripModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateTrip} className="space-y-3.5 text-[14px]">
+              <form onSubmit={handleCreateTrip} className="space-y-3.5 text-[14px] flex-1">
                 <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
                   <label className="block text-slate-300 font-bold text-xs">مصدر الشاحنة المنفذة للمهمة:</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <label className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition text-xs ${
                       truckSourceType === 'INTERNAL' ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'
                     }`}>
@@ -1689,7 +1744,7 @@ export default function FleetPage() {
                         className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none focus:border-amber-400 text-xs"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
                         <label className="block text-slate-400 mb-1">اسم السائق الخارجي</label>
                         <input
@@ -1736,7 +1791,7 @@ export default function FleetPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">نقطة الانطلاق (التحميل) *</label>
                     <input
@@ -1759,7 +1814,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">أجور النقل من العميل (د.ع) *</label>
                     <input
@@ -1783,7 +1838,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">ساعات الطريق المقدرة *</label>
                     <input
@@ -1829,7 +1884,7 @@ export default function FleetPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button
                     type="button"
                     onClick={() => setShowNewTripModal(false)}
@@ -1840,7 +1895,7 @@ export default function FleetPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs shadow-lg cursor-pointer"
+                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs shadow-lg cursor-pointer whitespace-nowrap"
                     style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                   >
                     {loading ? 'جاري الإطلاق...' : 'بدء الرحلة وتحريك الآلية'}
@@ -1854,17 +1909,17 @@ export default function FleetPage() {
         {/* نافذة قيد صيانة ووقود */}
         {showMaintenanceModal && canManageVouchers && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Wrench className="w-4 h-4 text-purple-400" /> قيد صيانة / وقود في حسابات النقل
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                  <Wrench className="w-4 h-4 text-purple-400 shrink-0" /> قيد صيانة / وقود في حسابات النقل
                 </h3>
-                <button onClick={() => setShowMaintenanceModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setShowMaintenanceModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleAddMaintenanceLog} className="space-y-3.5 text-[14px]">
+              <form onSubmit={handleAddMaintenanceLog} className="space-y-3.5 text-[14px] flex-1">
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold text-xs">اختر الشاحنة *</label>
                   <select
@@ -1882,13 +1937,13 @@ export default function FleetPage() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">نوع الإجراء</label>
                     <select
                       value={maintType}
                       onChange={(e: any) => setMaintType(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer text-xs"
                     >
                       <option value="OIL_CHANGE">تبديل دهن وفلاتر</option>
                       <option value="FUEL">تزويد وقود (فل)</option>
@@ -1904,7 +1959,7 @@ export default function FleetPage() {
                       placeholder="120000"
                       value={maintCost}
                       onChange={(e) => setMaintCost(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-purple-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-purple-500 text-xs"
                     />
                   </div>
                 </div>
@@ -1921,7 +1976,7 @@ export default function FleetPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">قراءة العداد الحالية (كم)</label>
                     <input
@@ -1929,7 +1984,7 @@ export default function FleetPage() {
                       placeholder="35000"
                       value={maintMileage}
                       onChange={(e) => setMaintMileage(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-purple-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-purple-500 text-xs"
                     />
                   </div>
                   <div>
@@ -1943,12 +1998,12 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs flex items-center gap-1.5">
+                <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs flex items-center gap-1.5 leading-relaxed">
                   <Receipt className="w-4 h-4 shrink-0" />
                   <span>تُقيد هذه التكلفة حصراً ضمن مصاريف قطاع النقل وتُخصم من أرباحه.</span>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button
                     type="button"
                     onClick={() => setShowMaintenanceModal(false)}
@@ -1959,7 +2014,7 @@ export default function FleetPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-purple-600/20 cursor-pointer"
+                    className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-purple-600/20 cursor-pointer whitespace-nowrap"
                   >
                     {loading ? 'جاري القيد...' : 'حفظ وإصدار السند'}
                   </button>
@@ -1972,17 +2027,17 @@ export default function FleetPage() {
         {/* نافذة إضافة شاحنة جديدة */}
         {showAddVehicleModal && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Truck className="w-4 h-4" style={{ color: primaryCol }} /> إضافة شاحنة أو آلية جديدة للأسطول
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                  <Truck className="w-4 h-4 shrink-0" style={{ color: primaryCol }} /> إضافة آلية جديدة للأسطول
                 </h3>
-                <button onClick={() => setShowAddVehicleModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setShowAddVehicleModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleAddVehicle} className="space-y-3.5 text-[14px]">
+              <form onSubmit={handleAddVehicle} className="space-y-3.5 text-[14px] flex-1">
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold text-xs">اسم / وصف الشاحنة *</label>
                   <input
@@ -1996,7 +2051,7 @@ export default function FleetPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">رقم اللوحة الفريد *</label>
                     <input
@@ -2024,7 +2079,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">السائق / الكابتن</label>
                     <input
@@ -2046,7 +2101,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">قراءة العداد (كم)</label>
                     <input
@@ -2068,7 +2123,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button
                     type="button"
                     onClick={() => setShowAddVehicleModal(false)}
@@ -2079,7 +2134,7 @@ export default function FleetPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs shadow-lg cursor-pointer"
+                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs shadow-lg cursor-pointer whitespace-nowrap"
                     style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                   >
                     {loading ? 'جاري الحفظ...' : 'تسجيل الآلية'}
@@ -2093,17 +2148,17 @@ export default function FleetPage() {
         {/* نافذة تحديث حالة الشاحنة */}
         {editingVehicle && canEdit && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Gauge className="w-4 h-4" style={{ color: primaryCol }} /> تحديث حالة: {editingVehicle.vehicle_name}
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                  <Gauge className="w-4 h-4 shrink-0" style={{ color: primaryCol }} /> تحديث حالة: <span className="truncate">{editingVehicle.vehicle_name}</span>
                 </h3>
-                <button onClick={() => setEditingVehicle(null)} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setEditingVehicle(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveVehicleUpdate} className="space-y-3.5 text-[14px]">
+              <form onSubmit={handleSaveVehicleUpdate} className="space-y-3.5 text-[14px] flex-1">
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold text-xs">حالة الآلية التشغيلية</label>
                   <select
@@ -2127,7 +2182,7 @@ export default function FleetPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold">العداد (كم)</label>
                     <input
@@ -2150,7 +2205,7 @@ export default function FleetPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
                   <button
                     type="button"
                     onClick={() => setEditingVehicle(null)}
@@ -2160,7 +2215,7 @@ export default function FleetPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs cursor-pointer shadow-md"
+                    className="px-5 py-2.5 text-slate-950 font-bold rounded-xl text-xs cursor-pointer shadow-md whitespace-nowrap"
                     style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                   >
                     حفظ التحديث
@@ -2173,185 +2228,188 @@ export default function FleetPage() {
 
         {/* نافذة تقرير وسجل العمليات اللوجستية الطباعي الرسمي (A4) */}
         {showReportModal && (
-          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-4 print:p-0 print:bg-white print:static">
+          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
             
-            <div className="w-full max-w-5xl flex items-center justify-between bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-4 print:hidden shadow-2xl">
-              <div className="flex items-center gap-3">
+            <div className="sticky top-0 z-50 w-full max-w-[210mm] flex flex-col sm:flex-row items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden shadow-2xl gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => window.print()}
-                  className="text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition shadow-lg cursor-pointer"
+                  className="text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
                   <Printer className="w-4 h-4" /> طباعة السجل (A4)
                 </button>
                 <button
                   onClick={exportTripsToCSV}
-                  className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer"
+                  className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
                 >
-                  <Download className="w-4 h-4" /> تصدير ملف (Excel / CSV)
+                  <Download className="w-4 h-4" /> تصدير ملف (Excel)
                 </button>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowReportModal(false)}
-                  className="bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <X className="w-4 h-4" /> إغلاق النافذة
-                </button>
-              </div>
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 rounded-xl transition border border-slate-700 cursor-pointer shrink-0 self-end sm:self-auto"
+                title="إغلاق النافذة"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="w-full max-w-5xl bg-white text-slate-900 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 print:m-0 space-y-6">
-              
-              {hasLetterhead ? (
-                <div className="w-full border-b pb-3 mb-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+            <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
+              <div className="print-official-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-5 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
+                
+                <div className="relative z-10 flex flex-col flex-1">
+                  {/* الترويسة */}
+                  {hasLetterhead ? (
+                    <div className="w-full border-b pb-3 mb-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center border-b-2 pb-4" style={{ borderColor: primaryCol }}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
+                          {hasLogo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                          ) : (
+                            <Image 
+                              src="/logo.png" 
+                              alt="شركة البرج المتألق" 
+                              width={56} 
+                              height={56} 
+                              className="object-contain" 
+                              priority
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <h1 className="text-xl sm:text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                          <p className="text-xs text-slate-600 font-bold mt-0.5">قسم أسطول النقل العام والخدمات اللوجستية (RTCO Fleet)</p>
+                          <p className="text-[11px] text-slate-500 font-mono mt-0.5 hidden sm:block">{companySettings.address} | هاتف العمليات: {companySettings.phone_primary}</p>
+                        </div>
+                      </div>
+                      <div className="text-left flex flex-col items-end">
+                        <div 
+                          className="border-2 px-3 sm:px-4 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-wider text-slate-950 rounded-xl whitespace-nowrap"
+                          style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
+                        >
+                          سجل المهام والرحلات الميدانية
+                        </div>
+                        <p className="text-[10px] sm:text-[11px] font-mono mt-2 text-slate-600 whitespace-nowrap">تاريخ الطباعة: <span className="font-bold text-slate-950">{new Date().toISOString().split('T')[0]}</span></p>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 font-sans hidden sm:block">المسؤول: <span className="font-bold text-slate-900">{currentUser.full_name}</span></p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* شريط الأرقام المالية بالتقرير المطبوع */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[13px] text-center font-mono mt-3">
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">إيراد النقل المعزول</span>
+                      <span className="text-xs sm:text-sm font-black text-emerald-600 whitespace-nowrap">{formatNum(transportFinance.totalRevenue)} د.ع</span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">المصروف والوقود</span>
+                      <span className="text-xs sm:text-sm font-black text-rose-600 whitespace-nowrap">{formatNum(transportFinance.totalExpenses)} د.ع</span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">صافي أرباح النقل</span>
+                      <span className={`text-xs sm:text-sm font-black whitespace-nowrap ${transportFinance.netProfit >= 0 ? 'text-sky-600' : 'text-rose-600'}`}>
+                        {formatNum(transportFinance.netProfit)} د.ع
+                      </span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">إجمالي الأطنان</span>
+                      <span className="text-xs sm:text-sm font-black text-amber-600 whitespace-nowrap">{formatNum(transportFinance.totalTonsMoved)} طن</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-5">
+                    <h3 className="font-black text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                      <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: primaryCol }}></span> تفاصيل حركة الآليات وأجور النقل المحصلة
+                    </h3>
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
+                      <table className="w-full min-w-[700px] text-[11px] sm:text-[12px] text-right">
+                        <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
+                          <tr>
+                            <th className="p-2.5 text-center whitespace-nowrap">#</th>
+                            <th className="p-2.5 whitespace-nowrap">الشاحنة</th>
+                            <th className="p-2.5 whitespace-nowrap">المادة المنقولة</th>
+                            <th className="p-2.5 whitespace-nowrap">الانطلاق</th>
+                            <th className="p-2.5 whitespace-nowrap">الوجهة</th>
+                            <th className="p-2.5 text-center whitespace-nowrap">الوزن</th>
+                            <th className="p-2.5 whitespace-nowrap">أجور النقل</th>
+                            <th className="p-2.5 whitespace-nowrap">كلفة الإيجار</th>
+                            <th className="p-2.5 whitespace-nowrap">صافي الربح</th>
+                            <th className="p-2.5 whitespace-nowrap">الكابتن</th>
+                            <th className="p-2.5 text-center whitespace-nowrap">الحالة</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-mono">
+                          {trips.length === 0 ? (
+                            <tr>
+                              <td colSpan={11} className="text-center py-6 text-slate-400 font-sans">لا توجد رحلات مسجلة في هذا السجل.</td>
+                            </tr>
+                          ) : (
+                            trips.map((t, idx) => {
+                              const isExt = t.truck_source_type === 'EXTERNAL';
+                              const rev = Number(t.trip_cost || 0);
+                              const rent = isExt ? Number(t.external_rental_cost || 0) : 0;
+                              return (
+                                <tr key={t.trip_id} className="hover:bg-slate-50/80">
+                                  <td className="p-2.5 text-center font-bold text-slate-400 whitespace-nowrap">{idx + 1}</td>
+                                  <td className="p-2.5 font-bold font-sans text-slate-950 whitespace-nowrap">
+                                    {t.vehicle_name || t.external_truck_info}
+                                    {isExt ? ' (مستأجرة)' : ''}
+                                  </td>
+                                  <td className="p-2.5 font-sans font-semibold text-slate-800 whitespace-nowrap">{t.cargo_description}</td>
+                                  <td className="p-2.5 font-sans text-slate-600 whitespace-nowrap">{t.origin}</td>
+                                  <td className="p-2.5 font-sans font-bold text-emerald-800 whitespace-nowrap">{t.destination}</td>
+                                  <td className="p-2.5 font-bold text-slate-900 text-center whitespace-nowrap">{t.cargo_weight_tons} طن</td>
+                                  <td className="p-2.5 font-bold text-emerald-600 whitespace-nowrap">+{formatNum(rev)}</td>
+                                  <td className="p-2.5 font-bold text-rose-400 whitespace-nowrap">-{formatNum(rent)}</td>
+                                  <td className="p-2.5 font-bold text-sky-600 whitespace-nowrap">+{formatNum(rev - rent)}</td>
+                                  <td className="p-2.5 font-sans text-slate-700 whitespace-nowrap">{t.captain_name || t.external_driver_name}</td>
+                                  <td className="p-2.5 text-center font-sans font-bold text-[10px] whitespace-nowrap">
+                                    {t.trip_status === 'COMPLETED' ? (
+                                      <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">مكتملة</span>
+                                    ) : (
+                                      <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">في الطريق</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
-                      {hasLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                      ) : (
-                        <Image 
-                          src="/logo.png" 
-                          alt="شركة البرج المتألق" 
-                          width={70} 
-                          height={70} 
-                          className="object-contain" 
-                          priority
-                        />
-                      )}
+
+                <div className="mt-auto pt-6">
+                  <div className="grid grid-cols-3 gap-6 pt-6 text-center border-t border-slate-200">
+                    <div>
+                      <p className="font-bold text-xs text-slate-700">كابتن / مسؤول الحركة</p>
+                      <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-6"></div>
                     </div>
                     <div>
-                      <h1 className="text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                      <p className="text-xs text-slate-600 font-bold mt-0.5">قسم أسطول النقل العام والخدمات اللوجستية (RTCO Fleet)</p>
-                      <p className="text-[11px] text-slate-500 font-mono mt-0.5">{companySettings.address} | هاتف العمليات: {companySettings.phone_primary}</p>
+                      <p className="font-bold text-xs text-slate-700">مدير الحسابات والمالية</p>
+                      <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-6"></div>
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-slate-700">المدير المفوض للشركة</p>
+                      <div className="border-b border-dashed border-slate-400 w-24 sm:w-36 mx-auto mt-6"></div>
                     </div>
                   </div>
-                  <div className="text-left flex flex-col items-end">
-                    <div 
-                      className="border-2 px-4 py-1.5 font-black text-xs uppercase tracking-wider text-slate-950 rounded-xl"
-                      style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                    >
-                      سجل المهام والرحلات الميدانية الرسمي
-                    </div>
-                    <p className="text-[11px] font-mono mt-2 text-slate-600">تاريخ الطباعة: <span className="font-bold text-slate-950">{new Date().toISOString().split('T')[0]}</span></p>
-                    <p className="text-[11px] text-slate-500 font-sans">المسؤول: <span className="font-bold text-slate-900">{currentUser.full_name}</span></p>
+
+                  <div className="border-t border-slate-200 pt-2 text-center text-[9px] text-slate-500 font-mono mt-4">
+                    {companySettings.company_name} - {companySettings.address} • هاتف: {companySettings.phone_primary}
                   </div>
                 </div>
-              )}
 
-              {/* أرقام الحسابات المعزولة في التقرير المطبوع */}
-              <div className="grid grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[13px] text-center font-mono">
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-500 block text-[11px] font-sans">إيراد النقل المعزول</span>
-                  <span className="text-sm font-black text-emerald-600">{formatNum(transportFinance.totalRevenue)} د.ع</span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-500 block text-[11px] font-sans">المصروف والوقود</span>
-                  <span className="text-sm font-black text-rose-600">{formatNum(transportFinance.totalExpenses)} د.ع</span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-500 block text-[11px] font-sans">صافي أرباح النقل</span>
-                  <span className={`text-sm font-black ${transportFinance.netProfit >= 0 ? 'text-sky-600' : 'text-rose-600'}`}>
-                    {formatNum(transportFinance.netProfit)} د.ع
-                  </span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-500 block text-[11px] font-sans">إجمالي الأطنان</span>
-                  <span className="text-sm font-black text-amber-600">{formatNum(transportFinance.totalTonsMoved)} طن</span>
-                </div>
               </div>
-
-              <div className="space-y-2">
-                <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryCol }}></span> تفاصيل حركة الآليات وأجور النقل المحصلة
-                </h3>
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-[12px] text-right">
-                    <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
-                      <tr>
-                        <th className="p-3">#</th>
-                        <th className="p-3">الشاحنة</th>
-                        <th className="p-3">المادة المنقولة</th>
-                        <th className="p-3">الانطلاق</th>
-                        <th className="p-3">الوجهة</th>
-                        <th className="p-3">الوزن</th>
-                        <th className="p-3">أجور النقل</th>
-                        <th className="p-3">كلفة الإيجار</th>
-                        <th className="p-3">صافي الربح</th>
-                        <th className="p-3">الكابتن</th>
-                        <th className="p-3 text-center">الحالة</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-mono">
-                      {trips.length === 0 ? (
-                        <tr>
-                          <td colSpan={11} className="text-center py-6 text-slate-400 font-sans">لا توجد رحلات مسجلة في هذا السجل.</td>
-                        </tr>
-                      ) : (
-                        trips.map((t, idx) => {
-                          const isExt = t.truck_source_type === 'EXTERNAL';
-                          const rev = Number(t.trip_cost || 0);
-                          const rent = isExt ? Number(t.external_rental_cost || 0) : 0;
-                          return (
-                            <tr key={t.trip_id} className="hover:bg-slate-50/80">
-                              <td className="p-3 font-bold text-slate-400">{idx + 1}</td>
-                              <td className="p-3 font-bold font-sans text-slate-950">
-                                {t.vehicle_name || t.external_truck_info}
-                                {isExt ? ' (مستأجرة)' : ''}
-                              </td>
-                              <td className="p-3 font-sans font-semibold text-slate-800">{t.cargo_description}</td>
-                              <td className="p-3 font-sans text-slate-600">{t.origin}</td>
-                              <td className="p-3 font-sans font-bold text-emerald-800">{t.destination}</td>
-                              <td className="p-3 font-bold text-slate-900">{t.cargo_weight_tons} طن</td>
-                              <td className="p-3 font-bold text-emerald-600">{formatNum(rev)} د.ع</td>
-                              <td className="p-3 font-bold text-rose-400">{formatNum(rent)} د.ع</td>
-                              <td className="p-3 font-bold text-sky-600">{formatNum(rev - rent)} د.ع</td>
-                              <td className="p-3 font-sans text-slate-700">{t.captain_name || t.external_driver_name}</td>
-                              <td className="p-3 text-center font-sans font-bold text-[10px]">
-                                {t.trip_status === 'COMPLETED' ? (
-                                  <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">مكتملة</span>
-                                ) : (
-                                  <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">في الطريق</span>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-8 pt-10 text-center border-t border-slate-200">
-                <div>
-                  <p className="font-bold text-xs text-slate-700">كابتن / مسؤول الحركة</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">التوقيع والتاريخ</p>
-                  <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                </div>
-                <div>
-                  <p className="font-bold text-xs text-slate-700">مدير الحسابات والمالية</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">التدقيق المالي</p>
-                  <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                </div>
-                <div>
-                  <p className="font-bold text-xs text-slate-700">المدير المفوض للشركة</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">المصادقة والختم الرسمي</p>
-                  <div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-2 text-center text-[10px] text-slate-500 font-mono">
-                {companySettings.company_name} - {companySettings.address} • هاتف: {companySettings.phone_primary}
-              </div>
-
             </div>
           </div>
         )}

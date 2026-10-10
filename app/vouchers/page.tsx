@@ -803,10 +803,21 @@ export default function VouchersPage() {
         
         {/* تنسيقات الطباعة الصارمة لعزل كامل الصفحة وإظهار كرت السند المطبوع فقط في ورقة A4 واحدة نظيفة */}
         <style jsx global>{`
+          @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
+            #printable-voucher-card {
+              min-width: 760px !important;
+              margin: 0 auto !important;
+            }
+          }
           @media print {
             @page {
               size: A4 portrait !important;
-              margin: 4mm 6mm !important;
+              margin: 6mm 8mm !important;
             }
             body * {
               visibility: hidden !important;
@@ -819,16 +830,20 @@ export default function VouchersPage() {
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
-              max-width: 100% !important;
-              margin: 0 !important;
-              padding: 10px 14px !important;
+              max-width: 210mm !important;
+              min-width: 0 !important;
+              margin: 0 auto !important;
+              padding: 12px 16px !important;
               background-color: #ffffff !important;
               color: #000000 !important;
               border: 2px solid #000000 !important;
               border-radius: 6px !important;
               box-shadow: none !important;
               page-break-inside: avoid !important;
+              break-inside: avoid !important;
               page-break-after: avoid !important;
+              break-after: avoid !important;
+              overflow: hidden !important;
             }
           }
         `}</style>
@@ -858,7 +873,7 @@ export default function VouchersPage() {
                       إدارة السندات والقيود المالية المركزية
                     </h1>
                     <span 
-                      className="inline-flex items-center gap-1 border text-[11px] font-bold px-2.5 py-0.5 rounded-full font-mono"
+                      className="inline-flex items-center gap-1 border text-[11px] font-bold px-2.5 py-0.5 rounded-full font-mono whitespace-nowrap"
                       style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}40` }}
                     >
                       <Sparkles className="w-3 h-3" />
@@ -875,7 +890,7 @@ export default function VouchersPage() {
               <div className="shrink-0 self-end sm:self-auto">
                 <Link 
                   href="/" 
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-[13px] font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 active:scale-95 cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-[13px] font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 active:scale-95 cursor-pointer whitespace-nowrap"
                 >
                   <Home className="w-4 h-4" /> الرئيسية
                 </Link>
@@ -902,7 +917,7 @@ export default function VouchersPage() {
                 </h2>
                 {(linkedSubId || linkedMatId || linkedExpId) && (
                   <span 
-                    className="text-[10px] border px-2 py-0.5 rounded-full font-bold"
+                    className="text-[10px] border px-2 py-0.5 rounded-full font-bold whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}20`, color: primaryCol, borderColor: `${primaryCol}40` }}
                   >
                     مقترن ببند مشروع ✓
@@ -919,7 +934,7 @@ export default function VouchersPage() {
               <form onSubmit={handleCreateVoucher} className="space-y-3 text-[14px]">
                 
                 {/* 1. نوع السند والقطاع */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold text-[13px]">نوع السند المالي *</label>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -945,7 +960,7 @@ export default function VouchersPage() {
                     <select
                       value={sectorType}
                       onChange={(e: any) => setSectorType(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px]"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px] cursor-pointer"
                     >
                       <option value="PROJECTS">المقاولات والمشاريع</option>
                       <option value="FLEET">أسطول النقل اللوجستي</option>
@@ -958,7 +973,7 @@ export default function VouchersPage() {
                 </div>
 
                 {/* 2. الفرع المحدد والمشروع */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold text-[13px]">الفرع المالي *</label>
                     {isRestrictedBranch ? (
@@ -972,7 +987,7 @@ export default function VouchersPage() {
                       <select 
                         value={branchId} 
                         onChange={(e) => setBranchId(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-amber-300 font-bold outline-none text-[13px]"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-amber-300 font-bold outline-none text-[13px] cursor-pointer"
                       >
                         {branches.map((b) => (
                           <option key={b.branch_id} value={b.branch_id}>
@@ -989,7 +1004,7 @@ export default function VouchersPage() {
                       value={projectId} 
                       disabled={sectorType !== 'PROJECTS'}
                       onChange={(e) => setProjectId(e.target.value)}
-                      className={`w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px] ${sectorType !== 'PROJECTS' ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      className={`w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px] cursor-pointer ${sectorType !== 'PROJECTS' ? 'opacity-40 cursor-not-allowed' : ''}`}
                     >
                       <option value="">-- عام (بدون مشروع) --</option>
                       {projectsList.map((p) => (
@@ -1026,13 +1041,13 @@ export default function VouchersPage() {
                       placeholder="Party Name"
                       value={partyNameEn}
                       onChange={(e) => setPartyNameEn(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-sky-300 font-mono text-[12px]"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-sky-300 font-mono text-[12px] outline-none"
                     />
                   </div>
                 </div>
 
                 {/* 4. المبلغ والعملة */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-400 mb-1 font-semibold text-[13px]">المبلغ رقماً *</label>
                     <input
@@ -1042,7 +1057,7 @@ export default function VouchersPage() {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold text-[14px]"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold text-[14px] outline-none"
                     />
                   </div>
                   <div>
@@ -1050,7 +1065,7 @@ export default function VouchersPage() {
                     <select 
                       value={currency} 
                       onChange={(e) => setCurrency(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px]"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white outline-none text-[13px] cursor-pointer"
                     >
                       <option value="IQD">دينار عراقي (IQD)</option>
                       <option value="USD">دولار أمريكي (USD)</option>
@@ -1088,7 +1103,7 @@ export default function VouchersPage() {
                       placeholder="Payment Purpose"
                       value={notesEn}
                       onChange={(e) => setNotesEn(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-sky-300 font-mono text-[12px]"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-1.5 text-sky-300 font-mono text-[12px] outline-none"
                     />
                   </div>
                 </div>
@@ -1103,6 +1118,7 @@ export default function VouchersPage() {
                         name="pay_type" 
                         checked={paymentMethod === 'CASH'} 
                         onChange={() => setPaymentMethod('CASH')} 
+                        className="cursor-pointer"
                       />
                       نقداً (Cash)
                     </label>
@@ -1112,26 +1128,27 @@ export default function VouchersPage() {
                         name="pay_type" 
                         checked={paymentMethod === 'CHEQUE'} 
                         onChange={() => setPaymentMethod('CHEQUE')} 
+                        className="cursor-pointer"
                       />
                       شيك (Cheque)
                     </label>
                   </div>
 
                   {paymentMethod === 'CHEQUE' && (
-                    <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                       <input
                         type="text"
                         placeholder="شيك رقم"
                         value={chequeNo}
                         onChange={(e) => setChequeNo(e.target.value)}
-                        className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 text-white text-[13px]"
+                        className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 text-white text-[13px] outline-none"
                       />
                       <input
                         type="text"
                         placeholder="المصرف المسحوب عليه"
                         value={bankName}
                         onChange={(e) => setBankName(e.target.value)}
-                        className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 text-white text-[13px]"
+                        className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 text-white text-[13px] outline-none"
                       />
                     </div>
                   )}
@@ -1140,7 +1157,7 @@ export default function VouchersPage() {
                 <button
                   type="submit"
                   disabled={loading || !canAdd}
-                  className="w-full py-2.5 text-slate-950 font-bold rounded-xl transition text-[14px] mt-1 shadow-lg cursor-pointer"
+                  className="w-full py-2.5 text-slate-950 font-bold rounded-xl transition text-[14px] mt-1 shadow-lg cursor-pointer whitespace-nowrap"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
                   {loading ? 'جاري الاعتماد...' : 'اعتماد وترحيل السند المالي'}
@@ -1148,8 +1165,8 @@ export default function VouchersPage() {
               </form>
             </div>
 
-            {/* جدول السندات المسجلة بحجم خط 14px بدون اختفاء الأعمدة */}
-            <div className="lg:col-span-8 bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col gap-3.5 shadow-2xl">
+            {/* جدول السندات المسجلة */}
+            <div className="lg:col-span-8 bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-3xl flex flex-col gap-3.5 shadow-2xl">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
                 <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
@@ -1159,17 +1176,17 @@ export default function VouchersPage() {
                   </span>
                 </h2>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <button
                     onClick={exportCSV}
-                    className="text-[12px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 font-bold cursor-pointer"
+                    className="text-[12px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-xl border border-slate-700 transition flex items-center gap-1 font-bold cursor-pointer whitespace-nowrap"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" /> تصدير Excel
                   </button>
                   {(filterSearch || filterBranch !== 'ALL' || filterStatus !== 'ALL' || filterType !== 'ALL' || filterSector !== 'ALL') && (
                     <button
                       onClick={resetFilters}
-                      className="text-[12px] text-amber-400 hover:text-amber-300 flex items-center gap-1 transition cursor-pointer"
+                      className="text-[12px] text-amber-400 hover:text-amber-300 flex items-center gap-1 transition cursor-pointer whitespace-nowrap"
                     >
                       <RotateCcw className="w-3.5 h-3.5" /> إعادة ضبط
                     </button>
@@ -1181,7 +1198,7 @@ export default function VouchersPage() {
               <div className="flex gap-1.5 flex-wrap text-[13px]">
                 <button
                   onClick={() => setFilterSector('ALL')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'ALL' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1189,7 +1206,7 @@ export default function VouchersPage() {
                 </button>
                 <button
                   onClick={() => setFilterSector('PROJECTS')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'PROJECTS' ? 'text-slate-950 font-black shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                   style={filterSector === 'PROJECTS' ? { backgroundColor: primaryCol } : {}}
@@ -1198,7 +1215,7 @@ export default function VouchersPage() {
                 </button>
                 <button
                   onClick={() => setFilterSector('FLEET')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'FLEET' ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1206,7 +1223,7 @@ export default function VouchersPage() {
                 </button>
                 <button
                   onClick={() => setFilterSector('INVENTORY')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'INVENTORY' ? 'bg-sky-500 text-slate-950 font-black shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1214,7 +1231,7 @@ export default function VouchersPage() {
                 </button>
                 <button
                   onClick={() => setFilterSector('REAL_ESTATE')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'REAL_ESTATE' ? 'bg-purple-500 text-white font-black shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1222,7 +1239,7 @@ export default function VouchersPage() {
                 </button>
                 <button
                   onClick={() => setFilterSector('HR')}
-                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                     filterSector === 'HR' ? 'bg-rose-500 text-white font-black shadow-md' : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1247,7 +1264,7 @@ export default function VouchersPage() {
                     value={filterBranch}
                     onChange={(e) => setFilterBranch(e.target.value)}
                     disabled={isRestrictedBranch}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-sky-500 outline-none text-[13px]"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-sky-500 outline-none text-[13px] cursor-pointer"
                   >
                     <option value="ALL">كل الفروع</option>
                     {branches.map((b) => (
@@ -1260,7 +1277,7 @@ export default function VouchersPage() {
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-emerald-500 outline-none text-[13px]"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-emerald-500 outline-none text-[13px] cursor-pointer"
                   >
                     <option value="ALL">جميع الحالات</option>
                     <option value="ACTIVE">الجارية (ACTIVE)</option>
@@ -1272,7 +1289,7 @@ export default function VouchersPage() {
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-rose-500 outline-none text-[13px]"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white focus:border-rose-500 outline-none text-[13px] cursor-pointer"
                   >
                     <option value="ALL">جميع الأنواع</option>
                     <option value="RECEIPT">وصل قبض (استلام)</option>
@@ -1281,19 +1298,19 @@ export default function VouchersPage() {
                 </div>
               </div>
 
-              {/* جدول السندات المعدل بخط 14px وعرض واضح لكامل الأعمدة */}
-              <div className="overflow-x-auto rounded-2xl border border-slate-800">
-                <table className="w-full text-right text-[14px]">
+              {/* جدول السندات مع التمرير المحمي للموبايل */}
+              <div className="w-full overflow-x-auto pb-2 rounded-2xl border border-slate-800">
+                <table className="w-full min-w-[760px] text-right text-[14px]">
                   <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[13px]">
                     <tr>
-                      <th className="p-3 text-center">الرقم</th>
-                      <th className="p-3">الطرف / المستفيد</th>
-                      <th className="p-3">الفرع</th>
-                      <th className="p-3">القطاع / المشروع</th>
-                      <th className="p-3 text-center">النوع</th>
-                      <th className="p-3">المبلغ</th>
-                      <th className="p-3 text-center">الحالة</th>
-                      <th className="p-3 text-center">الإجراءات</th>
+                      <th className="p-3 text-center whitespace-nowrap">الرقم</th>
+                      <th className="p-3 whitespace-nowrap">الطرف / المستفيد</th>
+                      <th className="p-3 whitespace-nowrap">الفرع</th>
+                      <th className="p-3 whitespace-nowrap">القطاع / المشروع</th>
+                      <th className="p-3 text-center whitespace-nowrap">النوع</th>
+                      <th className="p-3 whitespace-nowrap">المبلغ</th>
+                      <th className="p-3 text-center whitespace-nowrap">الحالة</th>
+                      <th className="p-3 text-center whitespace-nowrap">الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/80 bg-slate-950/20">
@@ -1329,19 +1346,19 @@ export default function VouchersPage() {
                             {/* الطرف / المستفيد */}
                             <td className="p-3 font-bold text-white max-w-[160px] truncate">
                               <div className="flex flex-col">
-                                <span>{details.partyAr || '—'}</span>
+                                <span className="truncate">{details.partyAr || '—'}</span>
                                 {details.subcontractor_id && (
-                                  <span className="text-[10px] text-sky-400 flex items-center gap-0.5 mt-0.5 font-sans">
+                                  <span className="text-[10px] text-sky-400 flex items-center gap-0.5 mt-0.5 font-sans whitespace-nowrap">
                                     <User className="w-2.5 h-2.5" /> مقاول باطن
                                   </span>
                                 )}
                                 {details.material_id && (
-                                  <span className="text-[10px] text-amber-400 flex items-center gap-0.5 mt-0.5 font-sans">
+                                  <span className="text-[10px] text-amber-400 flex items-center gap-0.5 mt-0.5 font-sans whitespace-nowrap">
                                     <Package className="w-2.5 h-2.5" /> توريد مادة
                                   </span>
                                 )}
                                 {details.expense_id && (
-                                  <span className="text-[10px] text-rose-400 flex items-center gap-0.5 mt-0.5 font-sans">
+                                  <span className="text-[10px] text-rose-400 flex items-center gap-0.5 mt-0.5 font-sans whitespace-nowrap">
                                     <Coins className="w-2.5 h-2.5" /> مصروف تشغيلي
                                   </span>
                                 )}
@@ -1359,27 +1376,27 @@ export default function VouchersPage() {
                             <td className="p-3 whitespace-nowrap">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 {sec === 'FLEET' || sec === 'TRANSPORT_LOGISTICS' ? (
-                                  <span className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full text-[12px]">
+                                  <span className="inline-flex items-center gap-1 text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full text-[12px] whitespace-nowrap">
                                     <Truck className="w-3 h-3" /> أسطول النقل
                                   </span>
                                 ) : sec === 'INVENTORY' ? (
-                                  <span className="inline-flex items-center gap-1 text-sky-400 font-bold bg-sky-500/10 border border-sky-500/20 px-2.5 py-0.5 rounded-full text-[12px]">
+                                  <span className="inline-flex items-center gap-1 text-sky-400 font-bold bg-sky-500/10 border border-sky-500/20 px-2.5 py-0.5 rounded-full text-[12px] whitespace-nowrap">
                                     <Boxes className="w-3 h-3" /> المخزن والتجارة
                                   </span>
                                 ) : sec === 'REAL_ESTATE' ? (
-                                  <span className="inline-flex items-center gap-1 text-purple-400 font-bold bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full text-[12px]">
+                                  <span className="inline-flex items-center gap-1 text-purple-400 font-bold bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full text-[12px] whitespace-nowrap">
                                     <Building className="w-3 h-3" /> العقارات
                                   </span>
                                 ) : sec === 'HR' ? (
-                                  <span className="inline-flex items-center gap-1 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full text-[12px]">
+                                  <span className="inline-flex items-center gap-1 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full text-[12px] whitespace-nowrap">
                                     <Users className="w-3 h-3" /> الرواتب
                                   </span>
                                 ) : v.project_name ? (
-                                  <span className="inline-flex items-center gap-1 font-bold text-[13px]" style={{ color: primaryCol }}>
+                                  <span className="inline-flex items-center gap-1 font-bold text-[13px] whitespace-nowrap" style={{ color: primaryCol }}>
                                     <HardHat className="w-3.5 h-3.5" /> {v.project_name}
                                   </span>
                                 ) : (
-                                  <span className="text-slate-500 text-[12px]">عام (بدون مشروع)</span>
+                                  <span className="text-slate-500 text-[12px] whitespace-nowrap">عام (بدون مشروع)</span>
                                 )}
                                 {!isCancelled && !v.project_id && canEdit && (
                                   <button
@@ -1415,11 +1432,11 @@ export default function VouchersPage() {
                             {/* حالة الوصل */}
                             <td className="p-3 text-center whitespace-nowrap">
                               {isCancelled ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold text-[11px]">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold text-[11px] whitespace-nowrap">
                                   <Ban className="w-3 h-3" /> ملغي
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[11px]">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[11px] whitespace-nowrap">
                                   <CheckCircle2 className="w-3 h-3" /> جاري
                                 </span>
                               )}
@@ -1427,7 +1444,7 @@ export default function VouchersPage() {
 
                             {/* الإجراءات */}
                             <td className="p-3 text-center whitespace-nowrap">
-                              <div className="flex items-center justify-center gap-1.5">
+                              <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                 <button
                                   type="button"
                                   onClick={() => setDetailsModalVoucher(v)}
@@ -1439,7 +1456,7 @@ export default function VouchersPage() {
 
                                 <button
                                   onClick={() => handleOpenPrintModal(v)}
-                                  className="text-slate-950 font-bold px-2 py-1 rounded-lg transition flex items-center gap-1 text-[12px] cursor-pointer shadow"
+                                  className="text-slate-950 font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-[12px] cursor-pointer shadow whitespace-nowrap"
                                   style={{ backgroundColor: primaryCol }}
                                   title="طباعة السند"
                                 >
@@ -1449,7 +1466,7 @@ export default function VouchersPage() {
                                 {!isCancelled && (canEdit || canDelete) && (
                                   <button
                                     onClick={() => setCancelModalVoucher(v)}
-                                    className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white px-2 py-1 rounded-lg transition flex items-center gap-1 text-[12px] border border-rose-500/30 cursor-pointer"
+                                    className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white px-2 py-1 rounded-lg transition flex items-center gap-1 text-[12px] border border-rose-500/30 cursor-pointer whitespace-nowrap"
                                     title="إلغاء السند"
                                   >
                                     <Ban className="w-3.5 h-3.5" /> إلغاء
@@ -1487,10 +1504,10 @@ export default function VouchersPage() {
 
           return (
             <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right space-y-4 text-[14px]">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto text-[14px]">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                   <div className="flex items-center gap-2">
-                    <Info className="w-5 h-5 text-sky-400" />
+                    <Info className="w-5 h-5 text-sky-400 shrink-0" />
                     <div>
                       <h3 className="text-base font-bold text-white">بطاقة التدقيق المالي للسند</h3>
                       <p className="text-xs font-mono font-bold" style={{ color: primaryCol }}>{detailsModalVoucher.voucher_number}</p>
@@ -1501,7 +1518,7 @@ export default function VouchersPage() {
                   </button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 flex-1 overflow-y-auto pr-1">
                   <div className="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800">
                     <div>
                       <span className="text-slate-500 block text-[12px]">نوع السند</span>
@@ -1546,12 +1563,12 @@ export default function VouchersPage() {
 
                     <div className="flex justify-between items-center border-b border-slate-800/80 pb-2">
                       <span className="text-slate-400 font-semibold">المستفيد / الطرف:</span>
-                      <span className="text-white font-bold">{d.partyAr}</span>
+                      <span className="text-white font-bold truncate max-w-[200px]">{d.partyAr}</span>
                     </div>
 
                     <div className="flex justify-between items-center border-b border-slate-800/80 pb-2">
                       <span className="text-slate-400 font-semibold">طريقة الدفع:</span>
-                      <span className="text-slate-200 font-mono">
+                      <span className="text-slate-200 font-mono text-xs">
                         {d.method === 'CHEQUE' ? `شيك رقم (${d.chequeNo || '—'}) على بنك (${d.bank || '—'})` : 'نقداً (Cash)'}
                       </span>
                     </div>
@@ -1566,24 +1583,24 @@ export default function VouchersPage() {
 
                   <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-1">
                     <span className="text-slate-400 block font-semibold text-[12px]">البيان والغرض من السند (وذلك عن):</span>
-                    <p className="text-slate-100 font-bold leading-relaxed">{d.forReasonAr}</p>
+                    <p className="text-slate-100 font-bold leading-relaxed text-xs sm:text-sm">{d.forReasonAr}</p>
                   </div>
                 </div>
 
-                <div className="pt-2 flex justify-end gap-2">
+                <div className="pt-3 flex flex-col sm:flex-row justify-end gap-2 border-t border-slate-800 mt-auto">
                   <button
                     onClick={() => {
                       setDetailsModalVoucher(null);
                       handleOpenPrintModal(detailsModalVoucher);
                     }}
-                    className="px-4 py-2 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 text-slate-950 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shadow-md"
                     style={{ backgroundColor: primaryCol }}
                   >
                     <Printer className="w-3.5 h-3.5" /> معاينة وطباعة السند
                   </button>
                   <button
                     onClick={() => setDetailsModalVoucher(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold cursor-pointer transition text-center"
                   >
                     إغلاق
                   </button>
@@ -1596,7 +1613,7 @@ export default function VouchersPage() {
         {/* نافذة ربط السند بمشروع */}
         {assignModalVoucher && canEdit && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Link2 className="w-4 h-4" style={{ color: primaryCol }} /> ربط السند بمشروع مقاولة
@@ -1613,7 +1630,7 @@ export default function VouchersPage() {
                 <select
                   value={targetProjectId}
                   onChange={(e) => setTargetProjectId(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white outline-none"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white outline-none cursor-pointer"
                 >
                   <option value="">-- فك الربط (عام بدون مشروع) --</option>
                   {projectsList.map((p) => (
@@ -1623,14 +1640,14 @@ export default function VouchersPage() {
                   ))}
                 </select>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
                 <button onClick={() => setAssignModalVoucher(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs cursor-pointer">
                   إلغاء
                 </button>
                 <button 
                   onClick={handleAssignProject} 
                   disabled={savingAssign} 
-                  className="px-4 py-2 text-slate-950 font-bold rounded-xl text-xs cursor-pointer"
+                  className="px-4 py-2 text-slate-950 font-bold rounded-xl text-xs cursor-pointer whitespace-nowrap"
                   style={{ backgroundColor: primaryCol }}
                 >
                   {savingAssign ? 'جاري الحفظ...' : 'تأكيد الربط'}
@@ -1643,9 +1660,9 @@ export default function VouchersPage() {
         {/* نافذة تأكيد الإلغاء */}
         {cancelModalVoucher && (canEdit || canDelete) && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl text-right max-h-[90vh] overflow-y-auto">
               <div className="flex items-center gap-3 text-rose-400 mb-3 border-b border-slate-800 pb-3">
-                <AlertTriangle className="w-6 h-6" />
+                <AlertTriangle className="w-6 h-6 shrink-0" />
                 <h3 className="text-base font-bold text-white">تأكيد إلغاء السند المالي</h3>
               </div>
               <p className="text-[14px] text-slate-300 leading-relaxed mb-4">
@@ -1661,11 +1678,11 @@ export default function VouchersPage() {
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white outline-none focus:border-rose-500"
                 />
               </div>
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
                 <button onClick={() => setCancelModalVoucher(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs cursor-pointer">
                   تراجع
                 </button>
-                <button onClick={handleCancelVoucher} disabled={cancelling} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs cursor-pointer">
+                <button onClick={handleCancelVoucher} disabled={cancelling} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs cursor-pointer whitespace-nowrap">
                   {cancelling ? 'جاري الإلغاء...' : 'تأكيد إلغاء السند'}
                 </button>
               </div>
@@ -1689,31 +1706,31 @@ export default function VouchersPage() {
           const printedBranchName = matchedBranch?.name_ar || selectedVoucher.branch_name || 'المقر الرئيسي (النجف الأشرف)';
 
           return (
-            <div className="fixed inset-0 bg-slate-950/90 z-50 overflow-y-auto flex flex-col items-center">
+            <div className="fixed inset-0 bg-slate-950/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
               
               {/* شريط أزرار الطباعة في الشاشة فقط */}
-              <div className="sticky top-0 z-50 w-full bg-slate-900/95 border-b border-slate-700 backdrop-blur px-6 py-2.5 flex items-center justify-between shadow-2xl">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm shadow-lg transition cursor-pointer">
+              <div className="sticky top-0 z-50 w-full max-w-4xl bg-slate-900/95 border-b border-slate-700 backdrop-blur px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl rounded-2xl mb-4 print:hidden">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 sm:px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg transition cursor-pointer flex-1 sm:flex-none whitespace-nowrap">
                     <Printer className="w-4 h-4" /> أمر الطباعة الآن (Print)
                   </button>
-                  <span className="text-xs text-slate-300 font-semibold hidden sm:inline">
+                  <span className="text-xs text-slate-300 font-semibold hidden md:inline whitespace-nowrap">
                     معاينة السند: <span className="font-mono font-bold" style={{ color: primaryCol }}>{selectedVoucher.voucher_number}</span>
                   </span>
-                  <span className={`px-3 py-0.5 rounded-full text-xs font-bold ${isCancelled ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}`}>
-                    {isCancelled ? 'الحالة: ملغي (VOID)' : 'الحالة: جاري (ACTIVE)'}
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${isCancelled ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}`}>
+                    {isCancelled ? 'ملغي (VOID)' : 'جاري (ACTIVE)'}
                   </span>
                 </div>
-                <button onClick={() => setSelectedVoucher(null)} className="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 rounded-xl border border-slate-700 transition cursor-pointer">
+                <button onClick={() => setSelectedVoucher(null)} className="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 rounded-xl border border-slate-700 transition cursor-pointer shrink-0 self-end sm:self-auto">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* بطاقة السند الرسمية المحددة بالـ ID الخاص للطباعة النظيفة لورقة A4 واحدة */}
-              <div className="w-full max-w-4xl p-4 flex justify-center">
+              <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none flex justify-center">
                 <div 
                   id="printable-voucher-card"
-                  className="bg-white text-slate-900 w-full rounded-xl shadow-2xl p-5 border-2 relative overflow-hidden"
+                  className="bg-white text-slate-900 w-full rounded-xl shadow-2xl p-4 sm:p-5 border-2 relative overflow-hidden"
                   style={{ borderColor: primaryCol }}
                 >
                   {isCancelled && (
@@ -1730,27 +1747,27 @@ export default function VouchersPage() {
                     <div className="grid grid-cols-3 items-center border-b-2 pb-2.5 mb-2.5" style={{ borderBottomColor: primaryCol }}>
                       <div className="text-left flex flex-col justify-between h-full">
                         <div>
-                          <h2 className="text-base font-black tracking-tight font-serif leading-none" style={{ color: primaryCol }}>
+                          <h2 className="text-sm sm:text-base font-black tracking-tight font-serif leading-none" style={{ color: primaryCol }}>
                             THE SHINING TOWER
                           </h2>
-                          <p className="text-[10px] text-slate-800 font-semibold leading-tight mt-1">
+                          <p className="text-[9px] sm:text-[10px] text-slate-800 font-semibold leading-tight mt-1">
                             For general contracting<br />
                             general trade, public transportation<br />
                             and real estate investments
                           </p>
                         </div>
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="text-red-600 font-black text-lg font-mono tracking-wider">
+                        <div className="mt-2 flex items-center gap-1.5 sm:gap-2">
+                          <div className="text-red-600 font-black text-base sm:text-lg font-mono tracking-wider">
                             No: {numOnly}
                           </div>
-                          <div className={`px-1.5 py-0.5 rounded border text-[10px] font-black uppercase tracking-wider ${isCancelled ? 'border-red-600 text-red-600 bg-red-50' : 'border-emerald-700 text-emerald-800 bg-emerald-50'}`}>
+                          <div className={`px-1.5 py-0.5 rounded border text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${isCancelled ? 'border-red-600 text-red-600 bg-red-50' : 'border-emerald-700 text-emerald-800 bg-emerald-50'}`}>
                             {isCancelled ? 'ملغي | VOID' : 'جاري | ACTIVE'}
                           </div>
                         </div>
                       </div>
 
                       <div className="flex flex-col items-center justify-center text-center">
-                        <div className="w-20 h-16 relative flex items-center justify-center">
+                        <div className="w-16 sm:w-20 h-14 sm:h-16 relative flex items-center justify-center">
                           {hasLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
@@ -1759,11 +1776,11 @@ export default function VouchersPage() {
                           )}
                         </div>
                         <div className="mt-0.5 text-center">
-                          <div className="font-black text-xs text-slate-950 leading-tight">
+                          <div className="font-black text-xs sm:text-sm text-slate-950 leading-tight">
                             {isReceipt ? 'وصل قبض' : 'سند صرف'}
                           </div>
                           <div 
-                            className="font-serif font-black text-[10px] tracking-wider uppercase border-b-2 pb-0.5"
+                            className="font-serif font-black text-[9px] sm:text-[10px] tracking-wider uppercase border-b-2 pb-0.5 whitespace-nowrap"
                             style={{ color: primaryCol, borderBottomColor: primaryCol }}
                           >
                             {isReceipt ? 'RECEIPT VOUCHER' : 'PAYMENT VOUCHER'}
@@ -1773,24 +1790,24 @@ export default function VouchersPage() {
 
                       <div className="text-right flex flex-col justify-between h-full" dir="rtl">
                         <div>
-                          <h1 className="text-lg font-black leading-none" style={{ color: primaryCol }}>
+                          <h1 className="text-base sm:text-lg font-black leading-none" style={{ color: primaryCol }}>
                             {companySettings.company_name}
                           </h1>
-                          <p className="text-[10px] text-slate-800 font-bold leading-tight mt-1 whitespace-pre-line">
+                          <p className="text-[9px] sm:text-[10px] text-slate-800 font-bold leading-tight mt-1 whitespace-pre-line">
                             {companySettings.tagline || 'للمقاولات العامة والتجارة العامة\nوالنقل العام والإستثمارات العقارية'}
                           </p>
-                          <p className="text-[10px] text-slate-700 font-bold mt-0.5">
+                          <p className="text-[9px] sm:text-[10px] text-slate-700 font-bold mt-0.5">
                             الفرع: <span style={{ color: primaryCol }}>{printedBranchName}</span>
                           </p>
                         </div>
                         <div className="mt-1.5 inline-flex border-2 bg-slate-50 font-bold text-xs self-start" style={{ borderColor: primaryCol }}>
                           <div 
-                            className="px-3 py-0.5 font-mono border-l-2 min-w-[100px] text-center text-slate-950 font-black text-sm"
+                            className="px-2 sm:px-3 py-0.5 font-mono border-l-2 min-w-[80px] sm:min-w-[100px] text-center text-slate-950 font-black text-xs sm:text-sm"
                             style={{ borderLeftColor: primaryCol }}
                           >
                             {Number(selectedVoucher.total_amount).toLocaleString()}
                           </div>
-                          <div className="px-2.5 py-0.5 text-xs text-slate-800 flex items-center justify-center font-bold">
+                          <div className="px-2 sm:px-2.5 py-0.5 text-xs text-slate-800 flex items-center justify-center font-bold">
                             {selectedVoucher.currency === 'USD' ? '$' : 'د.ع'}
                           </div>
                         </div>
@@ -1809,39 +1826,39 @@ export default function VouchersPage() {
                       </div>
 
                       <div className="flex items-center">
-                        <span className="font-serif text-slate-800 min-w-[120px] text-xs">
+                        <span className="font-serif text-slate-800 min-w-[110px] sm:min-w-[120px] text-xs">
                           {isReceipt ? 'Received From:' : 'Delivered To:'}
                         </span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-4 gap-4">
-                          <span className="font-serif font-black text-slate-950 text-sm text-left flex-1 font-sans">{details.partyEn}</span>
-                          <span className="font-black text-slate-950 text-sm text-right flex-1" dir="rtl">{details.partyAr}</span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-2 sm:px-4 gap-2 sm:gap-4">
+                          <span className="font-serif font-black text-slate-950 text-xs sm:text-sm text-left flex-1 font-sans truncate">{details.partyEn}</span>
+                          <span className="font-black text-slate-950 text-xs sm:text-sm text-right flex-1 truncate" dir="rtl">{details.partyAr}</span>
                         </div>
-                        <span className="min-w-[90px] text-right text-xs" dir="rtl">
+                        <span className="min-w-[80px] sm:min-w-[90px] text-right text-xs whitespace-nowrap" dir="rtl">
                           : {isReceipt ? 'استلمت من' : 'سلمت الى'}
                         </span>
                       </div>
 
                       <div className="flex items-start">
-                        <span className="font-serif text-slate-800 min-w-[90px] text-xs pt-0.5">Amount of:</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-start px-4 gap-6 pb-0.5">
-                          <span className="font-serif text-slate-900 text-[11px] text-left leading-relaxed flex-1 font-bold">{englishWords}</span>
-                          <span className="text-slate-900 text-[11px] font-black text-right leading-relaxed flex-1" dir="rtl">{arabicWords}</span>
+                        <span className="font-serif text-slate-800 min-w-[80px] sm:min-w-[90px] text-xs pt-0.5">Amount of:</span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-start px-2 sm:px-4 gap-3 sm:gap-6 pb-0.5">
+                          <span className="font-serif text-slate-900 text-[10px] sm:text-[11px] text-left leading-relaxed flex-1 font-bold">{englishWords}</span>
+                          <span className="text-slate-900 text-[10px] sm:text-[11px] font-black text-right leading-relaxed flex-1" dir="rtl">{arabicWords}</span>
                         </div>
-                        <span className="min-w-[80px] text-right text-xs pt-0.5" dir="rtl">: مبلغ وقدره</span>
+                        <span className="min-w-[70px] sm:min-w-[80px] text-right text-xs pt-0.5 whitespace-nowrap" dir="rtl">: مبلغ وقدره</span>
                       </div>
 
                       <div className="flex items-start">
                         <span className="font-serif text-slate-800 min-w-[65px] text-xs pt-0.5">For:</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-4 gap-0.5 pb-0.5">
-                          <span className="font-serif text-slate-950 text-[11px] text-left font-bold" dir="ltr">{details.forReasonEn}</span>
-                          <span className="text-slate-950 text-[11px] font-black text-right" dir="rtl">{details.forReasonAr}</span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 sm:px-4 gap-0.5 pb-0.5">
+                          <span className="font-serif text-slate-950 text-[10px] sm:text-[11px] text-left font-bold" dir="ltr">{details.forReasonEn}</span>
+                          <span className="text-slate-950 text-[10px] sm:text-[11px] font-black text-right" dir="rtl">{details.forReasonAr}</span>
                         </div>
-                        <span className="min-w-[65px] text-right text-xs pt-0.5" dir="rtl">: وذلك عن</span>
+                        <span className="min-w-[65px] text-right text-xs pt-0.5 whitespace-nowrap" dir="rtl">: وذلك عن</span>
                       </div>
 
                       <div className="pt-0.5 space-y-1.5 font-bold text-slate-900">
                         <div className="flex items-center justify-between" dir="rtl">
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 sm:gap-4">
                             <div className="flex items-center gap-1">
                               <span className="text-slate-900 text-xs font-bold">نقد</span>
                               <span className="border-2 border-slate-800 w-3.5 h-3.5 inline-flex items-center justify-center font-black text-[10px] bg-white">
@@ -1858,48 +1875,48 @@ export default function VouchersPage() {
                           <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 text-center font-mono font-bold text-xs">
                             {details.chequeNo || ''}
                           </div>
-                          <div className="font-serif text-slate-900 text-xs font-bold text-left min-w-[90px]" dir="ltr">
+                          <div className="font-serif text-slate-900 text-xs font-bold text-left min-w-[80px] sm:min-w-[90px]" dir="ltr">
                             Cash CHg No
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between" dir="rtl">
                           <div className="flex items-center flex-1 gap-1.5">
-                            <span className="text-slate-900 text-xs font-bold min-w-[50px]">على البنك</span>
-                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-bold text-slate-900 px-1 text-[11px]">
+                            <span className="text-slate-900 text-xs font-bold min-w-[45px] sm:min-w-[50px]">على البنك</span>
+                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-bold text-slate-900 px-1 text-[10px] sm:text-[11px]">
                               {details.bank || ''}
                             </div>
-                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[35px] text-center" dir="ltr">Bank</span>
+                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px] text-center" dir="ltr">Bank</span>
                           </div>
-                          <div className="flex items-center flex-1 gap-1.5 mr-3">
-                            <span className="text-slate-900 text-xs font-bold min-w-[35px]">تاريخ</span>
-                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-mono font-bold text-slate-900 px-1 text-[11px]">
+                          <div className="flex items-center flex-1 gap-1.5 mr-2 sm:mr-3">
+                            <span className="text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px]">تاريخ</span>
+                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-mono font-bold text-slate-900 px-1 text-[10px] sm:text-[11px]">
                               {details.method === 'CHEQUE' ? formattedDate : ''}
                             </div>
-                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[35px] text-center" dir="ltr">Date</span>
+                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px] text-center" dir="ltr">Date</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* التواقيع */}
-                    <div className="grid grid-cols-3 gap-4 pt-4 pb-1 text-center">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-1 text-center">
                       <div>
-                        <p className="font-serif font-black text-slate-900 text-xs">Manager : المدير</p>
-                        <div className="border-b-2 mt-4 w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
+                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Manager : المدير</p>
+                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
                       </div>
                       <div>
-                        <p className="font-serif font-black text-slate-900 text-xs">Accountant : المحاسب</p>
-                        <div className="border-b-2 mt-4 w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
+                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Accountant : المحاسب</p>
+                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
                       </div>
                       <div>
-                        <p className="font-serif font-black text-slate-900 text-xs">Receiver : المستلم</p>
-                        <div className="border-b-2 mt-4 w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
+                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Receiver : المستلم</p>
+                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
                       </div>
                     </div>
 
                     {/* التذييل */}
-                    <div className="border-t border-slate-400 mt-2 pt-1 text-center text-[9px] text-slate-800 font-bold" dir="rtl">
+                    <div className="border-t border-slate-400 mt-2 pt-1 text-center text-[8px] sm:text-[9px] text-slate-800 font-bold" dir="rtl">
                       العنوان : {companySettings.address} / التلفون : {companySettings.phone_primary} {companySettings.phone_secondary ? ` - ${companySettings.phone_secondary}` : ''}
                     </div>
                   </div>

@@ -169,7 +169,7 @@ function ContractPreviewModal({
 
       <div className="preview-scroll-container print:overflow-visible print:w-full print:max-w-none pb-6 print:pb-0">
         <div 
-          className="print-paper-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 print:m-0 space-y-3 print:space-y-2 relative overflow-hidden font-sans flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0"
+          className="print-paper-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 print:m-0 space-y-3 print:space-y-1 relative overflow-hidden font-sans flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0"
           style={{ borderColor: primaryCol }}
         >
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.035] z-0">
@@ -181,90 +181,87 @@ function ContractPreviewModal({
             )}
           </div>
 
-          <div className="relative z-10 space-y-3.5 print:space-y-2">
+          <div className="relative z-10 space-y-3 print:space-y-1.5">
             <div className="h-1.5 w-full rounded-full" style={{ background: `linear-gradient(90deg, #0f172a, ${primaryCol}, #0f172a)` }}></div>
 
             {/* الهيدر الأصلي المعتمد دون المساس به */}
             {hasLetterhead ? (
-              <div className="w-full border-b pb-2 mb-1">
+              <div className="w-full border-b pb-2 mb-1 print:pb-1 print:mb-0.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-28 object-contain" />
+                <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-28 print:max-h-24 object-contain" />
               </div>
             ) : (
-              <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-3.5 text-right">
-                  <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm shrink-0">
+              <div className="flex justify-between items-center pb-2.5 print:pb-1.5 border-b border-slate-200">
+                <div className="flex items-center gap-3 text-right">
+                  <div className="w-13 h-13 print:w-11 print:h-11 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm shrink-0">
                     {hasLogo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
                     ) : (
-                      <Image src="/logo.png" alt="شركة البرج المتألق" width={52} height={52} className="object-contain" priority />
+                      <Image src="/logo.png" alt="شركة البرج المتألق" width={48} height={48} className="object-contain" priority />
                     )}
                   </div>
                   <div>
                     <span 
-                      className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border inline-block mb-0.5"
+                      className="text-[9px] print:text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border inline-block mb-0.5"
                       style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                     >
                       جمهورية العراق • شركة معتمدة
                     </span>
-                    <h1 className="text-lg font-black leading-tight" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                    <p className="text-[10px] text-slate-600 font-bold">{companySettings.tagline}</p>
+                    <h1 className="text-lg print:text-base font-black leading-tight" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                    <p className="text-[10px] print:text-[9px] text-slate-600 font-bold">{companySettings.tagline}</p>
                   </div>
                 </div>
 
                 <div className="text-center hidden sm:block">
-                  <div className="inline-block bg-gradient-to-l from-slate-950 via-slate-900 to-slate-950 text-white px-5 py-1.5 rounded-2xl shadow-md">
-                    <h2 className="text-base font-black tracking-wide font-serif">عَـقْـدُ الشَّــارِي</h2>
-                    <span className="text-[8px] text-amber-400 font-mono tracking-widest uppercase block mt-0.5">
+                  <div className="inline-block bg-gradient-to-l from-slate-950 via-slate-900 to-slate-950 text-white px-5 py-1 rounded-2xl shadow-md">
+                    <h2 className="text-base print:text-sm font-black tracking-wide font-serif">عَـقْـدُ الشَّــارِي</h2>
+                    <span className="text-[8px] print:text-[7px] text-amber-400 font-mono tracking-widest uppercase block mt-0.5">
                       {!contract.isRent ? 'OFFICIAL SALE CONTRACT' : 'OFFICIAL LEASE CONTRACT'}
                     </span>
                   </div>
                 </div>
 
                 <div className="text-left font-mono text-xs space-y-0.5">
-                  <div className="border border-slate-300 bg-slate-50 px-2.5 py-1 rounded-xl font-black text-slate-950 inline-block text-[10px]">
+                  <div className="border border-slate-300 bg-slate-50 px-2 py-0.5 rounded-xl font-black text-slate-950 inline-block text-[10px] print:text-[9px]">
                     REF: <span style={{ color: primaryCol }}>{contract.contractNo}</span>
                   </div>
-                  <p className="text-[10px] text-slate-500 font-sans">تاريخ التحرير: <strong className="text-slate-900 font-mono">{contract.contractDate}</strong></p>
+                  <p className="text-[10px] print:text-[9px] text-slate-500 font-sans">تاريخ التحرير: <strong className="text-slate-900 font-mono">{contract.contractDate}</strong></p>
                 </div>
               </div>
             )}
 
-            {/* شريط التوثيق والفرع تحت الهيدر مباشرة: في اليمين العدد، في المنتصف اسم الفرع فقط مأطر، وفي اليسار التاريخ */}
-            <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1.5 font-cairo shadow-xs text-xs font-bold text-slate-800 mt-2">
-              {/* اليمين: العدد ورقم العقد */}
+            {/* شريط التوثيق والفرع تحت الهيدر مباشرة */}
+            <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1 print:py-0.5 font-cairo shadow-xs text-xs print:text-[11px] font-bold text-slate-800">
               <div className="flex items-center gap-1.5" dir="rtl">
                 <span className="text-slate-500 font-bold">العدد :</span>
-                <span className="font-mono text-slate-950 text-sm tracking-wide">
+                <span className="font-mono text-slate-950 text-xs tracking-wide">
                   ع/ {contract.contractNo} / 2026
                 </span>
               </div>
 
-              {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
               <div className="flex items-center justify-center">
-                <span className="inline-flex items-center px-4 py-0.5 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
+                <span className="inline-flex items-center px-4 py-0.5 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs print:text-[11px] shadow-xs">
                   {contract.branch_name || 'فرع الاستثمارات العقارية'}
                 </span>
               </div>
 
-              {/* اليسار: التاريخ */}
               <div className="flex items-center gap-1.5" dir="rtl">
                 <span className="text-slate-500 font-bold">التاريخ :</span>
-                <span className="font-mono text-slate-950 text-sm tracking-wider">{contract.contractDate}</span>
+                <span className="font-mono text-slate-950 text-xs tracking-wider">{contract.contractDate}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <div className="border border-slate-200 p-2.5 rounded-2xl bg-slate-50/70 space-y-1 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-1">
-                  <span className="font-black text-slate-900 text-xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-slate-950"></span>
+            <div className="grid grid-cols-2 gap-2.5 print:gap-2">
+              <div className="border border-slate-200 p-2 print:p-1.5 rounded-2xl bg-slate-50/70 space-y-0.5 text-xs">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-0.5">
+                  <span className="font-black text-slate-900 text-xs print:text-[11px] flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-950"></span>
                     الطرف الأول ({contract.isRent ? 'المؤجر' : 'البائع / المالك الشرعي'})
                   </span>
-                  <span className="text-[9px] text-slate-500 font-mono">FIRST PARTY</span>
+                  <span className="text-[8px] text-slate-500 font-mono">FIRST PARTY</span>
                 </div>
-                <div className="space-y-0.5 text-[11px]">
+                <div className="space-y-0.5 text-[11px] print:text-[10px]">
                   <p className="text-slate-600">الاسم الكامل: <strong className="text-slate-950 font-bold font-sans">{contract.sellerName || '---'}</strong></p>
                   <p className="text-slate-600">رقم البطاقة الوطنية / الهوية: <strong className="font-sans text-slate-900">{contract.sellerId || '---'}</strong></p>
                   <p className="text-slate-600">رقم الهاتف المعتمد: <strong className="font-sans text-slate-900">{contract.sellerPhone || '---'}</strong></p>
@@ -272,15 +269,15 @@ function ContractPreviewModal({
                 </div>
               </div>
 
-              <div className="border border-slate-200 p-2.5 rounded-2xl bg-slate-50/70 space-y-1 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-1">
-                  <span className="font-black text-slate-900 text-xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryCol }}></span>
+              <div className="border border-slate-200 p-2 print:p-1.5 rounded-2xl bg-slate-50/70 space-y-0.5 text-xs">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-0.5">
+                  <span className="font-black text-slate-900 text-xs print:text-[11px] flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryCol }}></span>
                     الطرف الثاني ({contract.isRent ? 'المستأجر' : 'المشتري'})
                   </span>
-                  <span className="text-[9px] text-slate-500 font-mono">SECOND PARTY</span>
+                  <span className="text-[8px] text-slate-500 font-mono">SECOND PARTY</span>
                 </div>
-                <div className="space-y-0.5 text-[11px]">
+                <div className="space-y-0.5 text-[11px] print:text-[10px]">
                   <p className="text-slate-600">الاسم الكامل: <strong className="text-slate-950 font-bold font-sans">{contract.buyerName || '---'}</strong></p>
                   <p className="text-slate-600">رقم البطاقة الوطنية / الهوية: <strong className="font-sans text-slate-900">{contract.buyerId || '---'}</strong></p>
                   <p className="text-slate-600">رقم الهاتف المعتمد: <strong className="font-sans text-slate-900">{contract.buyerPhone || '---'}</strong></p>
@@ -289,106 +286,106 @@ function ContractPreviewModal({
               </div>
             </div>
 
-            <div className="border border-slate-200 p-3 rounded-2xl bg-white shadow-sm space-y-1 mt-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-1 text-xs font-bold">
-                <span className="text-slate-950 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5" style={{ color: primaryCol }} />
+            <div className="border border-slate-200 p-2.5 print:p-1.5 rounded-2xl bg-white shadow-sm space-y-0.5">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-0.5 text-xs font-bold">
+                <span className="text-slate-950 flex items-center gap-1.5 print:text-[11px]">
+                  <Award className="w-3 h-3" style={{ color: primaryCol }} />
                   مواصفات المبيع المتفق عليه وتفاصيله الفنية:
                 </span>
-                <span className="text-[9px] text-slate-400 font-mono">SPECIFICATIONS</span>
+                <span className="text-[8px] text-slate-400 font-mono">SPECIFICATIONS</span>
               </div>
 
               {contract.isVehicle ? (
-                <div className="grid grid-cols-3 gap-2 text-xs pt-0.5 font-sans">
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">الماركة والنوع:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.vehicleBrand}</strong>
+                <div className="grid grid-cols-3 gap-1.5 text-xs pt-0.5 font-sans">
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">الماركة والنوع:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.vehicleBrand}</strong>
                   </div>
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">سنة الصنع / الموديل:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.vehicleModel}</strong>
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">سنة الصنع / الموديل:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.vehicleModel}</strong>
                   </div>
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">رقم اللوحة والتسجيل:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.vehiclePlate}</strong>
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">رقم اللوحة والتسجيل:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.vehiclePlate}</strong>
                   </div>
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">اللون الخارجي:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.vehicleColor}</strong>
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">اللون الخارجي:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.vehicleColor}</strong>
                   </div>
-                  <div className="col-span-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">رقم الشاصي (VIN):</span>
-                    <strong className="text-slate-950 text-xs font-mono uppercase font-bold">{contract.vehicleVin || 'غير محدد'}</strong>
+                  <div className="col-span-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">رقم الشاصي (VIN):</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-mono uppercase font-bold">{contract.vehicleVin || 'غير محدد'}</strong>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-2 text-xs pt-0.5 font-sans">
-                  <div className="col-span-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">وصف العقار / الدار:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.propertyTitle}</strong>
+                <div className="grid grid-cols-3 gap-1.5 text-xs pt-0.5 font-sans">
+                  <div className="col-span-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">وصف العقار / الدار:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.propertyTitle}</strong>
                   </div>
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">المساحة الإجمالية:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.propertyArea} م²</strong>
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">المساحة الإجمالية:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.propertyArea} م²</strong>
                   </div>
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">رقم القطعة والمقاطعة:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.propertyPlot}</strong>
+                  <div className="bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">رقم القطعة والمقاطعة:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.propertyPlot}</strong>
                   </div>
-                  <div className="col-span-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <span className="text-[9px] text-slate-500 block">الموقع الجغرافي:</span>
-                    <strong className="text-slate-950 text-xs font-bold">{contract.propertyLocation}</strong>
+                  <div className="col-span-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <span className="text-[8px] text-slate-500 block">الموقع الجغرافي:</span>
+                    <strong className="text-slate-950 text-xs print:text-[11px] font-bold">{contract.propertyLocation}</strong>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="border border-slate-200 p-3 rounded-2xl bg-gradient-to-l from-slate-50 to-white space-y-1 mt-3">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-1">
-                <span className="text-xs font-bold text-slate-950 font-sans">الثمن والبدل المالي المتفق عليه:</span>
-                <span className="text-xs font-black font-sans text-slate-950 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="border border-slate-200 p-2.5 print:p-1.5 rounded-2xl bg-gradient-to-l from-slate-50 to-white space-y-0.5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-0.5">
+                <span className="text-xs print:text-[11px] font-bold text-slate-950 font-sans">الثمن والبدل المالي المتفق عليه:</span>
+                <span className="text-xs print:text-[11px] font-black font-sans text-slate-950 bg-white px-2 py-0.5 rounded-lg border border-slate-200 shadow-sm">
                   {formatNum(contract.totalAmount)} د.ع
                 </span>
               </div>
               
-              <p className="text-[10px] font-bold text-slate-800 leading-snug font-sans">
+              <p className="text-[10px] print:text-[9px] font-bold text-slate-800 leading-snug font-sans">
                 كتابة وتفقيطاً: <span className="font-bold" style={{ color: primaryCol }}>{numberToArabicWords(Number(contract.totalAmount) || 0)}</span>
               </p>
               
-              <div className="grid grid-cols-2 gap-3 pt-1 font-sans text-xs border-t border-slate-100 text-slate-800">
+              <div className="grid grid-cols-2 gap-3 pt-0.5 font-sans text-xs print:text-[11px] border-t border-slate-100 text-slate-800">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-slate-600 text-[11px]">الواصل نقداً (العربون):</span>
-                  <strong className="text-emerald-700 font-bold font-sans text-xs">{formatNum(contract.paidDeposit)} د.ع</strong>
+                  <span className="text-slate-600 text-[10px] print:text-[9px]">الواصل نقداً (العربون):</span>
+                  <strong className="text-emerald-700 font-bold font-sans text-xs print:text-[11px]">{formatNum(contract.paidDeposit)} د.ع</strong>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-slate-600 text-[11px]">المتبقي بذمة المشتري:</span>
-                  <strong className="text-rose-700 font-bold font-sans text-xs">{formatNum(contract.remainingBalance)} د.ع</strong>
+                  <span className="text-slate-600 text-[10px] print:text-[9px]">المتبقي بذمة المشتري:</span>
+                  <strong className="text-rose-700 font-bold font-sans text-xs print:text-[11px]">{formatNum(contract.remainingBalance)} د.ع</strong>
                 </div>
               </div>
             </div>
 
-            <div className="border border-slate-200 p-2.5 rounded-2xl bg-slate-50/50 space-y-0.5 text-[10px] text-slate-600 leading-relaxed font-sans mt-3">
-              <strong className="text-slate-950 block text-[11px] mb-0.5 font-bold">الشروط والأحكام والالتزامات القانونية:</strong>
+            <div className="border border-slate-200 p-2 print:p-1.5 rounded-2xl bg-slate-50/50 space-y-0.5 text-[10px] print:text-[9px] text-slate-600 leading-relaxed font-sans">
+              <strong className="text-slate-950 block text-[10px] print:text-[9px] mb-0.5 font-bold">الشروط والأحكام والالتزامات القانونية:</strong>
               <p className="whitespace-pre-line text-justify">{contract.extraConditions}</p>
             </div>
           </div>
 
-          <div className="relative z-10 pt-1 space-y-2 mt-auto">
-            <div className="grid grid-cols-4 gap-3 text-center text-xs items-end border-t border-slate-200 pt-2.5 mt-4">
+          <div className="relative z-10 pt-1 space-y-1.5 mt-auto">
+            <div className="grid grid-cols-4 gap-2 text-center text-xs items-end border-t border-slate-200 pt-1.5">
               <div>
-                <p className="font-black text-slate-950 text-xs">توقيع الطرف الأول</p>
-                <p className="text-[9px] text-slate-400">({contract.isRent ? 'المؤجر' : 'البائع'})</p>
-                <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-5"></div>
+                <p className="font-black text-slate-950 text-xs print:text-[11px]">توقيع الطرف الأول</p>
+                <p className="text-[8px] text-slate-400">({contract.isRent ? 'المؤجر' : 'البائع'})</p>
+                <div className="border-b-2 border-dashed border-slate-400 w-16 mx-auto mt-3 print:mt-2"></div>
               </div>
 
               <div>
-                <p className="font-black text-slate-950 text-xs">توقيع الطرف الثاني</p>
-                <p className="text-[9px] text-slate-400">({contract.isRent ? 'المستأجر' : 'المشتري'})</p>
-                <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-5"></div>
+                <p className="font-black text-slate-950 text-xs print:text-[11px]">توقيع الطرف الثاني</p>
+                <p className="text-[8px] text-slate-400">({contract.isRent ? 'المستأجر' : 'المشتري'})</p>
+                <div className="border-b-2 border-dashed border-slate-400 w-16 mx-auto mt-3 print:mt-2"></div>
               </div>
 
               <div className="flex flex-col items-center justify-center">
-                <div className="w-13 h-13 border border-slate-300 rounded-xl p-1 bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 print:w-10 print:h-10 border border-slate-300 rounded-xl p-0.5 bg-white shadow-sm flex items-center justify-center overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
                     src={qrCodeApiUrl} 
@@ -396,19 +393,19 @@ function ContractPreviewModal({
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <span className="font-mono text-[8px] font-bold mt-0.5 flex items-center gap-0.5" style={{ color: primaryCol }}>
-                  <Globe className="w-2.5 h-2.5" /> تحقق رسمي
+                <span className="font-mono text-[8px] print:text-[7px] font-bold mt-0.5 flex items-center gap-0.5" style={{ color: primaryCol }}>
+                  <Globe className="w-2 h-2" /> تحقق رسمي
                 </span>
               </div>
 
               <div>
-                <p className="font-black text-slate-950 text-xs">مصادقة إدارة الشركة</p>
-                <p className="text-[9px] text-slate-400">الختم والتوثيق المعتمد</p>
-                <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-5"></div>
+                <p className="font-black text-slate-950 text-xs print:text-[11px]">مصادقة إدارة الشركة</p>
+                <p className="text-[8px] text-slate-400">الختم والتوثيق المعتمد</p>
+                <div className="border-b-2 border-dashed border-slate-400 w-16 mx-auto mt-3 print:mt-2"></div>
               </div>
             </div>
 
-            <div className="text-center text-[9px] text-slate-500 font-semibold border-t border-slate-200 pt-1.5 flex items-center justify-between font-mono">
+            <div className="text-center text-[9px] print:text-[8px] text-slate-500 font-semibold border-t border-slate-200 pt-1 flex items-center justify-between font-mono">
               <span>{companySettings.company_name} - {companySettings.address}</span>
               <span>هاتف: {companySettings.phone_primary} {companySettings.phone_secondary && `| ${companySettings.phone_secondary}`}</span>
             </div>
@@ -881,8 +878,14 @@ export default function ElectronicContractsPage() {
         
         <style jsx global>{`
           @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
             .print-paper-sheet {
-              min-width: 720px !important;
+              min-width: 760px !important;
+              margin: 0 auto !important;
             }
           }
           @media print {
@@ -900,7 +903,7 @@ export default function ElectronicContractsPage() {
               margin: 0 !important;
               padding: 0 !important;
               width: 100% !important;
-              height: auto !important;
+              height: 100% !important;
             }
             header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
               display: none !important;
@@ -914,15 +917,18 @@ export default function ElectronicContractsPage() {
               margin: 0 auto !important;
               width: 100% !important;
               max-width: 210mm !important;
-              height: 282mm !important;
-              max-height: 282mm !important;
+              height: 275mm !important;
+              max-height: 275mm !important;
               min-height: 0 !important;
-              padding: 6mm 10mm !important;
+              padding: 5mm 8mm !important;
               overflow: hidden !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
               page-break-after: auto !important;
               break-after: auto !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
             }
           }
         `}</style>

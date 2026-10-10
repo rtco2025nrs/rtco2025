@@ -228,7 +228,6 @@ export default function ProjectsPage() {
 
   const loadData = async (branchFilterId?: string) => {
     try {
-      // الأولوية لفرع الموظف المقيد به
       let activeBranch = branchFilterId !== undefined ? branchFilterId : selectedBranchId;
       if (currentUser?.assigned_branch_id && currentUser.assigned_branch_id !== 'ALL') {
         activeBranch = currentUser.assigned_branch_id;
@@ -730,7 +729,6 @@ export default function ProjectsPage() {
     setLoading(true);
     setMessage('');
     try {
-      // الأولوية القصوى: فرع الموظف المقيد به أولاً (أحمد = BR-CONST-02)، ثم الفرع النشط بالسياق
       let targetBranch = 'BR-CONST-02';
       if (currentUser?.assigned_branch_id && currentUser.assigned_branch_id !== 'ALL') {
         targetBranch = currentUser.assigned_branch_id;
@@ -1249,7 +1247,7 @@ export default function ProjectsPage() {
                     إدارة مشاريع المقاولات والإعمار (ERP المتكامل)
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -1275,13 +1273,13 @@ export default function ProjectsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-white leading-tight truncate max-w-[120px]">{currentUser.full_name}</p>
-                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border inline-block mt-0.5 ${roleColor}`}>
+                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border inline-block mt-0.5 whitespace-nowrap ${roleColor}`}>
                     {roleTitle}
                   </span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="text-slate-400 hover:text-rose-400 p-1 rounded-lg hover:bg-slate-800 transition mr-0.5 cursor-pointer"
+                  className="text-slate-400 hover:text-rose-400 p-1 rounded-lg hover:bg-slate-800 transition mr-0.5 cursor-pointer shrink-0"
                   title="تسجيل الخروج"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -1291,7 +1289,7 @@ export default function ProjectsPage() {
               {permissions.canManageVouchers && (
                 <Link 
                   href="/vouchers" 
-                  className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 text-purple-400 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm"
+                  className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 text-purple-400 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm shrink-0"
                 >
                   <Receipt className="w-4 h-4" /> شاشة السندات
                 </Link>
@@ -1299,7 +1297,7 @@ export default function ProjectsPage() {
 
               <Link 
                 href="/" 
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer shrink-0"
               >
                 <Home className="w-4 h-4" /> الرئيسية
               </Link>
@@ -1309,20 +1307,20 @@ export default function ProjectsPage() {
         </div>
 
         {/* بطاقات المؤشرات المالية العامة الأربعة للمشاريع الجارية فقط */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">إجمالي قيم العقود (الجارية)</p>
             <h3 className="text-2xl font-mono font-black text-amber-400">{formatNum(totalValue)} <span className="text-xs text-slate-400 font-sans">د.ع</span></h3>
           </div>
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">إجمالي المقبوضات (المشاريع الجارية)</p>
             <h3 className="text-2xl font-mono font-black text-emerald-400">{formatNum(totalReceived)} <span className="text-xs text-slate-400 font-sans">د.ع</span></h3>
           </div>
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">إجمالي المصروفات (المشاريع الجارية)</p>
             <h3 className="text-2xl font-mono font-black text-rose-400">{formatNum(totalExpenses)} <span className="text-xs text-slate-400 font-sans">د.ع</span></h3>
           </div>
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">صافي السيولة التشغيلية</p>
             <h3 className={`text-2xl font-mono font-black ${totalNetLiquidity >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
               {formatNum(totalNetLiquidity)} <span className="text-xs text-slate-400 font-sans">د.ع</span>
@@ -1354,40 +1352,40 @@ export default function ProjectsPage() {
             <form onSubmit={handleCreateProject} className="space-y-3.5 text-[14px]">
               <div>
                 <label className="block text-slate-400 mb-1 font-semibold">اسم المشروع *</label>
-                <input type="text" required placeholder="مجمع الفرات السكني" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold" />
+                <input type="text" required placeholder="مجمع الفرات السكني" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-amber-500" />
               </div>
               <div>
                 <label className="block text-slate-400 mb-1 font-semibold">العميل / الجهة المالكة *</label>
-                <input type="text" required placeholder="اسم المستثمر أو الجهة" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white" />
+                <input type="text" required placeholder="اسم المستثمر أو الجهة" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" />
               </div>
               <div>
                 <label className="block text-slate-400 mb-1">موقع العمل</label>
-                <input type="text" placeholder="النجف - حي الفرات" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white" />
+                <input type="text" placeholder="النجف - حي الفرات" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold">قيمة العقد *</label>
-                  <input type="number" step="any" required placeholder="0.00" value={contractValue} onChange={(e) => setContractValue(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold" />
+                  <input type="number" step="any" required placeholder="0.00" value={contractValue} onChange={(e) => setContractValue(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500" />
                 </div>
                 <div>
                   <label className="block text-slate-400 mb-1">العملة</label>
-                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 cursor-pointer">
                     <option value="IQD">دينار (IQD)</option>
                     <option value="USD">دولار (USD)</option>
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-400 mb-1">تاريخ البدء</label>
-                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono" />
+                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono outline-none focus:border-amber-500" />
                 </div>
                 <div>
                   <label className="block text-slate-400 mb-1">التسليم المتوقع</label>
-                  <input type="date" value={expectedEndDate} onChange={(e) => setExpectedEndDate(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono" />
+                  <input type="date" value={expectedEndDate} onChange={(e) => setExpectedEndDate(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono outline-none focus:border-amber-500" />
                 </div>
               </div>
-              <button type="submit" disabled={loading || !permissions.canCreateProject} className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-[14px] mt-2 shadow-lg shadow-amber-500/20 cursor-pointer">
+              <button type="submit" disabled={loading || !permissions.canCreateProject} className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-[14px] mt-2 shadow-lg shadow-amber-500/20 cursor-pointer whitespace-nowrap">
                 {loading ? 'جاري التسجيل...' : 'حفظ وتسجيل المشروع'}
               </button>
             </form>
@@ -1398,10 +1396,10 @@ export default function ProjectsPage() {
             <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex flex-col sm:flex-row gap-3 shadow-xl">
               <div className="relative flex-1">
                 <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5" />
-                <input type="text" placeholder="ابحث باسم المشروع أو العميل..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-2xl pr-10 pl-3 py-2.5 text-[14px] text-white outline-none" />
+                <input type="text" placeholder="ابحث باسم المشروع أو العميل..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-2xl pr-10 pl-3 py-2.5 text-[14px] text-white outline-none focus:border-amber-500" />
               </div>
-              <div className="w-full sm:w-48">
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-2.5 text-[14px] text-white outline-none">
+              <div className="w-full sm:w-48 shrink-0">
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-2.5 text-[14px] text-white outline-none focus:border-amber-500 cursor-pointer">
                   <option value="ALL">جميع الحالات</option>
                   <option value="IN_PROGRESS">قيد التنفيذ</option>
                   <option value="COMPLETED">مكتمل ومسلّم</option>
@@ -1421,7 +1419,6 @@ export default function ProjectsPage() {
                 const costRatio = contract > 0 ? (project.total_site_costs / contract) * 100 : 0;
                 const isCostAlert = costRatio >= 80;
 
-                // قراءة وتحديد اسم الفرع الحقيقي المعروض على البطاقة
                 const displayBranchName = project.branch_id === 'BR-CONST-02'
                   ? 'فرع المقاولات والمشاريع الهندسية'
                   : (project.branch_name || 'فرع المقاولات والمشاريع الهندسية');
@@ -1434,12 +1431,11 @@ export default function ProjectsPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-base font-bold text-white">{project.project_name}</h3>
                           
-                          {/* شارة الفرع التابع له المشروع */}
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 whitespace-nowrap">
                             🏢 {displayBranchName}
                           </span>
 
-                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${
                             isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : isSuspended ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                             : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
@@ -1447,7 +1443,7 @@ export default function ProjectsPage() {
                             {isCompleted ? 'مكتمل ومسلّم' : isSuspended ? 'متوقف مؤقتاً' : 'قيد التنفيذ'}
                           </span>
 
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border whitespace-nowrap ${
                             project.actual_net_cash >= 0 
                               ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
                               : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
@@ -1455,32 +1451,32 @@ export default function ProjectsPage() {
                             هامش الربح الفعلي: {project.actual_margin_pct}%
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-slate-500" /> {project.client_name}
-                          <span className="text-slate-600">•</span>
-                          <MapPin className="w-3.5 h-3.5 text-slate-500" /> {project.location || 'النجف'}
+                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                          <User className="w-3.5 h-3.5 text-slate-500 shrink-0" /> {project.client_name}
+                          <span className="text-slate-600 hidden sm:inline">•</span>
+                          <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 sm:ml-0 ml-2" /> {project.location || 'النجف'}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-1.5 flex-nowrap self-start lg:self-auto">
+                      <div className="flex flex-wrap items-center gap-1.5 self-start lg:self-auto w-full lg:w-auto mt-2 lg:mt-0">
                         {permissions.canManageVouchers && (
-                          <button onClick={() => handleOpenStatement(project)} className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                          <button onClick={() => handleOpenStatement(project)} className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer flex-1 sm:flex-none">
                             <FileText className="w-3.5 h-3.5" /> كشف حساب
                           </button>
                         )}
                         
-                        <button onClick={() => setActiveProjectId(project.project_id)} className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                        <button onClick={() => setActiveProjectId(project.project_id)} className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer flex-1 sm:flex-none">
                           <BarChart3 className="w-3.5 h-3.5" /> التحليلات
                         </button>
 
                         {permissions.canUpdateSiteProgress && (
-                          <button onClick={() => { setEditingProject(project); setEditRate(project.completion_rate?.toString() || '0'); setEditStatus(project.status || 'IN_PROGRESS'); }} className="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700 whitespace-nowrap cursor-pointer">
+                          <button onClick={() => { setEditingProject(project); setEditRate(project.completion_rate?.toString() || '0'); setEditStatus(project.status || 'IN_PROGRESS'); }} className="bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition border border-slate-700 whitespace-nowrap cursor-pointer flex-1 sm:flex-none">
                             <Edit3 className="w-3.5 h-3.5" /> تعديل الإنجاز
                           </button>
                         )}
 
                         {permissions.canDeleteProject && (
-                          <button onClick={() => setDeleteModalProject(project)} className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white p-2 rounded-xl transition border border-rose-500/30 shrink-0 cursor-pointer" title="حذف المشروع">
+                          <button onClick={() => setDeleteModalProject(project)} className="bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white p-2 rounded-xl transition border border-rose-500/30 shrink-0 cursor-pointer flex items-center justify-center" title="حذف المشروع">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
@@ -1497,11 +1493,11 @@ export default function ProjectsPage() {
                         <span className="font-bold text-emerald-400">{formatNum(received)} {project.currency}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[11px] font-sans">إجمالي التكاليف الموقعية</span>
+                        <span className="text-slate-400 block text-[11px] font-sans">التكاليف الموقعية</span>
                         <span className="font-bold text-rose-400">{formatNum(project.total_site_costs)} {project.currency}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[11px] font-sans">صافي الربح الفعلي</span>
+                        <span className="text-slate-400 block text-[11px] font-sans">الربح الفعلي</span>
                         <span className={`font-bold ${project.actual_net_cash >= 0 ? 'text-sky-400' : 'text-rose-500'}`}>
                           {formatNum(project.actual_net_cash)} {project.currency}
                         </span>
@@ -1509,8 +1505,8 @@ export default function ProjectsPage() {
                     </div>
 
                     {isCostAlert && (
-                      <div className="flex items-center gap-2 p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
-                        <ShieldAlert className="w-4 h-4" />
+                      <div className="flex items-start sm:items-center gap-2 p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-semibold">
+                        <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0" />
                         <span>تنبيه مالي: استنزفت التكاليف {costRatio.toFixed(1)}% من سقف قيمة العقد الكلية!</span>
                       </div>
                     )}
@@ -1529,178 +1525,197 @@ export default function ProjectsPage() {
                   </div>
                 );
               })}
+              {filteredProjects.length === 0 && (
+                <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center text-slate-500 text-sm">
+                  لا توجد مشاريع مطابقة للبحث أو الفلتر الحالي.
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* كشف حساب ومستخلص مالي A4 */}
         {statementProject && (
-          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-4 print:p-0 print:bg-white print:static">
-            <div className="w-full max-w-5xl flex items-center justify-between bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-4 print:hidden shadow-xl">
-              <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer">
+          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
+            <div className="sticky top-0 z-50 w-full max-w-[210mm] flex flex-col sm:flex-row items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden shadow-xl gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer flex-1 sm:flex-none whitespace-nowrap">
                   <Printer className="w-4 h-4" /> طباعة المستخلص (A4)
                 </button>
-                <button onClick={() => exportToCSV(statementProject)} className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition cursor-pointer">
-                  <Download className="w-4 h-4" /> تصدير السندات (Excel / CSV)
+                <button onClick={() => exportToCSV(statementProject)} className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer flex-1 sm:flex-none whitespace-nowrap">
+                  <Download className="w-4 h-4" /> تصدير السندات (Excel)
                 </button>
               </div>
-              <button onClick={() => setStatementProject(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
+              <button onClick={() => setStatementProject(null)} className="bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white p-2 rounded-xl transition border border-slate-700 cursor-pointer shrink-0 self-end sm:self-auto">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="w-full max-w-5xl bg-white text-slate-900 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-6">
-              {hasLetterhead ? (
-                <div className="w-full border-b pb-3 mb-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+            <div className="preview-scroll-container print:overflow-visible print:w-full print:max-w-none pb-6 print:pb-0">
+              <div className="print-official-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-6 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
+                
+                <div className="relative z-10 flex flex-col flex-1">
+                  {/* 1. الترويسة الأصلية */}
+                  {hasLetterhead ? (
+                    <div className="w-full border-b pb-3 mb-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
+                          {hasLogo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                          ) : (
+                            <Image src="/logo.png" alt="شركة البرج المتألق" width={56} height={56} className="object-contain" priority />
+                          )}
+                        </div>
+                        <div>
+                          <h1 className="text-xl sm:text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                          <p className="text-xs text-slate-600 font-bold mt-0.5">{companySettings.tagline}</p>
+                          <p className="text-[11px] text-slate-500 font-mono mt-0.5 hidden sm:block">{companySettings.address} | {companySettings.phone_primary}</p>
+                        </div>
+                      </div>
+                      <div className="text-left flex flex-col items-end">
+                        <div 
+                          className="border-2 px-3 sm:px-4 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-wider text-slate-950 rounded-xl whitespace-nowrap"
+                          style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
+                        >
+                          كشف حساب ومستخلص مالي
+                        </div>
+                        <p className="text-[10px] sm:text-[11px] font-mono mt-2 text-slate-500 whitespace-nowrap">تاريخ التقرير: <span className="font-bold text-slate-900">{new Date().toISOString().split('T')[0]}</span></p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. شريط بيانات المشروع الأساسية */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[13px] font-semibold mt-2">
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-400 block text-[10px]">اسم المشروع</span>
+                      <span className="text-slate-950 font-bold block truncate" title={statementProject.project_name}>{statementProject.project_name}</span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-400 block text-[10px]">العميل / المالك</span>
+                      <span className="text-slate-950 font-bold block truncate" title={statementProject.client_name}>{statementProject.client_name}</span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-400 block text-[10px]">قيمة العقد</span>
+                      <span className="font-mono font-black text-xs sm:text-sm block" style={{ color: primaryCol }}>{formatNum(statementProject.contract_value)} <span className="text-[10px] font-sans font-normal text-slate-500">{statementProject.currency}</span></span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-slate-400 block text-[10px]">نسبة الإنجاز الفني</span>
+                      <span className="text-emerald-600 font-mono font-black text-xs sm:text-sm block">{statementProject.completion_rate}%</span>
+                    </div>
+                  </div>
+
+                  {/* 3. حركة السندات المقيدة (جدول متجاوب) */}
+                  <div className="space-y-2 mt-6">
+                    <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryCol }}></span> 1. حركة السندات والتحويلات المالية المقيدة
+                    </h3>
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
+                      <table className="w-full min-w-[600px] text-right text-[11px] sm:text-[12px]">
+                        <thead className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold">
+                          <tr>
+                            <th className="p-2.5 whitespace-nowrap">رقم السند</th>
+                            <th className="p-2.5 whitespace-nowrap">النوع</th>
+                            <th className="p-2.5 whitespace-nowrap">التاريخ</th>
+                            <th className="p-2.5 whitespace-nowrap">المستفيد</th>
+                            <th className="p-2.5 whitespace-nowrap">البيان</th>
+                            <th className="p-2.5 text-left whitespace-nowrap">المبلغ ({statementProject.currency})</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {statementProject.vouchers && statementProject.vouchers.length > 0 ? (
+                            statementProject.vouchers.map((v: any) => {
+                              const parsed = parseVoucherNotes(v.notes);
+                              const isRec = v.voucher_type === 'RECEIPT';
+                              return (
+                                <tr key={v.voucher_id} className="hover:bg-slate-50/80">
+                                  <td className="p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{v.voucher_number}</td>
+                                  <td className="p-2.5 whitespace-nowrap">
+                                    <span className={`px-2 py-0.5 rounded font-black text-[10px] ${isRec ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+                                      {isRec ? 'قبض' : 'صرف'}
+                                    </span>
+                                  </td>
+                                  <td className="p-2.5 font-mono text-slate-500 whitespace-nowrap">{String(v.issue_date || '').split('T')[0]}</td>
+                                  <td className="p-2.5 font-bold text-slate-800 whitespace-nowrap">{parsed.party}</td>
+                                  <td className="p-2.5 text-slate-600 min-w-[150px]" title={parsed.reason}>{parsed.reason}</td>
+                                  <td className="p-2.5 text-left font-mono font-black text-slate-950 whitespace-nowrap">{formatNum(v.amount || v.total_amount)}</td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr><td colSpan={6} className="text-center py-6 text-slate-400">لا توجد سندات مسجلة.</td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* 4. مقاولو الباطن (جدول متجاوب) */}
+                  <div className="space-y-2 mt-6">
+                    <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-sky-500 rounded-full"></span> 2. الموقف المالي لمقاولي الباطن
+                    </h3>
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
+                      <table className="w-full min-w-[500px] text-right text-[11px] sm:text-[12px]">
+                        <thead className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold">
+                          <tr>
+                            <th className="p-2.5 whitespace-nowrap">المقاول / الجهة</th>
+                            <th className="p-2.5 whitespace-nowrap">إجمالي العقود ({statementProject.currency})</th>
+                            <th className="p-2.5 whitespace-nowrap">المدفوع الفعلي ({statementProject.currency})</th>
+                            <th className="p-2.5 whitespace-nowrap">المتبقي ({statementProject.currency})</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-mono">
+                          {statementProject.subcontractors && statementProject.subcontractors.length > 0 ? (
+                            statementProject.subcontractors.map((s: any, sIdx: number) => (
+                              <tr key={sIdx}>
+                                <td className="p-2.5 font-bold font-sans text-slate-900 whitespace-nowrap">{s.name}</td>
+                                <td className="p-2.5 font-bold text-amber-600 whitespace-nowrap">{formatNum(s.total_contract)}</td>
+                                <td className="p-2.5 font-bold text-emerald-600 whitespace-nowrap">{formatNum(s.paid_amount)}</td>
+                                <td className="p-2.5 font-bold text-rose-600 whitespace-nowrap">{formatNum(s.unpaid_amount)}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr><td colSpan={4} className="text-center py-6 text-slate-400 font-sans">لا يوجد مقاولو باطن.</td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex justify-between items-center border-b-2 pb-5" style={{ borderColor: primaryCol }}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
-                      {hasLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                      ) : (
-                        <Image src="/logo.png" alt="شركة البرج المتألق" width={70} height={70} className="object-contain" priority />
-                      )}
+
+                <div className="mt-auto pt-6">
+                  {/* الملخص الختامي الدفتري */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 border-2 border-slate-900 p-3 sm:p-5 rounded-2xl bg-slate-50 text-center">
+                    <div>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold">إجمالي المقبوضات</p>
+                      <p className="text-sm sm:text-xl font-black font-mono text-emerald-600 mt-1">{formatNum(statementProject.total_received)}</p>
+                    </div>
+                    <div className="border-x-2 border-slate-200">
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold">إجمالي المصروفات</p>
+                      <p className="text-sm sm:text-xl font-black font-mono text-rose-600 mt-1">{formatNum(statementProject.total_expenses)}</p>
                     </div>
                     <div>
-                      <h1 className="text-2xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                      <p className="text-xs text-slate-600 font-bold mt-0.5">{companySettings.tagline}</p>
-                      <p className="text-[11px] text-slate-500 font-mono mt-0.5">{companySettings.address} | {companySettings.phone_primary}</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold">صافي السيولة</p>
+                      <p className={`text-sm sm:text-xl font-black font-mono mt-1 ${(statementProject.total_received - statementProject.total_expenses) >= 0 ? 'text-sky-700' : 'text-rose-700'}`}>
+                        {formatNum(statementProject.total_received - statementProject.total_expenses)}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-left flex flex-col items-end">
-                    <div 
-                      className="border-2 px-4 py-1.5 font-black text-xs uppercase tracking-wider text-slate-950 rounded-xl"
-                      style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                    >
-                      كشف حساب ومستخلص مالي تفصيلي
-                    </div>
-                    <p className="text-[11px] font-mono mt-2 text-slate-500">تاريخ التقرير: <span className="font-bold text-slate-900">{new Date().toISOString().split('T')[0]}</span></p>
+
+                  {/* تواقيع الاعتماد */}
+                  <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 text-center border-t border-slate-200 mt-6">
+                    <div><p className="font-bold text-[10px] sm:text-xs text-slate-700">المهندس المقيم</p><div className="border-b border-dashed border-slate-400 w-16 sm:w-28 mx-auto mt-6 sm:mt-8"></div></div>
+                    <div><p className="font-bold text-[10px] sm:text-xs text-slate-700">مدير الحسابات</p><div className="border-b border-dashed border-slate-400 w-16 sm:w-28 mx-auto mt-6 sm:mt-8"></div></div>
+                    <div><p className="font-bold text-[10px] sm:text-xs text-slate-700">المدير العام / المفوض</p><div className="border-b border-dashed border-slate-400 w-16 sm:w-28 mx-auto mt-6 sm:mt-8"></div></div>
                   </div>
                 </div>
-              )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[13px] font-semibold">
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-400 block text-[11px]">اسم المشروع</span>
-                  <span className="text-slate-950 font-bold block truncate">{statementProject.project_name}</span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-400 block text-[11px]">العميل / المالك</span>
-                  <span className="text-slate-950 font-bold block truncate">{statementProject.client_name}</span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-400 block text-[11px]">قيمة العقد</span>
-                  <span className="font-mono font-black text-sm block" style={{ color: primaryCol }}>{formatNum(statementProject.contract_value)} {statementProject.currency}</span>
-                </div>
-                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                  <span className="text-slate-400 block text-[11px]">نسبة الإنجاز</span>
-                  <span className="text-emerald-600 font-mono font-black text-sm block">{statementProject.completion_rate}%</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryCol }}></span> 1. حركة السندات والتحويلات المالية المقيدة
-                </h3>
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-right text-[12px]">
-                    <thead className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold">
-                      <tr>
-                        <th className="p-3">رقم السند</th>
-                        <th className="p-3">النوع</th>
-                        <th className="p-3">التاريخ</th>
-                        <th className="p-3">المستفيد</th>
-                        <th className="p-3">البيان</th>
-                        <th className="p-3 text-left">المبلغ ({statementProject.currency})</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {statementProject.vouchers && statementProject.vouchers.length > 0 ? (
-                        statementProject.vouchers.map((v: any) => {
-                          const parsed = parseVoucherNotes(v.notes);
-                          const isRec = v.voucher_type === 'RECEIPT';
-                          return (
-                            <tr key={v.voucher_id} className="hover:bg-slate-50/80">
-                              <td className="p-3 font-mono font-bold text-slate-900">{v.voucher_number}</td>
-                              <td className="p-3">
-                                <span className={`px-2 py-0.5 rounded font-black text-[10px] ${isRec ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
-                                  {isRec ? 'قبض' : 'صرف'}
-                                </span>
-                              </td>
-                              <td className="p-3 font-mono text-slate-500">{String(v.issue_date || '').split('T')[0]}</td>
-                              <td className="p-3 font-bold text-slate-800">{parsed.party}</td>
-                              <td className="p-3 text-slate-600">{parsed.reason}</td>
-                              <td className="p-3 text-left font-mono font-black text-slate-950">{formatNum(v.amount || v.total_amount)}</td>
-                            </tr>
-                          );
-                        })
-                      ) : (
-                        <tr><td colSpan={6} className="text-center py-6 text-slate-400">لا توجد سندات مسجلة.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 bg-sky-500 rounded-full"></span> 2. الموقف المالي لمقاولي الباطن
-                </h3>
-                <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <table className="w-full text-right text-[12px]">
-                    <thead className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold">
-                      <tr>
-                        <th className="p-3">المقاول</th>
-                        <th className="p-3">إجمالي العقود</th>
-                        <th className="p-3">المدفوع الفعلي</th>
-                        <th className="p-3">المتبقي</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-mono">
-                      {statementProject.subcontractors && statementProject.subcontractors.length > 0 ? (
-                        statementProject.subcontractors.map((s: any, sIdx: number) => (
-                          <tr key={sIdx}>
-                            <td className="p-3 font-bold font-sans text-slate-900">{s.name}</td>
-                            <td className="p-3 font-bold text-amber-600">{formatNum(s.total_contract)}</td>
-                            <td className="p-3 font-bold text-emerald-600">{formatNum(s.paid_amount)}</td>
-                            <td className="p-3 font-bold text-rose-600">{formatNum(s.unpaid_amount)}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr><td colSpan={4} className="text-center py-6 text-slate-400 font-sans">لا يوجد مقاولو باطن.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 border-2 border-slate-900 p-5 rounded-2xl bg-slate-50 text-center">
-                <div>
-                  <p className="text-[11px] text-slate-500 font-bold">إجمالي المقبوضات</p>
-                  <p className="text-xl font-black font-mono text-emerald-600">{formatNum(statementProject.total_received)}</p>
-                </div>
-                <div className="border-x-2 border-slate-200">
-                  <p className="text-[11px] text-slate-500 font-bold">إجمالي المصروفات</p>
-                  <p className="text-xl font-black font-mono text-rose-600">{formatNum(statementProject.total_expenses)}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] text-slate-500 font-bold">صافي السيولة</p>
-                  <p className={`text-xl font-black font-mono ${(statementProject.total_received - statementProject.total_expenses) >= 0 ? 'text-sky-700' : 'text-rose-700'}`}>
-                    {formatNum(statementProject.total_received - statementProject.total_expenses)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-8 pt-8 text-center border-t border-slate-200">
-                <div><p className="font-bold text-xs text-slate-700">المهندس المقيم</p><div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div></div>
-                <div><p className="font-bold text-xs text-slate-700">مدير الحسابات</p><div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div></div>
-                <div><p className="font-bold text-xs text-slate-700">المدير العام</p><div className="border-b border-dashed border-slate-400 w-36 mx-auto mt-8"></div></div>
               </div>
             </div>
           </div>
@@ -1709,1286 +1724,1340 @@ export default function ProjectsPage() {
         {/* النافذة الشاملة للمشروع */}
         {activeTabProject && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-3xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl shadow-2xl p-4 sm:p-6 flex flex-col max-h-[90vh] overflow-y-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Hammer className="w-5 h-5 text-amber-400" /> إدارة تفاصيل: {activeTabProject.project_name}
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <Hammer className="w-5 h-5 text-amber-400 shrink-0" /> إدارة تفاصيل مشروع: <span className="text-amber-400">{activeTabProject.project_name}</span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">التحليلات المالية، المواد، اليوميات، والمراحل التنفيذية</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-1">التحليلات المالية، المواد، اليوميات، والمراحل التنفيذية</p>
                 </div>
-                <button onClick={() => setActiveProjectId(null)} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                <button onClick={() => setActiveProjectId(null)} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition shrink-0 self-end sm:self-auto cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* شريط التبويبات */}
-              <div className="flex flex-col items-center justify-center gap-2 border-b border-slate-800 pb-3 text-xs font-semibold">
+              {/* شريط التبويبات المتجاوب */}
+              <div className="flex flex-col items-center justify-center gap-2 border-b border-slate-800 pb-4 mb-4 text-xs font-semibold overflow-x-auto w-full">
                 
                 {/* السطر الأول */}
-                <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+                <div className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 w-full min-w-max sm:min-w-0 pb-1 sm:pb-0">
                   <button 
                     onClick={() => setActiveTab('ANALYTICS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'ANALYTICS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                     <span>التحليلات والهوامش</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('MATERIALS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'MATERIALS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <Package className="w-3.5 h-3.5 text-sky-400" />
+                    <Package className="w-3.5 h-3.5 shrink-0 text-sky-400" />
                     <span>المواد والتوريدات</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('SUBS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'SUBS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <User className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>مقاول باطن</span>
+                    <User className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                    <span>مقاولي الباطن</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('EXPENSES')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'EXPENSES' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <Coins className="w-3.5 h-3.5 text-amber-400" />
-                    <span>المصاريف التشغيلية</span>
+                    <Coins className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                    <span>التشغيلية</span>
                   </button>
                 </div>
 
                 {/* السطر الثاني */}
-                <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+                <div className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 w-full min-w-max sm:min-w-0 pb-1 sm:pb-0">
                   <button 
                     onClick={() => setActiveTab('TERMS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'TERMS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <Receipt className="w-3.5 h-3.5 text-emerald-400" />
+                    <Receipt className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
                     <span>دفعات العقد المستحقة</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('MILESTONES')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'MILESTONES' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                    <TrendingUp className="w-3.5 h-3.5 shrink-0 text-amber-400" />
                     <span>مراحل التنفيذ</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('LOGS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'LOGS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <ClipboardList className="w-3.5 h-3.5 text-sky-400" />
-                    <span>سجل الموقع اليومي</span>
+                    <ClipboardList className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+                    <span>سجل الموقع</span>
                   </button>
 
                   <button 
                     onClick={() => setActiveTab('DOCS')} 
-                    className={`px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
                       activeTab === 'DOCS' 
                         ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
                         : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
-                    <Paperclip className="w-3.5 h-3.5 text-purple-400" />
-                    <span>المخططات والوثائق</span>
+                    <Paperclip className="w-3.5 h-3.5 shrink-0 text-purple-400" />
+                    <span>مخططات ووثائق</span>
                   </button>
                 </div>
-
               </div>
 
-              {/* تبويب التحليلات وهوامش الأرباح */}
-              {activeTab === 'ANALYTICS' && (() => {
-                const contractVal = Number(activeTabProject.contract_value) || 0;
-                const receivedFromClient = Number(activeTabProject.total_received) || 0;
-                const remainingFromClient = Math.max(0, contractVal - receivedFromClient);
-                const clientCollectionRate = contractVal > 0 ? ((receivedFromClient / contractVal) * 100).toFixed(1) : '0';
+              <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 pb-4">
+                {/* تبويب التحليلات وهوامش الأرباح */}
+                {activeTab === 'ANALYTICS' && (() => {
+                  const contractVal = Number(activeTabProject.contract_value) || 0;
+                  const receivedFromClient = Number(activeTabProject.total_received) || 0;
+                  const remainingFromClient = Math.max(0, contractVal - receivedFromClient);
+                  const clientCollectionRate = contractVal > 0 ? ((receivedFromClient / contractVal) * 100).toFixed(1) : '0';
 
-                const totalSiteCosts = Number(activeTabProject.total_site_costs) || 0;
-                const subsPaidVouchers = Number(activeTabProject.total_subs_paid_vouchers) || 0;
-                const paidMaterialsVouchers = Number(activeTabProject.paid_materials_vouchers) || 0;
-                const operatingExpPaid = Number(activeTabProject.total_operating_exp_paid) || 0;
-                const pureOtherExpenses = Number(activeTabProject.other_expenses) || 0;
+                  const totalSiteCosts = Number(activeTabProject.total_site_costs) || 0;
+                  const subsPaidVouchers = Number(activeTabProject.total_subs_paid_vouchers) || 0;
+                  const paidMaterialsVouchers = Number(activeTabProject.paid_materials_vouchers) || 0;
+                  const operatingExpPaid = Number(activeTabProject.total_operating_exp_paid) || 0;
+                  const pureOtherExpenses = Number(activeTabProject.other_expenses) || 0;
 
-                const totalVoucheredExpenses = subsPaidVouchers + paidMaterialsVouchers + operatingExpPaid + pureOtherExpenses;
-                const remainingMaterialsPending = Number(activeTabProject.remaining_materials_pending) || 0;
-                const subsRemainingNoVouchers = Number(activeTabProject.total_subs_remaining_no_vouchers) || 0;
-                const operatingExpRemaining = Number(activeTabProject.remaining_operating_exp_pending) || 0;
+                  const totalVoucheredExpenses = subsPaidVouchers + paidMaterialsVouchers + operatingExpPaid + pureOtherExpenses;
+                  const remainingMaterialsPending = Number(activeTabProject.remaining_materials_pending) || 0;
+                  const subsRemainingNoVouchers = Number(activeTabProject.total_subs_remaining_no_vouchers) || 0;
+                  const operatingExpRemaining = Number(activeTabProject.remaining_operating_exp_pending) || 0;
 
-                const totalUnvoucheredCosts = remainingMaterialsPending + subsRemainingNoVouchers + operatingExpRemaining;
+                  const totalUnvoucheredCosts = remainingMaterialsPending + subsRemainingNoVouchers + operatingExpRemaining;
 
-                const realizedNetProfit = receivedFromClient - totalSiteCosts;
-                const realizedMargin = receivedFromClient > 0 ? ((realizedNetProfit / receivedFromClient) * 100).toFixed(1) : '0';
+                  const realizedNetProfit = receivedFromClient - totalSiteCosts;
+                  const realizedMargin = receivedFromClient > 0 ? ((realizedNetProfit / receivedFromClient) * 100).toFixed(1) : '0';
 
-                const ledgerNetCash = receivedFromClient - totalVoucheredExpenses;
+                  const ledgerNetCash = receivedFromClient - totalVoucheredExpenses;
 
-                const expectedContractProfit = contractVal - totalSiteCosts;
-                const expectedContractMargin = contractVal > 0 ? ((expectedContractProfit / contractVal) * 100).toFixed(1) : '0';
+                  const expectedContractProfit = contractVal - totalSiteCosts;
+                  const expectedContractMargin = contractVal > 0 ? ((expectedContractProfit / contractVal) * 100).toFixed(1) : '0';
 
-                const budgetBurnRate = contractVal > 0 ? Math.min(100, Math.round((totalSiteCosts / contractVal) * 100)) : 0;
+                  const budgetBurnRate = contractVal > 0 ? Math.min(100, Math.round((totalSiteCosts / contractVal) * 100)) : 0;
 
-                return (
-                  <div className="space-y-4 text-right">
-                    
-                    {/* البطاقات الرئيسية */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                      <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                        <span className="text-[11px] text-slate-400 font-semibold block">قيمة العقد الإجمالية</span>
-                        <p className="text-lg font-mono font-black text-amber-400">
-                          {formatNum(contractVal)} <span className="text-xs text-slate-500 font-sans">{activeTabProject.currency}</span>
-                        </p>
-                        <span className="text-[10px] text-slate-500 block">المبلغ المتفق عليه تعاقدياً</span>
-                      </div>
+                  return (
+                    <div className="space-y-4 text-right">
+                      
+                      {/* البطاقات الرئيسية */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+                          <span className="text-[11px] text-slate-400 font-semibold block">قيمة العقد الإجمالية</span>
+                          <p className="text-lg font-mono font-black text-amber-400">
+                            {formatNum(contractVal)} <span className="text-xs text-slate-500 font-sans">{activeTabProject.currency}</span>
+                          </p>
+                          <span className="text-[10px] text-slate-500 block">المبلغ المتفق عليه تعاقدياً</span>
+                        </div>
 
-                      <div className="bg-slate-950 p-4 rounded-2xl border border-emerald-500/30 space-y-1 bg-emerald-500/5">
-                        <span className="text-[11px] text-emerald-300 font-semibold block">المقبوض الفعلي من العميل</span>
-                        <p className="text-lg font-mono font-black text-emerald-400">
-                          {formatNum(receivedFromClient)} <span className="text-xs text-emerald-300 font-sans">{activeTabProject.currency}</span>
-                        </p>
-                        <span className="text-[10px] text-slate-400 block">
-                          المحصل: <strong className="text-emerald-400">{clientCollectionRate}%</strong> (المتبقي: {formatNum(remainingFromClient)})
-                        </span>
-                      </div>
-
-                      <div className="bg-slate-950 p-4 rounded-2xl border border-rose-500/30 space-y-1 bg-rose-500/5">
-                        <span className="text-[11px] text-rose-300 font-semibold block">إجمالي التكاليف الموقعية</span>
-                        <p className="text-lg font-mono font-black text-rose-400">
-                          {formatNum(totalSiteCosts)} <span className="text-xs text-rose-300 font-sans">{activeTabProject.currency}</span>
-                        </p>
-                        <span className="text-[10px] text-slate-400 block">مواد + مقاولين + مصاريف تشغيلية</span>
-                      </div>
-
-                      <div className={`bg-slate-950 p-4 rounded-2xl border space-y-1 ${realizedNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-600/50 bg-rose-950/20'}`}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-semibold text-slate-300">الربح الفعلي المحقق</span>
-                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${realizedNetProfit >= 0 ? 'bg-sky-500/20 text-sky-400' : 'bg-rose-500/20 text-rose-400'}`}>
-                            (المقبوض - التكاليف)
+                        <div className="bg-slate-950 p-4 rounded-2xl border border-emerald-500/30 space-y-1 bg-emerald-500/5">
+                          <span className="text-[11px] text-emerald-300 font-semibold block">المقبوض الفعلي من العميل</span>
+                          <p className="text-lg font-mono font-black text-emerald-400">
+                            {formatNum(receivedFromClient)} <span className="text-xs text-emerald-300 font-sans">{activeTabProject.currency}</span>
+                          </p>
+                          <span className="text-[10px] text-slate-400 block">
+                            المحصل: <strong className="text-emerald-400">{clientCollectionRate}%</strong> (المتبقي: {formatNum(remainingFromClient)})
                           </span>
                         </div>
-                        <p className={`text-lg font-mono font-black ${realizedNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
-                          {formatNum(realizedNetProfit)} <span className="text-xs font-sans text-slate-400">{activeTabProject.currency}</span>
-                        </p>
-                        <div className="flex items-center justify-between text-[10px] text-slate-400">
-                          <span>الهامش من المقبوض:</span>
-                          <span className={`font-mono font-bold ${realizedNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
-                            {realizedMargin}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* تقرير الموقف الدفتري */}
-                    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-                        <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                          <Receipt className="w-4 h-4 text-amber-400" />
-                          تقرير الموقف الدفتري (مقارنة السندات المقيدة مقابل الالتزامات المعلقة)
-                        </h4>
-                        <span className="text-[11px] font-mono text-slate-400">
-                          سيولة الصندوق الدفترية: <strong className="text-sky-400">{formatNum(ledgerNetCash)} {activeTabProject.currency}</strong>
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div className="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-xl space-y-3">
-                          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-4 h-4" /> المقيد رسمياً (تم عمل وصولات له)
-                            </span>
-                            <span className="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
-                              سندات دفتريّة
-                            </span>
-                          </div>
-
-                          <div className="space-y-2 font-mono">
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>دفعات عميل (سندات قبض):</span>
-                              <strong className="text-emerald-400">{formatNum(receivedFromClient)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>مقاولو باطن (سندات صرف):</span>
-                              <strong className="text-rose-400">{formatNum(subsPaidVouchers)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>مواد وتوريدات (سندات صرف موردين):</span>
-                              <strong className="text-sky-400">{formatNum(paidMaterialsVouchers)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>المصاريف التشغيلية (سندات صرف):</span>
-                              <strong className="text-emerald-400">{formatNum(operatingExpPaid)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-bold font-sans">
-                              <span className="text-white">إجمالي المدفوعات المسندة:</span>
-                              <span className="text-rose-400 font-mono">{formatNum(totalVoucheredExpenses)} {activeTabProject.currency}</span>
-                            </div>
-                          </div>
+                        <div className="bg-slate-950 p-4 rounded-2xl border border-rose-500/30 space-y-1 bg-rose-500/5">
+                          <span className="text-[11px] text-rose-300 font-semibold block">إجمالي التكاليف الموقعية</span>
+                          <p className="text-lg font-mono font-black text-rose-400">
+                            {formatNum(totalSiteCosts)} <span className="text-xs text-rose-300 font-sans">{activeTabProject.currency}</span>
+                          </p>
+                          <span className="text-[10px] text-slate-400 block">مواد + مقاولين + مصاريف تشغيلية</span>
                         </div>
 
-                        <div className="bg-slate-900/80 border border-amber-500/30 p-4 rounded-xl space-y-3">
-                          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span className="font-bold text-amber-400 flex items-center gap-1.5">
-                              <AlertCircle className="w-4 h-4" /> المعلق ميدانياً (لم يتم عمل وصولات له)
-                            </span>
-                            <span className="text-[10px] bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-full font-bold">
-                              التزامات واجبة الصرف
+                        <div className={`bg-slate-950 p-4 rounded-2xl border space-y-1 ${realizedNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-600/50 bg-rose-950/20'}`}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-semibold text-slate-300">الربح الفعلي المحقق</span>
+                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${realizedNetProfit >= 0 ? 'bg-sky-500/20 text-sky-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                              (المقبوض - التكاليف)
                             </span>
                           </div>
-
-                          <div className="space-y-2 font-mono">
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>المتبقي بذمة العميل (لم يُقبض):</span>
-                              <strong className="text-amber-400">{formatNum(remainingFromClient)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>مستحقات مقاولي باطن متبقية:</span>
-                              <strong className="text-rose-400">{formatNum(subsRemainingNoVouchers)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>متبقي مستحقات الموردين (مواد مستلمة):</span>
-                              <strong className="text-amber-400">{formatNum(remainingMaterialsPending)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="flex justify-between items-center text-slate-300 text-[11px]">
-                              <span>مستحقات المصاريف التشغيلية المتبقية:</span>
-                              <strong className="text-amber-400">{formatNum(operatingExpRemaining)} {activeTabProject.currency}</strong>
-                            </div>
-                            <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-bold font-sans">
-                              <span className="text-white">إجمالي الالتزامات المعلقة:</span>
-                              <span className="text-rose-400 font-mono">{formatNum(totalUnvoucheredCosts)} {activeTabProject.currency}</span>
-                            </div>
+                          <p className={`text-lg font-mono font-black ${realizedNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
+                            {formatNum(realizedNetProfit)} <span className="text-xs font-sans text-slate-400">{activeTabProject.currency}</span>
+                          </p>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400">
+                            <span>الهامش من المقبوض:</span>
+                            <span className={`font-mono font-bold ${realizedNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
+                              {realizedMargin}%
+                            </span>
                           </div>
                         </div>
-
                       </div>
-                    </div>
 
-                    {/* شريط التحليل التوازني */}
-                    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
-                        <div>
+                      {/* تقرير الموقف الدفتري */}
+                      <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
                           <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-amber-400" />
-                            التحليل التوازني للعقد (المقبوض الفعلي مقابل التكاليف والعقد الكلي)
+                            <Receipt className="w-4 h-4 text-amber-400 shrink-0" />
+                            تقرير الموقف الدفتري (السندات المقيدة مقابل الالتزامات المعلقة)
                           </h4>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
-                            الربح النهائي المتوقع عند تسليم المشروع بالكامل: 
-                            <strong className="text-emerald-400 font-mono mr-1">{formatNum(expectedContractProfit)} {activeTabProject.currency} ({expectedContractMargin}%)</strong>
+                          <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">
+                            سيولة الصندوق الدفترية: <strong className="text-sky-400">{formatNum(ledgerNetCash)} {activeTabProject.currency}</strong>
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                          <div className="bg-slate-900/80 border border-emerald-500/30 p-4 rounded-xl space-y-3">
+                            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                              <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 shrink-0" /> المقيد رسمياً (تم عمل وصولات له)
+                              </span>
+                              <span className="text-[9px] sm:text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-full font-bold whitespace-nowrap ml-1">
+                                سندات دفتريّة
+                              </span>
+                            </div>
+
+                            <div className="space-y-2 font-mono">
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>دفعات عميل (سندات قبض):</span>
+                                <strong className="text-emerald-400 whitespace-nowrap mr-2">{formatNum(receivedFromClient)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>مقاولو باطن (سندات صرف):</span>
+                                <strong className="text-rose-400 whitespace-nowrap mr-2">{formatNum(subsPaidVouchers)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>مواد وتوريدات (سندات صرف موردين):</span>
+                                <strong className="text-sky-400 whitespace-nowrap mr-2">{formatNum(paidMaterialsVouchers)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>المصاريف التشغيلية (سندات صرف):</span>
+                                <strong className="text-emerald-400 whitespace-nowrap mr-2">{formatNum(operatingExpPaid)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-bold font-sans mt-2">
+                                <span className="text-white">إجمالي المدفوعات المسندة:</span>
+                                <span className="text-rose-400 font-mono whitespace-nowrap mr-2">{formatNum(totalVoucheredExpenses)} {activeTabProject.currency}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-900/80 border border-amber-500/30 p-4 rounded-xl space-y-3">
+                            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                              <span className="font-bold text-amber-400 flex items-center gap-1.5">
+                                <AlertCircle className="w-4 h-4 shrink-0" /> المعلق ميدانياً (لم يتم عمل وصولات له)
+                              </span>
+                              <span className="text-[9px] sm:text-[10px] bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-full font-bold whitespace-nowrap ml-1">
+                                التزامات معلقة
+                              </span>
+                            </div>
+
+                            <div className="space-y-2 font-mono">
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>المتبقي بذمة العميل (لم يُقبض):</span>
+                                <strong className="text-amber-400 whitespace-nowrap mr-2">{formatNum(remainingFromClient)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>مستحقات مقاولي باطن متبقية:</span>
+                                <strong className="text-rose-400 whitespace-nowrap mr-2">{formatNum(subsRemainingNoVouchers)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>متبقي مستحقات الموردين (مواد استُلمت):</span>
+                                <strong className="text-amber-400 whitespace-nowrap mr-2">{formatNum(remainingMaterialsPending)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                                <span>مستحقات المصاريف التشغيلية المتبقية:</span>
+                                <strong className="text-amber-400 whitespace-nowrap mr-2">{formatNum(operatingExpRemaining)} {activeTabProject.currency}</strong>
+                              </div>
+                              <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-bold font-sans mt-2">
+                                <span className="text-white">إجمالي الالتزامات المعلقة:</span>
+                                <span className="text-rose-400 font-mono whitespace-nowrap mr-2">{formatNum(totalUnvoucheredCosts)} {activeTabProject.currency}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {/* شريط التحليل التوازني */}
+                      <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                          <div>
+                            <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                              <DollarSign className="w-4 h-4 text-amber-400 shrink-0" />
+                              التحليل التوازني للعقد (المقبوض الفعلي مقابل التكاليف والعقد الكلي)
+                            </h4>
+                            <p className="text-[10px] text-slate-400 mt-1">
+                              الربح النهائي المتوقع عند تسليم المشروع بالكامل: 
+                              <strong className="text-emerald-400 font-mono mr-1">{formatNum(expectedContractProfit)} {activeTabProject.currency} ({expectedContractMargin}%)</strong>
+                            </p>
+                          </div>
+
+                          <div className="text-right sm:text-left font-mono text-xs">
+                            <span className="text-slate-400 text-[11px]">استنزاف الميزانية: </span>
+                            <span className={`font-bold ${budgetBurnRate > 80 ? 'text-rose-400' : budgetBurnRate > 50 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                              {budgetBurnRate}% من قيمة العقد
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 pt-1">
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[11px] font-mono">
+                              <span className="text-slate-400">المقبوض المحصل ({clientCollectionRate}%)</span>
+                              <span className="text-emerald-400 font-bold">{formatNum(receivedFromClient)} {activeTabProject.currency}</span>
+                            </div>
+                            <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                              <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${Math.min(100, Number(clientCollectionRate))}%` }}></div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[11px] font-mono">
+                              <span className="text-slate-400">التكاليف المصروفة من العقد ({budgetBurnRate}%)</span>
+                              <span className="text-rose-400 font-bold">{formatNum(totalSiteCosts)} {activeTabProject.currency}</span>
+                            </div>
+                            <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                              <div className="bg-rose-500 h-full transition-all duration-500" style={{ width: `${budgetBurnRate}%` }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* الرسم البياني للمواد والتوزيع التفصيلي */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span className="font-bold text-white">1. تكلفة المواد الموردة</span>
+                            <span className="font-mono text-amber-400 font-bold">
+                              {totalSiteCosts > 0 ? ((activeTabProject.actual_materials_cost / totalSiteCosts) * 100).toFixed(1) : 0}%
+                            </span>
+                          </div>
+                          <p className="font-mono font-black text-amber-400 text-base sm:text-lg">
+                            {formatNum(activeTabProject.actual_materials_cost)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
                           </p>
                         </div>
 
-                        <div className="text-left font-mono text-xs">
-                          <span className="text-slate-400 text-[11px]">استنزاف الميزانية: </span>
-                          <span className={`font-bold ${budgetBurnRate > 80 ? 'text-rose-400' : budgetBurnRate > 50 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                            {budgetBurnRate}% من قيمة العقد
-                          </span>
+                        <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span className="font-bold text-white">2. عقود مقاولي الباطن</span>
+                            <span className="font-mono text-sky-400 font-bold">
+                              {totalSiteCosts > 0 ? (((Number(activeTabProject.total_subs_cost) || 0) / totalSiteCosts) * 100).toFixed(1) : 0}%
+                            </span>
+                          </div>
+                          <p className="font-mono font-black text-sky-400 text-base sm:text-lg">
+                            {formatNum(activeTabProject.total_subs_cost || 0)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
+                          <div className="flex justify-between items-center text-slate-400">
+                            <span className="font-bold text-white">3. المصاريف التشغيلية</span>
+                            <span className="font-mono text-rose-400 font-bold">
+                              {totalSiteCosts > 0 ? (((Number(activeTabProject.total_operating_exp_cost) || 0) / totalSiteCosts) * 100).toFixed(1) : 0}%
+                            </span>
+                          </div>
+                          <p className="font-mono font-black text-rose-400 text-base sm:text-lg">
+                            {formatNum(activeTabProject.total_operating_exp_cost || 0)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
+                          </p>
                         </div>
                       </div>
 
-                      <div className="space-y-2 pt-1">
-                        <div className="flex justify-between text-[11px] font-mono">
-                          <span className="text-slate-400">المقبوض المحصل ({clientCollectionRate}%)</span>
-                          <span className="text-emerald-400 font-bold">{formatNum(receivedFromClient)} {activeTabProject.currency}</span>
-                        </div>
-                        <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
-                          <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${Math.min(100, Number(clientCollectionRate))}%` }}></div>
-                        </div>
-
-                        <div className="flex justify-between text-[11px] font-mono pt-1">
-                          <span className="text-slate-400">التكاليف المصروفة من العقد ({budgetBurnRate}%)</span>
-                          <span className="text-rose-400 font-bold">{formatNum(totalSiteCosts)} {activeTabProject.currency}</span>
-                        </div>
-                        <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
-                          <div className="bg-rose-500 h-full transition-all duration-500" style={{ width: `${budgetBurnRate}%` }}></div>
-                        </div>
-                      </div>
                     </div>
+                  );
+                })()}
 
-                    {/* الرسم البياني للمواد */}
-                    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-                        <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                          <BarChart3 className="w-4 h-4 text-sky-400" /> المقارنة التحليلية لتكلفة المواد
-                        </h4>
-                        <span className="text-[11px] font-mono text-slate-400">
-                          إجمالي المستلم: <strong className="text-amber-400">{formatNum(activeTabProject.actual_materials_cost)}</strong> {activeTabProject.currency}
-                        </span>
-                      </div>
-
+                {/* مقاولو الباطن */}
+                {activeTab === 'SUBS' && (
+                  <div className="space-y-4">
+                    {permissions.canEditContract && (
                       <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-slate-400">تكلفة المواد المستلمة فعلياً في الموقع</span>
-                            <span className="font-mono text-amber-400 font-bold">{formatNum(activeTabProject.actual_materials_cost)} {activeTabProject.currency}</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المقاول *</label>
+                            <input 
+                              type="text" 
+                              placeholder="اسم المقاول (مطابق للاسم بالسند)" 
+                              value={subName} 
+                              onChange={(e) => setSubName(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
                           </div>
-                          <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
-                            <div className="bg-amber-500 h-full w-full"></div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">التخصص / نوع العمل *</label>
+                            <input 
+                              type="text" 
+                              placeholder="كهرباء، بناء..." 
+                              value={subTrade} 
+                              onChange={(e) => setSubTrade(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">قيمة العقد (د.ع) *</label>
+                            <input 
+                              type="number" 
+                              placeholder="إجمالي قيمة العقد" 
+                              value={subValue} 
+                              onChange={(e) => setSubValue(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">ملاحظات العقد</label>
+                            <input 
+                              type="text" 
+                              placeholder="شروط إضافية..." 
+                              value={subNotes} 
+                              onChange={(e) => setSubNotes(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
                           </div>
                         </div>
+                        <button onClick={handleAddSubcontractor} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
+                          <Plus className="w-4 h-4" /> إضافة عقد مقاول باطن جديد
+                        </button>
                       </div>
-                    </div>
-
-                    {/* التوزيع التفصيلي للتكاليف */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
-                        <div className="flex justify-between items-center text-slate-400">
-                          <span className="font-bold text-white">1. تكلفة المواد الموردة</span>
-                          <span className="font-mono text-amber-400 font-bold">
-                            {totalSiteCosts > 0 ? ((activeTabProject.actual_materials_cost / totalSiteCosts) * 100).toFixed(1) : 0}%
-                          </span>
-                        </div>
-                        <p className="font-mono font-black text-amber-400 text-base">
-                          {formatNum(activeTabProject.actual_materials_cost)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
-                        <div className="flex justify-between items-center text-slate-400">
-                          <span className="font-bold text-white">2. عقود مقاولي الباطن</span>
-                          <span className="font-mono text-sky-400 font-bold">
-                            {totalSiteCosts > 0 ? (((Number(activeTabProject.total_subs_cost) || 0) / totalSiteCosts) * 100).toFixed(1) : 0}%
-                          </span>
-                        </div>
-                        <p className="font-mono font-black text-sky-400 text-base">
-                          {formatNum(activeTabProject.total_subs_cost || 0)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
-                        <div className="flex justify-between items-center text-slate-400">
-                          <span className="font-bold text-white">3. المصاريف التشغيلية</span>
-                          <span className="font-mono text-rose-400 font-bold">
-                            {totalSiteCosts > 0 ? (((Number(activeTabProject.total_operating_exp_cost) || 0) / totalSiteCosts) * 100).toFixed(1) : 0}%
-                          </span>
-                        </div>
-                        <p className="font-mono font-black text-rose-400 text-base">
-                          {formatNum(activeTabProject.total_operating_exp_cost || 0)} <span className="text-[10px] font-sans text-slate-500">{activeTabProject.currency}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })()}
-
-              {/* مقاولو الباطن */}
-              {activeTab === 'SUBS' && (
-                <div className="space-y-4">
-                  {permissions.canEditContract && (
-                    <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المقاول *</label>
-                          <input 
-                            type="text" 
-                            placeholder="اسم المقاول (مطابق للاسم بالسند)" 
-                            value={subName} 
-                            onChange={(e) => setSubName(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">التخصص / نوع العمل *</label>
-                          <input 
-                            type="text" 
-                            placeholder="كهرباء، بناء..." 
-                            value={subTrade} 
-                            onChange={(e) => setSubTrade(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">قيمة العقد (د.ع) *</label>
-                          <input 
-                            type="number" 
-                            placeholder="إجمالي قيمة العقد" 
-                            value={subValue} 
-                            onChange={(e) => setSubValue(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">ملاحظات العقد</label>
-                          <input 
-                            type="text" 
-                            placeholder="شروط إضافية..." 
-                            value={subNotes} 
-                            onChange={(e) => setSubNotes(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                      </div>
-                      <button onClick={handleAddSubcontractor} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
-                        <Plus className="w-4 h-4" /> إضافة عقد مقاول باطن جديد
-                      </button>
-                    </>
-                  )}
-
-                  <div className="space-y-4 mt-4">
-                    {activeTabProject.subcontractors && activeTabProject.subcontractors.length > 0 ? (
-                      activeTabProject.subcontractors.map((subGroup: any, idx: number) => {
-                        const totalContract = Number(subGroup.total_contract) || 0;
-                        const totalPaid = Number(subGroup.paid_amount) || 0;
-                        const totalRemaining = Number(subGroup.unpaid_amount) || 0;
-
-                        return (
-                          <div key={idx} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4 shadow-md">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
-                                  <User className="w-5 h-5 text-sky-400" />
-                                </div>
-                                <div>
-                                  <h4 className="text-base font-bold text-white">{subGroup.name}</h4>
-                                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                                    عدد العقود المسجلة: <span className="text-amber-400 font-bold">{subGroup.batches?.length || 0}</span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono">
-                                <div>
-                                  <span className="text-[10px] text-slate-400 block font-sans">إجمالي العقود</span>
-                                  <span className="font-bold text-amber-400">{formatNum(totalContract)} د.ع</span>
-                                </div>
-                                <div className="border-r border-slate-700 pr-3">
-                                  <span className="text-[10px] text-slate-400 block font-sans">المدفوع / المتبقي</span>
-                                  <span className="font-bold">
-                                    <span className="text-emerald-400">{formatNum(totalPaid)}</span> / <span className="text-rose-400">{formatNum(totalRemaining)}</span>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <span className="text-[11px] text-slate-400 font-bold block">تفاصيل العقود والأعمال المسجلة ({subGroup.batches?.length || 0}):</span>
-                              
-                              <div className="grid grid-cols-1 gap-3">
-                                {subGroup.batches?.map((batch: any, bIdx: number) => {
-                                  const cVal = Number(batch.contract_value) || 0;
-                                  const pVal = Number(batch.paid_amount) || 0;
-                                  const rVal = Number(batch.remaining_amount) || 0;
-                                  const pct = batch.progress_pct || 0;
-                                  const isComp = batch.is_paid;
-
-                                  return (
-                                    <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
-                                      
-                                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2.5">
-                                          {isComp ? (
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                                          ) : (
-                                            <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-                                          )}
-                                          <div>
-                                            <p className="font-bold text-slate-100 text-sm">
-                                              العمل / التخصص: <span className="text-amber-300">{batch.trade}</span>
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <button
-                                            type="button"
-                                            onClick={() => setActiveItemVouchersModal({
-                                              title: `سندات مقاول الباطن (${subGroup.name})`,
-                                              targetName: `أعمال ${batch.trade} - ${subGroup.name}`,
-                                              vouchers: batch.attachedVouchers || []
-                                            })}
-                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
-                                              isComp 
-                                                ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30'
-                                                : 'bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700'
-                                            }`}
-                                            title="عرض الوصولات والسندات الصادرة لهذا المقاول"
-                                          >
-                                            <Eye className="w-3.5 h-3.5" />
-                                            {isComp ? 'تم استيفاء العقد بالكامل (عرض السندات ✓)' : 'عرض الوصولات'}
-                                          </button>
-
-                                          {!isComp && permissions.canManageVouchers && (
-                                            <button
-                                              onClick={() => handleQuickVoucherFromProject(
-                                                subGroup.name,
-                                                rVal > 0 ? rVal : cVal,
-                                                activeTabProject.project_id,
-                                                'PAYMENT',
-                                                `دفعة لمقاول الباطن (${subGroup.name}) عن أعمال ${batch.trade} لمشروع ${activeTabProject.project_name}`,
-                                                undefined,
-                                                batch.subcontractor_id
-                                              )}
-                                              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer"
-                                            >
-                                              <Receipt className="w-3.5 h-3.5" /> إصدار دفعة / وصل
-                                            </button>
-                                          )}
-
-                                          {permissions.canDeleteProject && (
-                                            <button
-                                              onClick={() => handleDeleteSubcontractor(batch.subcontractor_id)}
-                                              className="text-rose-400 hover:text-white hover:bg-rose-600 p-2 rounded-xl border border-rose-500/30 transition shadow cursor-pointer"
-                                              title="حذف هذا العقد وإلغاء سنده المرتبط"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs font-mono">
-                                        <div 
-                                          className="cursor-pointer hover:bg-slate-900/80 p-1 rounded transition"
-                                          onClick={() => setActiveItemVouchersModal({
-                                            title: `سندات مقاول الباطن (${subGroup.name})`,
-                                            targetName: `أعمال ${batch.trade}`,
-                                            vouchers: batch.attachedVouchers || []
-                                          })}
-                                          title="اضغط لعرض الوصولات"
-                                        >
-                                          <span className="text-slate-400 block text-[10px] font-sans flex items-center gap-1">
-                                            المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
-                                          </span>
-                                          <span className="font-bold text-emerald-400">{formatNum(pVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">المبلغ المتبقي</span>
-                                          <span className={`font-bold ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">حالة الصرف</span>
-                                          <span className={`font-bold ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
-                                            {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
-                                          </span>
-                                        </div>
-                                      </div>
-
-                                      {batch.notes && (
-                                        <div className="bg-slate-950/70 border border-slate-800 p-2 rounded-lg text-[11px] text-slate-300 flex items-start gap-2">
-                                          <FileText className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
-                                          <span><strong className="text-amber-300 font-medium">الملاحظات:</strong> {batch.notes}</span>
-                                        </div>
-                                      )}
-
-                                      <div className="space-y-1 pt-1">
-                                        <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                                          <span>نسبة الإيفاء: {pct}%</span>
-                                          <span>إجمالي قيمة العقد: {formatNum(cVal)} د.ع</span>
-                                        </div>
-                                        <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
-                                          <div 
-                                            className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                                            style={{ width: `${pct}%` }}
-                                          ></div>
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-center py-6 text-slate-500 text-xs">لا يوجد مقاولو باطن مسجلون للمشروع بعد.</p>
                     )}
-                  </div>
-                </div>
-              )}
 
-              {/* تبويب المصاريف التشغيلية */}
-              {activeTab === 'EXPENSES' && (
-                <div className="space-y-4">
-                  {permissions.canEditContract && (
-                    <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم الجهة / بند المصروف *</label>
-                          <input 
-                            type="text" 
-                            placeholder="إيجار آلية..." 
-                            value={expTitle} 
-                            onChange={(e) => setExpTitle(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">التصنيف / نوع المصروف *</label>
-                          <input 
-                            type="text" 
-                            placeholder="نقل وآليات..." 
-                            value={expCategory} 
-                            onChange={(e) => setExpCategory(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">المبلغ المقدر (د.ع) *</label>
-                          <input 
-                            type="number" 
-                            placeholder="المبلغ الكلي" 
-                            value={expAmount} 
-                            onChange={(e) => setExpAmount(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">ملاحظات المصروف</label>
-                          <input 
-                            type="text" 
-                            placeholder="تفاصيل الدفع..." 
-                            value={expNotes} 
-                            onChange={(e) => setExpNotes(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                      </div>
-                      <button onClick={handleAddOperatingExpense} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
-                        <Plus className="w-4 h-4" /> إضافة بند مصروف تشغيلي جديد
-                      </button>
-                    </>
-                  )}
+                    <div className="space-y-4 mt-4">
+                      {activeTabProject.subcontractors && activeTabProject.subcontractors.length > 0 ? (
+                        activeTabProject.subcontractors.map((subGroup: any, idx: number) => {
+                          const totalContract = Number(subGroup.total_contract) || 0;
+                          const totalPaid = Number(subGroup.paid_amount) || 0;
+                          const totalRemaining = Number(subGroup.unpaid_amount) || 0;
 
-                  <div className="space-y-4 mt-4">
-                    {activeTabProject.operating_expenses && activeTabProject.operating_expenses.length > 0 ? (
-                      activeTabProject.operating_expenses.map((expGroup: any, idx: number) => {
-                        const totalAmt = Number(expGroup.total_amount) || 0;
-                        const totalPaid = Number(expGroup.paid_amount) || 0;
-                        const totalRemaining = Number(expGroup.unpaid_amount) || 0;
-
-                        return (
-                          <div key={idx} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4 shadow-md">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                                  <Coins className="w-5 h-5 text-amber-400" />
+                          return (
+                            <div key={idx} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-md">
+                              
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center shrink-0">
+                                    <User className="w-5 h-5 text-sky-400" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-base font-bold text-white">{subGroup.name}</h4>
+                                    <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                                      عدد العقود المسجلة: <span className="text-amber-400 font-bold">{subGroup.batches?.length || 0}</span>
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h4 className="text-base font-bold text-white">{expGroup.title}</h4>
-                                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                                    عدد البنود المسجلة: <span className="text-amber-400 font-bold">{expGroup.batches?.length || 0}</span>
-                                  </p>
+
+                                <div className="flex items-center justify-between sm:justify-start gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono w-full sm:w-auto mt-2 sm:mt-0">
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block font-sans">إجمالي العقود</span>
+                                    <span className="font-bold text-amber-400">{formatNum(totalContract)} د.ع</span>
+                                  </div>
+                                  <div className="border-r border-slate-700 pr-3 sm:pr-4">
+                                    <span className="text-[10px] text-slate-400 block font-sans">المدفوع / المتبقي</span>
+                                    <span className="font-bold">
+                                      <span className="text-emerald-400">{formatNum(totalPaid)}</span> / <span className="text-rose-400">{formatNum(totalRemaining)}</span>
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono">
-                                <div>
-                                  <span className="text-[10px] text-slate-400 block font-sans">إجمالي المبلغ</span>
-                                  <span className="font-bold text-amber-400">{formatNum(totalAmt)} د.ع</span>
-                                </div>
-                                <div className="border-r border-slate-700 pr-3">
-                                  <span className="text-[10px] text-slate-400 block font-sans">المدفوع / المتبقي</span>
-                                  <span className="font-bold">
-                                    <span className="text-emerald-400">{formatNum(totalPaid)}</span> / <span className="text-rose-400">{formatNum(totalRemaining)}</span>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                              <div className="space-y-3">
+                                <span className="text-[11px] text-slate-400 font-bold block">تفاصيل العقود والأعمال المسجلة ({subGroup.batches?.length || 0}):</span>
+                                
+                                <div className="grid grid-cols-1 gap-3">
+                                  {subGroup.batches?.map((batch: any, bIdx: number) => {
+                                    const cVal = Number(batch.contract_value) || 0;
+                                    const pVal = Number(batch.paid_amount) || 0;
+                                    const rVal = Number(batch.remaining_amount) || 0;
+                                    const pct = batch.progress_pct || 0;
+                                    const isComp = batch.is_paid;
 
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-1 gap-3">
-                                {expGroup.batches?.map((batch: any, bIdx: number) => {
-                                  const cVal = Number(batch.amount) || 0;
-                                  const pVal = Number(batch.paid_amount) || 0;
-                                  const rVal = Number(batch.remaining_amount) || 0;
-                                  const pct = batch.progress_pct || 0;
-                                  const isComp = batch.is_paid;
-
-                                  return (
-                                    <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
-                                      
-                                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2.5">
-                                          {isComp ? (
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                                          ) : (
-                                            <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-                                          )}
-                                          <div>
-                                            <p className="font-bold text-slate-100 text-sm">
-                                              التصنيف: <span className="text-amber-300">{batch.category}</span>
-                                            </p>
+                                    return (
+                                      <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
+                                        
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                          <div className="flex items-center gap-2.5">
+                                            {isComp ? (
+                                              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                                            ) : (
+                                              <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
+                                            )}
+                                            <div>
+                                              <p className="font-bold text-slate-100 text-sm">
+                                                العمل / التخصص: <span className="text-amber-300">{batch.trade}</span>
+                                              </p>
+                                            </div>
                                           </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          {isComp ? (
+                                          <div className="flex items-center gap-2 flex-wrap">
                                             <button
+                                              type="button"
                                               onClick={() => setActiveItemVouchersModal({
-                                                title: `سندات مصروف (${expGroup.title})`,
-                                                targetName: `${expGroup.title} - ${batch.category}`,
+                                                title: `سندات مقاول الباطن (${subGroup.name})`,
+                                                targetName: `أعمال ${batch.trade} - ${subGroup.name}`,
                                                 vouchers: batch.attachedVouchers || []
                                               })}
-                                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                                                isComp 
+                                                  ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30'
+                                                  : 'bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700'
+                                              }`}
+                                              title="عرض الوصولات والسندات الصادرة لهذا المقاول"
                                             >
-                                              <Eye className="w-3.5 h-3.5" /> مدفوعة بالكامل (عرض السندات ✓)
+                                              <Eye className="w-3.5 h-3.5" />
+                                              {isComp ? 'استوفى العقد (عرض السندات)' : 'عرض الوصولات'}
                                             </button>
-                                          ) : (
-                                            permissions.canManageVouchers && (
+
+                                            {!isComp && permissions.canManageVouchers && (
                                               <button
                                                 onClick={() => handleQuickVoucherFromProject(
-                                                  expGroup.title,
+                                                  subGroup.name,
                                                   rVal > 0 ? rVal : cVal,
                                                   activeTabProject.project_id,
                                                   'PAYMENT',
-                                                  `دفعة مصروف تشغيلي (${expGroup.title} - ${batch.category}) لمشروع ${activeTabProject.project_name}`,
+                                                  `دفعة لمقاول الباطن (${subGroup.name}) عن أعمال ${batch.trade} لمشروع ${activeTabProject.project_name}`,
                                                   undefined,
-                                                  undefined,
-                                                  batch.expense_id
+                                                  batch.subcontractor_id
                                                 )}
                                                 className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer"
                                               >
                                                 <Receipt className="w-3.5 h-3.5" /> إصدار دفعة / وصل
                                               </button>
-                                            )
-                                          )}
+                                            )}
 
-                                          {permissions.canDeleteProject && (
-                                            <button
-                                              onClick={() => handleDeleteOperatingExpense(batch.expense_id)}
-                                              className="text-rose-400 hover:text-white hover:bg-rose-600 p-2 rounded-xl border border-rose-500/30 transition shadow cursor-pointer"
-                                              title="حذف هذا المصروف"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs font-mono">
-                                        <div 
-                                          className="cursor-pointer hover:bg-slate-900/80 p-1 rounded transition"
-                                          onClick={() => setActiveItemVouchersModal({
-                                            title: `سندات مصروف (${expGroup.title})`,
-                                            targetName: `${expGroup.title} - ${batch.category}`,
-                                            vouchers: batch.attachedVouchers || []
-                                          })}
-                                          title="اضغط لعرض الوصولات"
-                                        >
-                                          <span className="text-slate-400 block text-[10px] font-sans flex items-center gap-1">
-                                            المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
-                                          </span>
-                                          <span className="font-bold text-emerald-400">{formatNum(pVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">المبلغ المتبقي</span>
-                                          <span className={`font-bold ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">حالة الصرف</span>
-                                          <span className={`font-bold ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
-                                            {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
-                                          </span>
-                                        </div>
-                                      </div>
-
-                                      {batch.notes && (
-                                        <div className="bg-slate-950/70 border border-slate-800 p-2 rounded-lg text-[11px] text-slate-300 flex items-start gap-2">
-                                          <FileText className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
-                                          <span><strong className="text-amber-300 font-medium">الملاحظات:</strong> {batch.notes}</span>
-                                        </div>
-                                      )}
-
-                                      <div className="space-y-1 pt-1">
-                                        <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                                          <span>نسبة الإيفاء: {pct}%</span>
-                                          <span>المبلغ الإجمالي: {formatNum(cVal)} د.ع</span>
-                                        </div>
-                                        <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
-                                          <div 
-                                            className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                                            style={{ width: `${pct}%` }}
-                                          ></div>
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-center py-6 text-slate-500 text-xs">لا توجد مصاريف تشغيلية مسجلة لهذا المشروع بعد.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* إدارة المواد والتوريدات */}
-              {activeTab === 'MATERIALS' && (
-                <div className="space-y-4">
-                  {permissions.canReceiveMaterials && (
-                    <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المادة *</label>
-                          <input 
-                            type="text" 
-                            placeholder="حديد تسليح..." 
-                            value={matName} 
-                            onChange={(e) => setMatName(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">الوحدة</label>
-                          <input 
-                            type="text" 
-                            placeholder="طن..." 
-                            value={matUnit} 
-                            onChange={(e) => setMatUnit(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المورد</label>
-                          <input 
-                            type="text" 
-                            placeholder="المورد" 
-                            value={matSupplier} 
-                            onChange={(e) => setMatSupplier(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">الكمية المستلمة *</label>
-                          <input 
-                            type="number" 
-                            placeholder="الكمية" 
-                            value={matRec} 
-                            onChange={(e) => setMatRec(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 text-xs font-semibold">سعر الوحدة (د.ع) *</label>
-                          <input 
-                            type="number" 
-                            placeholder="السعر" 
-                            value={matPrice} 
-                            onChange={(e) => setMatPrice(e.target.value)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" 
-                          />
-                        </div>
-                      </div>
-                      <button onClick={handleAddMaterial} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
-                        <Plus className="w-4 h-4" /> إضافة مادة جديدة للتوريدات
-                      </button>
-                    </>
-                  )}
-
-                  <div className="space-y-4 mt-4">
-                    {activeTabProject.materials && activeTabProject.materials.length > 0 ? (
-                      activeTabProject.materials.map((mat: any, idx: number) => {
-                        const rec = Number(mat.quantity_received) || 0;
-                        const unitPrice = Number(mat.unit_price) || 0;
-                        const totalCost = Number(mat.total_cost) || (rec * unitPrice);
-
-                        return (
-                          <div key={idx} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4 shadow-md">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                                  <Package className="w-5 h-5 text-amber-400" />
-                                </div>
-                                <div>
-                                  <h4 className="text-base font-bold text-white">{mat.material_name} <span className="text-xs text-slate-400">({mat.unit})</span></h4>
-                                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                                    سعر الوحدة: <span className="text-amber-400 font-bold">{formatNum(Math.round(unitPrice))} د.ع</span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono">
-                                <div>
-                                  <span className="text-[10px] text-slate-400 block font-sans">إجمالي الكمية</span>
-                                  <span className="font-bold text-emerald-400">{rec} {mat.unit}</span>
-                                </div>
-                                <div className="border-r border-slate-700 pr-3">
-                                  <span className="text-[10px] text-slate-400 block font-sans">إجمالي التكلفة</span>
-                                  <span className="font-bold text-sky-400">{formatNum(totalCost)} د.ع</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-1 gap-3">
-                                {mat.batches?.map((batch: any, bIdx: number) => {
-                                  const pVal = Number(batch.paid_amount) || 0;
-                                  const rVal = Number(batch.remaining_amount) || 0;
-                                  const isComp = Boolean(batch.is_paid);
-                                  const tCost = Number(batch.total_cost) || 0;
-                                  const pct = batch.progress_pct || 0;
-
-                                  return (
-                                    <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
-                                      
-                                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2.5">
-                                          {isComp ? (
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                                          ) : (
-                                            <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-                                          )}
-                                          <div>
-                                            <p className="font-bold text-slate-100 text-sm">
-                                              المورد: <span className="text-amber-300">{batch.supplier_name}</span>
-                                            </p>
-                                            <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono mt-0.5">
-                                              <span>الكمية: <strong className="text-emerald-400">{batch.quantity_received} {mat.unit}</strong></span>
-                                              <span>•</span>
-                                              <span>سعر الوحدة: <strong className="text-slate-300">{formatNum(batch.unit_price)} د.ع</strong></span>
-                                            </div>
+                                            {permissions.canDeleteProject && (
+                                              <button
+                                                onClick={() => handleDeleteSubcontractor(batch.subcontractor_id)}
+                                                className="text-rose-400 hover:text-white hover:bg-rose-600 p-1.5 rounded-xl border border-rose-500/30 transition shadow cursor-pointer ml-auto md:ml-0"
+                                                title="حذف هذا العقد وإلغاء سنده المرتبط"
+                                              >
+                                                <Trash2 className="w-4 h-4" />
+                                              </button>
+                                            )}
                                           </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          {isComp ? (
-                                            <button
-                                              onClick={() => setActiveItemVouchersModal({
-                                                title: `سندات توريد (${mat.material_name})`,
-                                                targetName: `${mat.material_name} - المورد: ${batch.supplier_name}`,
-                                                vouchers: batch.attachedVouchers || []
-                                              })}
-                                              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition cursor-pointer"
-                                            >
-                                              <Eye className="w-3.5 h-3.5" /> مستوفى بالكامل (عرض السندات ✓)
-                                            </button>
-                                          ) : (
-                                            permissions.canManageVouchers && (
-                                              <button
-                                                onClick={() => handleQuickVoucherFromProject(
-                                                  batch.supplier_name && batch.supplier_name !== 'عام' ? batch.supplier_name : 'مورد مواد',
-                                                  rVal > 0 ? rVal : tCost,
-                                                  activeTabProject.project_id,
-                                                  'PAYMENT',
-                                                  `دفعة للمورد (${batch.supplier_name}) عن توريد ${mat.material_name} لمشروع ${activeTabProject.project_name}`,
-                                                  batch.material_id
-                                                )}
-                                                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer"
-                                              >
-                                                <Receipt className="w-3.5 h-3.5" /> إصدار دفعة / وصل
-                                              </button>
-                                            )
-                                          )}
-
-                                          {permissions.canDeleteProject && (
-                                            <button
-                                              onClick={() => handleDeleteMaterial(batch.material_id)}
-                                              className="text-rose-400 hover:text-white hover:bg-rose-600 p-2 rounded-xl border border-rose-500/30 transition shadow cursor-pointer"
-                                              title="حذف هذا التوريد"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs font-mono">
-                                        <div 
-                                          className="cursor-pointer hover:bg-slate-900/80 p-1 rounded transition"
-                                          onClick={() => setActiveItemVouchersModal({
-                                            title: `سندات توريد (${mat.material_name})`,
-                                            targetName: `توريد ${mat.material_name}`,
-                                            vouchers: batch.attachedVouchers || []
-                                          })}
-                                          title="اضغط لعرض الوصولات"
-                                        >
-                                          <span className="text-slate-400 block text-[10px] font-sans flex items-center gap-1">
-                                            المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
-                                          </span>
-                                          <span className="font-bold text-emerald-400">{formatNum(pVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">المبلغ المتبقي</span>
-                                          <span className={`font-bold ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
-                                        </div>
-                                        <div>
-                                          <span className="text-slate-400 block text-[10px] font-sans">حالة الصرف</span>
-                                          <span className={`font-bold ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
-                                            {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
-                                          </span>
-                                        </div>
-                                      </div>
-
-                                      <div className="space-y-1 pt-1">
-                                        <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                                          <span>نسبة الإيفاء: {pct}%</span>
-                                          <span>إجمالي قيمة التوريد: {formatNum(tCost)} د.ع</span>
-                                        </div>
-                                        <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-950 p-3 rounded-xl text-xs font-mono mt-1">
                                           <div 
-                                            className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                                            style={{ width: `${pct}%` }}
-                                          ></div>
+                                            className="cursor-pointer hover:bg-slate-900/80 p-1.5 rounded transition flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5"
+                                            onClick={() => setActiveItemVouchersModal({
+                                              title: `سندات مقاول الباطن (${subGroup.name})`,
+                                              targetName: `أعمال ${batch.trade}`,
+                                              vouchers: batch.attachedVouchers || []
+                                            })}
+                                            title="اضغط لعرض الوصولات"
+                                          >
+                                            <span className="text-slate-400 text-[10px] font-sans flex items-center gap-1">
+                                              المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
+                                            </span>
+                                            <span className="font-bold text-emerald-400 text-[13px]">{formatNum(pVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">المبلغ المتبقي</span>
+                                            <span className={`font-bold text-[13px] ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block pt-1 sm:pt-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">حالة الصرف</span>
+                                            <span className={`font-bold text-xs font-sans ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                              {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
+                                            </span>
+                                          </div>
                                         </div>
+
+                                        {batch.notes && (
+                                          <div className="bg-slate-950/70 border border-slate-800 p-2.5 rounded-lg text-[11px] text-slate-300 flex items-start gap-2 mt-1">
+                                            <FileText className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
+                                            <span><strong className="text-amber-300 font-medium">الملاحظات:</strong> {batch.notes}</span>
+                                          </div>
+                                        )}
+
+                                        <div className="space-y-1.5 pt-2 border-t border-slate-800 mt-1">
+                                          <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                                            <span>نسبة الإيفاء: <strong className="text-slate-200">{pct}%</strong></span>
+                                            <span>قيمة العقد: <strong className="text-slate-200">{formatNum(cVal)} د.ع</strong></span>
+                                          </div>
+                                          <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                              style={{ width: `${pct}%` }}
+                                            ></div>
+                                          </div>
+                                        </div>
+
                                       </div>
-
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-center py-6 text-slate-500 text-xs">لا توجد مواد مسجلة لهذا المشروع بعد.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* دفعات العقد المستحقة */}
-              {activeTab === 'TERMS' && (
-                <div className="space-y-4">
-                  {permissions.canEditContract && (
-                    <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
-                        <input type="text" placeholder="عنوان الدفعة..." value={termTitle} onChange={(e) => setTermTitle(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-                        <input type="number" placeholder="النسبة %" value={termPct} onChange={(e) => setTermPct(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
-                      </div>
-                      <button onClick={handleAddPaymentTerm} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
-                        <Plus className="w-4 h-4" /> إضافة دفعة تعاقدية
-                      </button>
-                    </>
-                  )}
-
-                  <div className="space-y-3 mt-4">
-                    {activeTabProject.payment_terms && activeTabProject.payment_terms.length > 0 ? (
-                      activeTabProject.payment_terms.map((term: any) => {
-                        const isDue = term.isDueNow;
-
-                        return (
-                          <div key={term.term_id} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {term.is_paid ? (
-                                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                                ) : isDue ? (
-                                  <BellRing className="w-5 h-5 text-amber-400 animate-bounce" />
-                                ) : (
-                                  <Clock className="w-5 h-5 text-slate-500" />
-                                )}
-                                <div>
-                                  <h4 className="text-base font-bold text-white">{term.term_title}</h4>
-                                  <p className="text-[12px] text-slate-400 font-mono mt-0.5">
-                                    النسبة من العقد الكلي: <span className="text-amber-400 font-bold">{term.due_percentage}%</span>
-                                  </p>
+                                    );
+                                  })}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <button
-                                  type="button"
+
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا يوجد مقاولو باطن مسجلون للمشروع بعد.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* تبويب المصاريف التشغيلية */}
+                {activeTab === 'EXPENSES' && (
+                  <div className="space-y-4">
+                    {permissions.canEditContract && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم الجهة / بند المصروف *</label>
+                            <input 
+                              type="text" 
+                              placeholder="إيجار آلية..." 
+                              value={expTitle} 
+                              onChange={(e) => setExpTitle(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">التصنيف / نوع المصروف *</label>
+                            <input 
+                              type="text" 
+                              placeholder="نقل وآليات..." 
+                              value={expCategory} 
+                              onChange={(e) => setExpCategory(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">المبلغ المقدر (د.ع) *</label>
+                            <input 
+                              type="number" 
+                              placeholder="المبلغ الكلي" 
+                              value={expAmount} 
+                              onChange={(e) => setExpAmount(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">ملاحظات المصروف</label>
+                            <input 
+                              type="text" 
+                              placeholder="تفاصيل الدفع..." 
+                              value={expNotes} 
+                              onChange={(e) => setExpNotes(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                        </div>
+                        <button onClick={handleAddOperatingExpense} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
+                          <Plus className="w-4 h-4" /> إضافة بند مصروف تشغيلي جديد
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-4 mt-4">
+                      {activeTabProject.operating_expenses && activeTabProject.operating_expenses.length > 0 ? (
+                        activeTabProject.operating_expenses.map((expGroup: any, idx: number) => {
+                          const totalAmt = Number(expGroup.total_amount) || 0;
+                          const totalPaid = Number(expGroup.paid_amount) || 0;
+                          const totalRemaining = Number(expGroup.unpaid_amount) || 0;
+
+                          return (
+                            <div key={idx} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-md">
+                              
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                    <Coins className="w-5 h-5 text-amber-400" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-base font-bold text-white">{expGroup.title}</h4>
+                                    <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                                      عدد البنود المسجلة: <span className="text-amber-400 font-bold">{expGroup.batches?.length || 0}</span>
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between sm:justify-start gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono w-full sm:w-auto mt-2 sm:mt-0">
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block font-sans">إجمالي المبلغ</span>
+                                    <span className="font-bold text-amber-400">{formatNum(totalAmt)} د.ع</span>
+                                  </div>
+                                  <div className="border-r border-slate-700 pr-3 sm:pr-4">
+                                    <span className="text-[10px] text-slate-400 block font-sans">المدفوع / المتبقي</span>
+                                    <span className="font-bold">
+                                      <span className="text-emerald-400">{formatNum(totalPaid)}</span> / <span className="text-rose-400">{formatNum(totalRemaining)}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-1 gap-3">
+                                  {expGroup.batches?.map((batch: any, bIdx: number) => {
+                                    const cVal = Number(batch.amount) || 0;
+                                    const pVal = Number(batch.paid_amount) || 0;
+                                    const rVal = Number(batch.remaining_amount) || 0;
+                                    const pct = batch.progress_pct || 0;
+                                    const isComp = batch.is_paid;
+
+                                    return (
+                                      <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
+                                        
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                          <div className="flex items-center gap-2.5">
+                                            {isComp ? (
+                                              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                                            ) : (
+                                              <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
+                                            )}
+                                            <div>
+                                              <p className="font-bold text-slate-100 text-sm">
+                                                التصنيف: <span className="text-amber-300">{batch.category}</span>
+                                              </p>
+                                            </div>
+                                          </div>
+
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            {isComp ? (
+                                              <button
+                                                onClick={() => setActiveItemVouchersModal({
+                                                  title: `سندات مصروف (${expGroup.title})`,
+                                                  targetName: `${expGroup.title} - ${batch.category}`,
+                                                  vouchers: batch.attachedVouchers || []
+                                                })}
+                                                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" /> مدفوعة بالكامل (سندات ✓)
+                                              </button>
+                                            ) : (
+                                              permissions.canManageVouchers && (
+                                                <button
+                                                  onClick={() => handleQuickVoucherFromProject(
+                                                    expGroup.title,
+                                                    rVal > 0 ? rVal : cVal,
+                                                    activeTabProject.project_id,
+                                                    'PAYMENT',
+                                                    `دفعة مصروف تشغيلي (${expGroup.title} - ${batch.category}) لمشروع ${activeTabProject.project_name}`,
+                                                    undefined,
+                                                    undefined,
+                                                    batch.expense_id
+                                                  )}
+                                                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                                                >
+                                                  <Receipt className="w-3.5 h-3.5" /> إصدار دفعة / وصل
+                                                </button>
+                                              )
+                                            )}
+
+                                            {permissions.canDeleteProject && (
+                                              <button
+                                                onClick={() => handleDeleteOperatingExpense(batch.expense_id)}
+                                                className="text-rose-400 hover:text-white hover:bg-rose-600 p-1.5 rounded-xl border border-rose-500/30 transition shadow cursor-pointer ml-auto md:ml-0"
+                                                title="حذف هذا المصروف"
+                                              >
+                                                <Trash2 className="w-4 h-4" />
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-950 p-3 rounded-xl text-xs font-mono mt-1">
+                                          <div 
+                                            className="cursor-pointer hover:bg-slate-900/80 p-1.5 rounded transition flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5"
+                                            onClick={() => setActiveItemVouchersModal({
+                                              title: `سندات مصروف (${expGroup.title})`,
+                                              targetName: `${expGroup.title} - ${batch.category}`,
+                                              vouchers: batch.attachedVouchers || []
+                                            })}
+                                            title="اضغط لعرض الوصولات"
+                                          >
+                                            <span className="text-slate-400 text-[10px] font-sans flex items-center gap-1">
+                                              المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
+                                            </span>
+                                            <span className="font-bold text-emerald-400 text-[13px]">{formatNum(pVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">المبلغ المتبقي</span>
+                                            <span className={`font-bold text-[13px] ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block pt-1 sm:pt-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">حالة الصرف</span>
+                                            <span className={`font-bold text-xs font-sans ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                              {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
+                                            </span>
+                                          </div>
+                                        </div>
+
+                                        {batch.notes && (
+                                          <div className="bg-slate-950/70 border border-slate-800 p-2.5 rounded-lg text-[11px] text-slate-300 flex items-start gap-2 mt-1">
+                                            <FileText className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
+                                            <span><strong className="text-amber-300 font-medium">الملاحظات:</strong> {batch.notes}</span>
+                                          </div>
+                                        )}
+
+                                        <div className="space-y-1.5 pt-2 border-t border-slate-800 mt-1">
+                                          <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                                            <span>نسبة الإيفاء: <strong className="text-slate-200">{pct}%</strong></span>
+                                            <span>المبلغ الإجمالي: <strong className="text-slate-200">{formatNum(cVal)} د.ع</strong></span>
+                                          </div>
+                                          <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                              style={{ width: `${pct}%` }}
+                                            ></div>
+                                          </div>
+                                        </div>
+
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد مصاريف تشغيلية مسجلة لهذا المشروع بعد.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* إدارة المواد والتوريدات */}
+                {activeTab === 'MATERIALS' && (
+                  <div className="space-y-4">
+                    {permissions.canReceiveMaterials && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المادة *</label>
+                            <input 
+                              type="text" 
+                              placeholder="حديد تسليح..." 
+                              value={matName} 
+                              onChange={(e) => setMatName(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">الوحدة</label>
+                            <input 
+                              type="text" 
+                              placeholder="طن..." 
+                              value={matUnit} 
+                              onChange={(e) => setMatUnit(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">اسم المورد</label>
+                            <input 
+                              type="text" 
+                              placeholder="المورد" 
+                              value={matSupplier} 
+                              onChange={(e) => setMatSupplier(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">الكمية المستلمة *</label>
+                            <input 
+                              type="number" 
+                              placeholder="الكمية" 
+                              value={matRec} 
+                              onChange={(e) => setMatRec(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 mb-1 text-xs font-semibold">سعر الوحدة (د.ع) *</label>
+                            <input 
+                              type="number" 
+                              placeholder="السعر" 
+                              value={matPrice} 
+                              onChange={(e) => setMatPrice(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" 
+                            />
+                          </div>
+                        </div>
+                        <button onClick={handleAddMaterial} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-amber-500/20 cursor-pointer">
+                          <Plus className="w-4 h-4" /> إضافة مادة جديدة للتوريدات
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-4 mt-4">
+                      {activeTabProject.materials && activeTabProject.materials.length > 0 ? (
+                        activeTabProject.materials.map((mat: any, idx: number) => {
+                          const rec = Number(mat.quantity_received) || 0;
+                          const unitPrice = Number(mat.unit_price) || 0;
+                          const totalCost = Number(mat.total_cost) || (rec * unitPrice);
+
+                          return (
+                            <div key={idx} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-md">
+                              
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                    <Package className="w-5 h-5 text-amber-400" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-base font-bold text-white">{mat.material_name} <span className="text-xs text-slate-400 font-sans">({mat.unit})</span></h4>
+                                    <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                                      متوسط السعر: <span className="text-amber-400 font-bold">{formatNum(Math.round(unitPrice))} د.ع</span>
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between sm:justify-start gap-4 bg-slate-900 px-4 py-2 rounded-xl text-xs font-mono w-full sm:w-auto mt-2 sm:mt-0">
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block font-sans">إجمالي الكمية</span>
+                                    <span className="font-bold text-emerald-400 text-[13px]">{rec} <span className="text-[10px] font-sans text-slate-500">{mat.unit}</span></span>
+                                  </div>
+                                  <div className="border-r border-slate-700 pr-3 sm:pr-4">
+                                    <span className="text-[10px] text-slate-400 block font-sans">إجمالي التكلفة</span>
+                                    <span className="font-bold text-sky-400 text-[13px]">{formatNum(totalCost)} د.ع</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <span className="text-[11px] text-slate-400 font-bold block">دفعات التوريد المسجلة ({mat.batches?.length || 0}):</span>
+                                <div className="grid grid-cols-1 gap-3">
+                                  {mat.batches?.map((batch: any, bIdx: number) => {
+                                    const pVal = Number(batch.paid_amount) || 0;
+                                    const rVal = Number(batch.remaining_amount) || 0;
+                                    const isComp = Boolean(batch.is_paid);
+                                    const tCost = Number(batch.total_cost) || 0;
+                                    const pct = batch.progress_pct || 0;
+
+                                    return (
+                                      <div key={bIdx} className="bg-slate-900/90 border border-slate-800 p-4 rounded-xl flex flex-col gap-3 text-xs">
+                                        
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                          <div className="flex items-center gap-2.5">
+                                            {isComp ? (
+                                              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                                            ) : (
+                                              <span className="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
+                                            )}
+                                            <div>
+                                              <p className="font-bold text-slate-100 text-sm">
+                                                المورد: <span className="text-amber-300">{batch.supplier_name}</span>
+                                              </p>
+                                              <div className="flex items-center flex-wrap gap-2 text-[11px] text-slate-400 font-mono mt-0.5">
+                                                <span>الكمية: <strong className="text-emerald-400 text-sm">{batch.quantity_received}</strong> <span className="font-sans text-slate-500">{mat.unit}</span></span>
+                                                <span className="hidden sm:inline">•</span>
+                                                <span>السعر: <strong className="text-slate-300">{formatNum(batch.unit_price)} د.ع</strong></span>
+                                                <span className="hidden sm:inline">•</span>
+                                                <span>تاريخ التوريد: <strong className="text-slate-300">{String(batch.created_at || '').split('T')[0]}</strong></span>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <div className="flex items-center gap-2 flex-wrap mt-1 md:mt-0">
+                                            {isComp ? (
+                                              <button
+                                                onClick={() => setActiveItemVouchersModal({
+                                                  title: `سندات توريد (${mat.material_name})`,
+                                                  targetName: `${mat.material_name} - المورد: ${batch.supplier_name}`,
+                                                  vouchers: batch.attachedVouchers || []
+                                                })}
+                                                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                                              >
+                                                <Eye className="w-3.5 h-3.5" /> مستوفى بالكامل (سندات ✓)
+                                              </button>
+                                            ) : (
+                                              permissions.canManageVouchers && (
+                                                <button
+                                                  onClick={() => handleQuickVoucherFromProject(
+                                                    batch.supplier_name && batch.supplier_name !== 'عام' ? batch.supplier_name : 'مورد مواد',
+                                                    rVal > 0 ? rVal : tCost,
+                                                    activeTabProject.project_id,
+                                                    'PAYMENT',
+                                                    `دفعة للمورد (${batch.supplier_name}) عن توريد ${mat.material_name} لمشروع ${activeTabProject.project_name}`,
+                                                    batch.material_id
+                                                  )}
+                                                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                                                >
+                                                  <Receipt className="w-3.5 h-3.5" /> إصدار دفعة / وصل
+                                                </button>
+                                              )
+                                            )}
+
+                                            {permissions.canDeleteProject && (
+                                              <button
+                                                onClick={() => handleDeleteMaterial(batch.material_id)}
+                                                className="text-rose-400 hover:text-white hover:bg-rose-600 p-1.5 rounded-xl border border-rose-500/30 transition shadow cursor-pointer ml-auto md:ml-0"
+                                                title="حذف هذا التوريد"
+                                              >
+                                                <Trash2 className="w-4 h-4" />
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-950 p-3 rounded-xl text-xs font-mono mt-1">
+                                          <div 
+                                            className="cursor-pointer hover:bg-slate-900/80 p-1.5 rounded transition flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5"
+                                            onClick={() => setActiveItemVouchersModal({
+                                              title: `سندات توريد (${mat.material_name})`,
+                                              targetName: `توريد ${mat.material_name}`,
+                                              vouchers: batch.attachedVouchers || []
+                                            })}
+                                            title="اضغط لعرض الوصولات"
+                                          >
+                                            <span className="text-slate-400 text-[10px] font-sans flex items-center gap-1">
+                                              المبلغ المدفوع (سندات) <Eye className="w-3 h-3 text-sky-400" />
+                                            </span>
+                                            <span className="font-bold text-emerald-400 text-[13px]">{formatNum(pVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">المبلغ المتبقي</span>
+                                            <span className={`font-bold text-[13px] ${rVal > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{formatNum(rVal)} د.ع</span>
+                                          </div>
+                                          <div className="p-1.5 flex items-center justify-between sm:block pt-1 sm:pt-1.5">
+                                            <span className="text-slate-400 text-[10px] font-sans block">حالة الصرف</span>
+                                            <span className={`font-bold text-xs font-sans ${isComp ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                              {isComp ? 'مكتمل السداد' : 'قيد الصرف'}
+                                            </span>
+                                          </div>
+                                        </div>
+
+                                        <div className="space-y-1.5 pt-2 border-t border-slate-800 mt-1">
+                                          <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                                            <span>نسبة الإيفاء: <strong className="text-slate-200">{pct}%</strong></span>
+                                            <span>إجمالي قيمة التوريد: <strong className="text-slate-200">{formatNum(tCost)} د.ع</strong></span>
+                                          </div>
+                                          <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`h-full transition-all duration-500 ${isComp ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                              style={{ width: `${pct}%` }}
+                                            ></div>
+                                          </div>
+                                        </div>
+
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد مواد مسجلة لهذا المشروع بعد.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* دفعات العقد المستحقة */}
+                {activeTab === 'TERMS' && (
+                  <div className="space-y-4">
+                    {permissions.canEditContract && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
+                          <input type="text" placeholder="عنوان الدفعة..." value={termTitle} onChange={(e) => setTermTitle(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500" />
+                          <input type="number" placeholder="النسبة % من العقد الإجمالي" value={termPct} onChange={(e) => setTermPct(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-emerald-500" />
+                        </div>
+                        <button onClick={handleAddPaymentTerm} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                          <Plus className="w-4 h-4" /> إضافة دفعة تعاقدية
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-4 mt-4">
+                      {activeTabProject.payment_terms && activeTabProject.payment_terms.length > 0 ? (
+                        activeTabProject.payment_terms.map((term: any) => {
+                          const isDue = term.isDueNow;
+
+                          return (
+                            <div key={term.term_id} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-md">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                                <div className="flex items-center gap-3">
+                                  {term.is_paid ? (
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                    </div>
+                                  ) : isDue ? (
+                                    <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                      <BellRing className="w-5 h-5 text-amber-400 animate-bounce" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-10 h-10 rounded-full bg-slate-800/50 border border-slate-700 flex items-center justify-center shrink-0">
+                                      <Clock className="w-5 h-5 text-slate-500" />
+                                    </div>
+                                  )}
+                                  <div>
+                                    <h4 className="text-base font-bold text-white">{term.term_title}</h4>
+                                    <p className="text-[12px] text-slate-400 font-mono mt-0.5">
+                                      النسبة من العقد الكلي: <span className="text-amber-400 font-bold">{term.due_percentage}%</span>
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap mt-1 sm:mt-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveItemVouchersModal({
+                                      title: `سندات قبض دفعة (${term.term_title})`,
+                                      targetName: term.term_title,
+                                      vouchers: term.attachedVouchers || []
+                                    })}
+                                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer ${
+                                      term.is_paid 
+                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm' 
+                                        : 'bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700'
+                                    }`}
+                                    title="عرض الوصولات وسندات القبض المسجلة"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    {term.is_paid ? 'مستلمة (الوصولات ✓)' : 'عرض الوصولات'}
+                                  </button>
+
+                                  {!term.is_paid && permissions.canManageVouchers && (
+                                    <button
+                                      onClick={() => handleCreateVoucherForTerm(term)}
+                                      className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md flex items-center gap-1.5 transition cursor-pointer"
+                                    >
+                                      <Receipt className="w-3.5 h-3.5" /> إصدار وصل قبض
+                                    </button>
+                                  )}
+
+                                  {permissions.canDeleteProject && (
+                                    <button
+                                      onClick={() => handleDeletePaymentTerm(term.term_id, term.term_title)}
+                                      className="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white p-1.5 rounded-xl border border-rose-500/30 transition cursor-pointer ml-auto sm:ml-0"
+                                      title="حذف الدفعة"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-900 p-3 rounded-xl text-xs font-mono">
+                                <div 
+                                  className="cursor-pointer hover:bg-slate-800 p-1.5 rounded transition flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5"
                                   onClick={() => setActiveItemVouchersModal({
                                     title: `سندات قبض دفعة (${term.term_title})`,
                                     targetName: term.term_title,
                                     vouchers: term.attachedVouchers || []
                                   })}
-                                  className={`px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
-                                    term.is_paid 
-                                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                                      : 'bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700'
-                                  }`}
-                                  title="عرض الوصولات وسندات القبض المسجلة"
+                                  title="اضغط لعرض الوصولات"
                                 >
-                                  <Eye className="w-3.5 h-3.5" />
-                                  {term.is_paid ? 'تم استلام الدفعة (عرض الوصولات ✓)' : 'عرض الوصولات'}
-                                </button>
+                                  <span className="text-slate-400 text-[10px] font-sans flex items-center gap-1">
+                                    المبلغ المستلم (قبض) <Eye className="w-3 h-3 text-sky-400" />
+                                  </span>
+                                  <span className="font-bold text-emerald-400 text-[13px]">{formatNum(term.paidAmt || 0)} د.ع</span>
+                                </div>
+                                <div className="p-1.5 flex items-center justify-between sm:block border-b sm:border-b-0 border-slate-800 sm:border-transparent pb-2 sm:pb-1.5">
+                                  <span className="text-slate-400 text-[10px] font-sans block">المبلغ المتبقي</span>
+                                  <span className={`font-bold text-[13px] ${(term.remainAmt !== undefined ? term.remainAmt : term.amount) > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                                    {formatNum(term.remainAmt !== undefined ? term.remainAmt : term.amount)} د.ع
+                                  </span>
+                                </div>
+                                <div className="p-1.5 flex items-center justify-between sm:block pt-1 sm:pt-1.5">
+                                  <span className="text-slate-400 text-[10px] font-sans block">حالة الاستحقاق</span>
+                                  <span className={`font-bold text-xs font-sans ${term.is_paid ? 'text-emerald-400' : isDue ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`}>
+                                    {term.is_paid ? 'مستلمة' : isDue ? 'مستحقة القبض الآن!' : 'قيد التحصيل'}
+                                  </span>
+                                </div>
+                              </div>
 
-                                {!term.is_paid && permissions.canManageVouchers && (
-                                  <button
-                                    onClick={() => handleCreateVoucherForTerm(term)}
-                                    className="px-3 py-1.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md flex items-center gap-1 transition cursor-pointer"
-                                  >
-                                    <Receipt className="w-3.5 h-3.5" /> إصدار وصل قبض رسمي
-                                  </button>
-                                )}
-
-                                {permissions.canDeleteProject && (
-                                  <button
-                                    onClick={() => handleDeletePaymentTerm(term.term_id, term.term_title)}
-                                    className="bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white p-2 rounded-xl transition cursor-pointer"
-                                    title="حذف الدفعة"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                )}
+                              <div className="space-y-1.5 pt-1">
+                                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                                  <span>نسبة الإيفاء: <strong className="text-slate-200">{term.progressPct || 0}%</strong></span>
+                                  <span>إجمالي قيمة الدفعة: <strong className="text-slate-200">{formatNum(term.amount)} د.ع</strong></span>
+                                </div>
+                                <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full transition-all duration-500 ${term.is_paid ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                    style={{ width: `${term.progressPct || 0}%` }}
+                                  ></div>
+                                </div>
                               </div>
                             </div>
-
-                            <div className="grid grid-cols-3 gap-2 bg-slate-900 p-3 rounded-xl text-xs font-mono">
-                              <div 
-                                className="cursor-pointer hover:bg-slate-800 p-1 rounded transition"
-                                onClick={() => setActiveItemVouchersModal({
-                                  title: `سندات قبض دفعة (${term.term_title})`,
-                                  targetName: term.term_title,
-                                  vouchers: term.attachedVouchers || []
-                                })}
-                                title="اضغط لعرض الوصولات"
-                              >
-                                <span className="text-slate-400 block text-[10px] flex items-center gap-1">
-                                  المبلغ المستلم (قبض) <Eye className="w-3 h-3 text-sky-400" />
-                                </span>
-                                <span className="font-bold text-emerald-400">{formatNum(term.paidAmt || 0)} د.ع</span>
-                              </div>
-                              <div>
-                                <span className="text-slate-400 block text-[10px]">المبلغ المتبقي</span>
-                                <span className={`font-bold ${(term.remainAmt !== undefined ? term.remainAmt : term.amount) > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-                                  {formatNum(term.remainAmt !== undefined ? term.remainAmt : term.amount)} د.ع
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-slate-400 block text-[10px]">حالة الاستحقاق</span>
-                                <span className={`font-bold ${term.is_paid ? 'text-emerald-400' : isDue ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`}>
-                                  {term.is_paid ? 'مستلمة' : isDue ? 'مستحقة القبض الآن!' : 'قيد التحصيل'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                                <span>نسبة الإيفاء: {term.progressPct || 0}%</span>
-                                <span>إجمالي قيمة الدفعة: {formatNum(term.amount)} د.ع</span>
-                              </div>
-                              <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full transition-all duration-500 ${term.is_paid ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                                  style={{ width: `${term.progressPct || 0}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-center py-6 text-slate-500 text-xs">لا توجد دفعات تعاقدية مجدولة بعد.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* باقي التبويبات (المراحل، اليوميات، الوثائق) */}
-              {activeTab === 'MILESTONES' && (
-                <div className="space-y-4">
-                  {permissions.canUpdateSiteProgress && (
-                    <div className="flex gap-2">
-                      <input type="text" placeholder="اسم المرحلة..." value={milestoneName} onChange={(e) => setMilestoneName(e.target.value)} className="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white" />
-                      <input type="number" placeholder="الوزن %" value={milestoneWeight} onChange={(e) => setMilestoneWeight(e.target.value)} className="w-24 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white text-center font-mono" />
-                      <button onClick={handleAddMilestone} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1 cursor-pointer">
-                        <Plus className="w-4 h-4" /> إضافة
-                      </button>
+                          );
+                        })
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد دفعات تعاقدية مجدولة بعد.
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    {activeTabProject.milestones?.map((m: any) => (
-                      <div key={m.milestone_id} className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 flex flex-col gap-3 text-xs">
-                        <div className="flex items-center justify-between">
-                          <p className="font-bold text-white text-sm">{m.name}</p>
-                          <span className="font-mono text-amber-400 font-bold text-sm">{m.completion_percentage}% إنجاز</span>
+                  </div>
+                )}
+
+                {/* باقي التبويبات (المراحل، اليوميات، الوثائق) */}
+                {activeTab === 'MILESTONES' && (
+                  <div className="space-y-4">
+                    {permissions.canUpdateSiteProgress && (
+                      <div className="flex flex-col sm:flex-row gap-2 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <input type="text" placeholder="اسم المرحلة..." value={milestoneName} onChange={(e) => setMilestoneName(e.target.value)} className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white outline-none focus:border-amber-500" />
+                        <div className="flex gap-2">
+                          <input type="number" placeholder="الوزن %" value={milestoneWeight} onChange={(e) => setMilestoneWeight(e.target.value)} className="w-full sm:w-24 bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white text-center font-mono outline-none focus:border-amber-500" />
+                          <button onClick={handleAddMilestone} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
+                            <Plus className="w-4 h-4 shrink-0" /> إضافة
+                          </button>
                         </div>
-                        {permissions.canUpdateSiteProgress ? (
-                          <input type="range" min="0" max="100" value={m.completion_percentage} onChange={(e) => handleUpdateMilestoneProgress(m.milestone_id, Number(e.target.value))} className="w-full accent-amber-500 cursor-pointer" />
-                        ) : (
-                          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div className="bg-amber-500 h-full" style={{ width: `${m.completion_percentage}%` }}></div>
+                      </div>
+                    )}
+                    <div className="space-y-3 mt-4">
+                      {activeTabProject.milestones && activeTabProject.milestones.length > 0 ? (
+                        activeTabProject.milestones.map((m: any) => (
+                          <div key={m.milestone_id} className="bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col gap-3 text-xs shadow-md">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <p className="font-bold text-white text-sm sm:text-base">{m.name}</p>
+                              <span className="font-mono text-amber-400 font-bold text-sm bg-slate-900 px-3 py-1 rounded-lg border border-amber-500/20 w-fit">
+                                {m.completion_percentage}% إنجاز
+                              </span>
+                            </div>
+                            {permissions.canUpdateSiteProgress ? (
+                              <input type="range" min="0" max="100" value={m.completion_percentage} onChange={(e) => handleUpdateMilestoneProgress(m.milestone_id, Number(e.target.value))} className="w-full accent-amber-500 cursor-pointer h-2" />
+                            ) : (
+                              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-2">
+                                <div className="bg-amber-500 h-full transition-all duration-500" style={{ width: `${m.completion_percentage}%` }}></div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'LOGS' && (
-                <div className="space-y-4">
-                  {permissions.canAddSiteLogs && (
-                    <>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
-                        <input type="date" value={logDate} onChange={(e) => setLogDate(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
-                        <input type="number" placeholder="عدد العمال" value={logWorkers} onChange={(e) => setLogWorkers(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
-                        <select value={logWeather} onChange={(e) => setLogWeather(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                          <option value="صحو">صحو</option>
-                          <option value="ممطر">ممطر</option>
-                          <option value="حار جداً">حار جداً</option>
-                        </select>
-                        <textarea placeholder="الملاحظات الميدانية..." value={logNotes} onChange={(e) => setLogNotes(e.target.value)} className="sm:col-span-3 bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white h-20" />
-                      </div>
-                      <button onClick={handleAddSiteLog} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer">
-                        <Plus className="w-4 h-4" /> حفظ تقرير اليومية
-                      </button>
-                    </>
-                  )}
-                  <div className="space-y-2 mt-2">
-                    {activeTabProject.site_logs?.map((log: any) => (
-                      <div key={log.log_id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
-                        <div className="flex justify-between items-center font-mono text-[11px] text-slate-400">
-                          <span className="font-bold text-white">{String(log.log_date).split('T')[0]}</span>
-                          <span>العمال: {log.workers_count} | الطقس: {log.weather}</span>
+                        ))
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد مراحل مسجلة للمشروع بعد.
                         </div>
-                        <p className="text-slate-200">{log.notes}</p>
-                      </div>
-                    ))}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === 'DOCS' && (
-                <div className="space-y-4">
-                  {permissions.canEditContract && (
-                    <>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="عنوان الوثيقة" value={docTitle} onChange={(e) => setDocTitle(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white" />
-                        <input type="text" placeholder="رابط الملف" value={docUrl} onChange={(e) => setDocUrl(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-[14px] text-white font-mono" />
+                {activeTab === 'LOGS' && (
+                  <div className="space-y-4">
+                    {permissions.canAddSiteLogs && (
+                      <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-[14px]">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <input type="date" value={logDate} onChange={(e) => setLogDate(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" />
+                          <input type="number" placeholder="عدد العمال" value={logWorkers} onChange={(e) => setLogWorkers(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500" />
+                          <select value={logWeather} onChange={(e) => setLogWeather(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 cursor-pointer">
+                            <option value="صحو">صحو</option>
+                            <option value="ممطر">ممطر</option>
+                            <option value="حار جداً">حار جداً</option>
+                            <option value="عاصف">عاصف / ترابي</option>
+                          </select>
+                        </div>
+                        <textarea placeholder="الملاحظات الميدانية وتقارير الإنجاز..." value={logNotes} onChange={(e) => setLogNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white h-24 outline-none focus:border-amber-500 resize-none leading-relaxed" />
+                        <button onClick={handleAddSiteLog} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition shadow-md">
+                          <Plus className="w-4 h-4 shrink-0" /> حفظ تقرير اليومية
+                        </button>
                       </div>
-                      <button onClick={handleAddDocument} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer">
-                        <Plus className="w-3.5 h-3.5" /> إرفاق وثيقة
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
+                    )}
+                    <div className="space-y-3 mt-4">
+                      {activeTabProject.site_logs && activeTabProject.site_logs.length > 0 ? (
+                        activeTabProject.site_logs.map((log: any) => (
+                          <div key={log.log_id} className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3 text-xs shadow-md">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800/80 pb-2">
+                              <span className="font-bold text-amber-400 text-sm font-mono flex items-center gap-2">
+                                <Calendar className="w-4 h-4 shrink-0" />
+                                {String(log.log_date).split('T')[0]}
+                              </span>
+                              <div className="flex items-center gap-3 font-mono text-[11px] bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
+                                <span className="text-slate-300">العمال: <strong className="text-white">{log.workers_count}</strong></span>
+                                <span className="text-slate-600">|</span>
+                                <span className="text-slate-300">الطقس: <strong className="text-white">{log.weather}</strong></span>
+                              </div>
+                            </div>
+                            <p className="text-slate-300 text-[13px] leading-relaxed whitespace-pre-line">{log.notes}</p>
+                            {permissions.canDeleteProject && (
+                              <div className="flex justify-end pt-2">
+                                <button onClick={() => handleDeleteSiteLog(log.log_id)} className="text-rose-400 hover:text-white hover:bg-rose-600 px-3 py-1 rounded-lg border border-rose-500/30 transition shadow-sm cursor-pointer flex items-center gap-1">
+                                  <Trash2 className="w-3 h-3" /> حذف التقرير
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد يوميات مسجلة للموقع بعد.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'DOCS' && (
+                  <div className="space-y-4">
+                    {permissions.canEditContract && (
+                      <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[14px]">
+                          <input type="text" placeholder="عنوان الوثيقة أو المخطط" value={docTitle} onChange={(e) => setDocTitle(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-purple-500" />
+                          <input type="text" dir="ltr" placeholder="رابط الملف (URL)" value={docUrl} onChange={(e) => setDocUrl(e.target.value)} className="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono text-xs outline-none focus:border-purple-500" />
+                        </div>
+                        <button onClick={handleAddDocument} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition shadow-md">
+                          <Plus className="w-4 h-4 shrink-0" /> إرفاق وثيقة للمشروع
+                        </button>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                      {activeTabProject.documents && activeTabProject.documents.length > 0 ? (
+                        activeTabProject.documents.map((doc: any) => (
+                          <div key={doc.document_id} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 shadow-sm hover:border-slate-700 transition">
+                            <div className="flex items-center gap-3 truncate">
+                              <div className="w-10 h-10 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center justify-center shrink-0">
+                                <FileText className="w-5 h-5 text-purple-400" />
+                              </div>
+                              <div className="truncate">
+                                <p className="font-bold text-white text-sm truncate">{doc.title}</p>
+                                <span className="text-[10px] text-slate-500 font-mono block mt-0.5">{String(doc.created_at || '').split('T')[0]}</span>
+                              </div>
+                            </div>
+                            <a href={doc.file_url} target="_blank" rel="noreferrer" className="bg-purple-600 hover:bg-purple-500 text-white p-2.5 rounded-xl transition cursor-pointer shrink-0 shadow-md">
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="col-span-full bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center text-slate-500 text-sm">
+                          لا توجد وثائق مرفقة للمشروع بعد.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              </div>
 
             </div>
           </div>
@@ -2997,43 +3066,48 @@ export default function ProjectsPage() {
         {/* نافذة استعراض سندات البند الواحد المنبثقة التفاعلية */}
         {activeItemVouchersModal && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Receipt className="w-5 h-5 text-emerald-400" />
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-3xl p-5 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                    <Receipt className="w-5 h-5 text-emerald-400" />
+                  </div>
                   <div>
-                    <h3 className="text-base font-bold text-white">{activeItemVouchersModal.title}</h3>
+                    <h3 className="text-sm sm:text-base font-bold text-white">{activeItemVouchersModal.title}</h3>
                     <p className="text-xs text-slate-400 mt-0.5">البيان: <strong className="text-amber-400">{activeItemVouchersModal.targetName}</strong></p>
                   </div>
                 </div>
-                <button onClick={() => setActiveItemVouchersModal(null)} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                <button onClick={() => setActiveItemVouchersModal(null)} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition shrink-0 self-end sm:self-auto cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 font-semibold">قائمة السندات المعتمدة المرتبطة:</span>
-                  <span className="font-mono bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-emerald-400 font-bold">
-                    العدد: {activeItemVouchersModal.vouchers.length} سند
+              <div className="space-y-4 flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-400 font-semibold flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-sky-400" />
+                    قائمة السندات المعتمدة المرتبطة بهذا البند:
+                  </span>
+                  <span className="font-mono bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-emerald-400 font-bold w-fit">
+                    العدد الكلي: {activeItemVouchersModal.vouchers.length} سند
                   </span>
                 </div>
 
-                <div className="border border-slate-800 rounded-2xl overflow-hidden max-h-64 overflow-y-auto">
-                  <table className="w-full text-right text-xs">
+                <div className="border border-slate-800 rounded-2xl overflow-hidden w-full overflow-x-auto">
+                  <table className="w-full min-w-[500px] text-right text-xs">
                     <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[11px] sticky top-0">
                       <tr>
-                        <th className="p-3">رقم السند</th>
-                        <th className="p-3">النوع</th>
-                        <th className="p-3">التاريخ</th>
-                        <th className="p-3">المستفيد / الطرف</th>
-                        <th className="p-3 text-left">المبلغ</th>
+                        <th className="p-3 whitespace-nowrap">رقم السند</th>
+                        <th className="p-3 whitespace-nowrap">النوع</th>
+                        <th className="p-3 whitespace-nowrap">التاريخ</th>
+                        <th className="p-3 whitespace-nowrap">المستفيد / الطرف</th>
+                        <th className="p-3 text-left whitespace-nowrap">المبلغ</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/80 font-mono">
+                    <tbody className="divide-y divide-slate-800/80 font-mono bg-slate-900/50">
                       {activeItemVouchersModal.vouchers.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="p-6 text-center text-slate-500 font-sans">
+                          <td colSpan={5} className="p-8 text-center text-slate-500 font-sans">
                             لا توجد سندات فردية مخصصة لهذا البند حتى الآن.
                           </td>
                         </tr>
@@ -3042,16 +3116,16 @@ export default function ProjectsPage() {
                           const parsed = parseVoucherNotes(v.notes);
                           const isRec = v.voucher_type === 'RECEIPT';
                           return (
-                            <tr key={vIdx} className="hover:bg-slate-800/40">
-                              <td className="p-3 font-bold text-amber-400">{v.voucher_number}</td>
-                              <td className="p-3 font-sans">
+                            <tr key={vIdx} className="hover:bg-slate-800/60 transition">
+                              <td className="p-3 font-bold text-amber-400 whitespace-nowrap">{v.voucher_number}</td>
+                              <td className="p-3 font-sans whitespace-nowrap">
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${isRec ? 'bg-emerald-50/20 text-emerald-300' : 'bg-rose-50/20 text-rose-300'}`}>
                                   {isRec ? 'قبض' : 'صرف'}
                                 </span>
                               </td>
-                              <td className="p-3 text-slate-400">{String(v.issue_date || '').split('T')[0]}</td>
-                              <td className="p-3 font-sans text-slate-200 font-medium">{parsed.party || v.party_name}</td>
-                              <td className="p-3 text-left font-bold text-white">{formatNum(v.total_amount || v.amount)} د.ع</td>
+                              <td className="p-3 text-slate-400 whitespace-nowrap">{String(v.issue_date || '').split('T')[0]}</td>
+                              <td className="p-3 font-sans text-slate-200 font-medium truncate max-w-[150px]" title={parsed.party || v.party_name}>{parsed.party || v.party_name}</td>
+                              <td className="p-3 text-left font-bold text-white whitespace-nowrap">{formatNum(v.total_amount || v.amount)} د.ع</td>
                             </tr>
                           );
                         })
@@ -3060,20 +3134,23 @@ export default function ProjectsPage() {
                   </table>
                 </div>
 
-                <div className="pt-2 flex justify-between items-center text-xs border-t border-slate-800 font-mono">
-                  <span className="text-slate-400 font-sans">إجمالي مبالغ السندات:</span>
-                  <span className="text-base font-black text-emerald-400">
+                <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs border-t border-slate-800 font-mono bg-slate-950 p-4 rounded-xl mt-4">
+                  <span className="text-slate-400 font-sans font-bold flex items-center gap-1.5">
+                    <Coins className="w-4 h-4 text-emerald-400" />
+                    إجمالي مبالغ هذه السندات حصراً:
+                  </span>
+                  <span className="text-lg font-black text-emerald-400">
                     {formatNum(activeItemVouchersModal.vouchers.reduce((acc: number, v: any) => acc + (Number(v.total_amount || v.amount) || 0), 0))} د.ع
                   </span>
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-4 flex justify-end border-t border-slate-800 mt-auto">
                 <button
                   onClick={() => setActiveItemVouchersModal(null)}
-                  className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer transition w-full sm:w-auto"
                 >
-                  إغلاق
+                  إغلاق النافذة
                 </button>
               </div>
             </div>
@@ -3086,29 +3163,31 @@ export default function ProjectsPage() {
             <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Edit3 className="w-4 h-4 text-amber-400" /> تعديل حالة ونسبة الإنجاز
+                  <Edit3 className="w-4 h-4 text-amber-400" /> تعديل الإنجاز للمشروع
                 </h3>
-                <button onClick={() => setEditingProject(null)} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+                <button onClick={() => setEditingProject(null)} className="text-slate-400 hover:text-white p-1 cursor-pointer"><X className="w-5 h-5" /></button>
               </div>
-              <div>
-                <label className="block text-xs text-slate-400 mb-1 font-semibold">حالة المشروع</label>
-                <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
-                  <option value="IN_PROGRESS">قيد التنفيذ</option>
-                  <option value="COMPLETED">مكتمل ومسلّم</option>
-                  <option value="SUSPENDED">متوقف مؤقتاً</option>
-                </select>
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs text-slate-400 font-semibold">نسبة الإنجاز</label>
-                  <span className="font-mono text-amber-400 font-bold">{editRate}%</span>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1 font-semibold">تحديث حالة المشروع الميدانية</label>
+                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500 cursor-pointer">
+                    <option value="IN_PROGRESS">قيد التنفيذ (العمل مستمر)</option>
+                    <option value="COMPLETED">مكتمل ومسلّم للجهة المستفيدة</option>
+                    <option value="SUSPENDED">متوقف مؤقتاً لأسباب قاهرة</option>
+                  </select>
                 </div>
-                <input type="range" min="0" max="100" value={editRate} onChange={(e) => setEditRate(e.target.value)} className="w-full accent-amber-500 cursor-pointer" />
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="text-xs text-slate-400 font-semibold">نسبة الإنجاز التنفيذي العام</label>
+                    <span className="font-mono text-amber-400 font-black text-lg bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">{editRate}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" value={editRate} onChange={(e) => setEditRate(e.target.value)} className="w-full accent-amber-500 cursor-pointer h-2" />
+                </div>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button onClick={() => setEditingProject(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
-                <button onClick={handleSaveEdit} disabled={savingEdit} className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs cursor-pointer">
-                  {savingEdit ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                <button onClick={() => setEditingProject(null)} className="px-5 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer transition hover:bg-slate-700">إلغاء</button>
+                <button onClick={handleSaveEdit} disabled={savingEdit} className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer transition shadow-md whitespace-nowrap">
+                  {savingEdit ? 'جاري الحفظ...' : 'تحديث واعتماد التعديلات'}
                 </button>
               </div>
             </div>
@@ -3120,16 +3199,19 @@ export default function ProjectsPage() {
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
             <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
               <div className="flex items-center gap-3 text-rose-400 border-b border-slate-800 pb-3">
-                <AlertTriangle className="w-6 h-6" />
-                <h3 className="text-base font-bold text-white">تأكيد حذف المشروع</h3>
+                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-rose-400" />
+                </div>
+                <h3 className="text-base font-bold text-white">تحذير أمني: حذف المشروع</h3>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                هل أنت متأكد من رغبتك في حذف: <span className="text-amber-400 font-bold">{deleteModalProject.project_name}</span>؟
-              </p>
+              <div className="bg-slate-950 p-4 rounded-xl border border-rose-500/20 text-xs text-slate-300 leading-relaxed font-semibold">
+                هل أنت متأكد من رغبتك في حذف مشروع: <span className="text-amber-400 font-bold text-[14px] mx-1">{deleteModalProject.project_name}</span>؟<br/><br/>
+                <span className="text-rose-400">الإجراء غير قابل للتراجع</span> وسيؤدي إلى إلغاء ربط جميع السندات والعقود والمواد المتعلقة به.
+              </div>
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button onClick={() => setDeleteModalProject(null)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">تراجع</button>
-                <button onClick={handleDeleteProject} disabled={deleting} className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs cursor-pointer">
-                  {deleting ? 'جاري الحذف...' : 'تأكيد الحذف'}
+                <button onClick={() => setDeleteModalProject(null)} className="px-5 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer hover:bg-slate-700 transition">تراجع وإلغاء</button>
+                <button onClick={handleDeleteProject} disabled={deleting} className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs cursor-pointer shadow-md transition whitespace-nowrap">
+                  {deleting ? 'جاري الحذف النهائي...' : 'نعم، تأكيد الحذف'}
                 </button>
               </div>
             </div>

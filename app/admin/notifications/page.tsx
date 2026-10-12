@@ -207,7 +207,7 @@ export default function NotificationsPage() {
         String(n.title || '').toLowerCase().includes(q) || 
         String(n.message || '').toLowerCase().includes(q) ||
         String(n.sector || '').toLowerCase().includes(q) ||
-        String(n.created_by || n.user_name || n.username || '').toLowerCase().includes(q);
+        String(n.created_by || n.user_name || n.username || n.sender || n.author || '').toLowerCase().includes(q);
 
       const matchSector = sectorFilter === 'ALL' || String(n.sector).toUpperCase() === sectorFilter;
       const matchStatus = statusFilter === 'ALL' || (statusFilter === 'UNREAD' ? !n.is_read : n.is_read);
@@ -345,7 +345,18 @@ export default function NotificationsPage() {
               const isUnread = !n.is_read;
               const nId = n.notification_id || n.id;
               const meta = getSectorMeta(n.sector);
-              const userAuthor = n.created_by || n.user_name || n.username || 'الإدارة المركزية';
+              
+              // قراءة اسم المستخدم من الإشعار أو من جلسة المستخدم الحالي المسجل دخوله
+              const currentSessionUser = typeof window !== 'undefined' ? (() => {
+                try {
+                  const parsed = JSON.parse(localStorage.getItem('erp_user') || '{}');
+                  return parsed?.full_name || parsed?.name || parsed?.username;
+                } catch {
+                  return null;
+                }
+              })() : null;
+
+              const userAuthor = n.created_by || n.user_name || n.username || n.sender || n.author || n.executed_by || currentSessionUser || 'الإدارة المركزية';
               const formattedTime = n.created_at ? String(n.created_at).replace('T', ' ').slice(0, 16) : 'الآن';
 
               return (

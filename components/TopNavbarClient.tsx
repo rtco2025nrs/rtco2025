@@ -518,7 +518,9 @@ export default function TopNavbarClient() {
                       const isUnread = !n.is_read;
                       const meta = getSectorMeta(n.sector);
                       const formattedTime = n.created_at ? String(n.created_at).replace('T', ' ').slice(0, 16) : '';
-                      const userAuthor = n.created_by || n.user_name || n.username || 'الإدارة المركزية';
+                      
+                      // اعتماد اسم المستخدم الحقيقي من حقول الإشعار أو من جلسة المستخدم الحالي
+                      const userAuthor = n.created_by_user || n.created_by || n.user_name || n.username || n.sender || currentUser?.full_name || currentUser?.username || 'الإدارة المركزية';
 
                       return (
                         <div
@@ -685,7 +687,9 @@ export default function TopNavbarClient() {
               notifications.map((n: any) => {
                 const isUnread = !n.is_read;
                 const meta = getSectorMeta(n.sector);
-                const userAuthor = n.created_by || n.user_name || n.username || 'الإدارة المركزية';
+                
+                // اعتماد اسم المستخدم الحقيقي في شاشات الموبايل أيضاً
+                const userAuthor = n.created_by_user || n.created_by || n.user_name || n.username || n.sender || currentUser?.full_name || currentUser?.username || 'الإدارة المركزية';
 
                 return (
                   <div

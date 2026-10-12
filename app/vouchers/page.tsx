@@ -34,7 +34,10 @@ import {
   Languages, 
   Lock,
   Home,
-  Sparkles
+  Sparkles,
+  Globe,
+  MapPin,
+  Phone
 } from 'lucide-react';
 import AuthGuard, { hasPermission } from '@/components/AuthGuard';
 import { useBranch } from '@/context/BranchContext';
@@ -796,12 +799,13 @@ export default function VouchersPage() {
   const primaryCol = companySettings.primary_color || '#d97706';
   const secondaryCol = companySettings.secondary_color || '#ea580c';
   const hasLogo = Boolean(companySettings.logo_url && companySettings.logo_url.trim().length > 10);
+  const hasLetterhead = Boolean(companySettings.letterhead_url && companySettings.letterhead_url.trim().length > 10);
 
   return (
     <AuthGuard moduleName="vouchers" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-[#070b14] text-slate-100 p-3 md:p-6 font-cairo text-[14px]">
         
-        {/* تنسيقات الطباعة الصارمة لعزل كامل الصفحة وإظهار كرت السند المطبوع فقط في ورقة A4 واحدة نظيفة */}
+        {/* تنسيقات الطباعة الصارمة لعزل كامل الصفحة وإظهار كرت السند المطبوع فقط في صفحة واحدة نظيفة بحجم دفتري متناسق وخلفية بيضاء نقية */}
         <style jsx global>{`
           @media screen and (max-width: 768px) {
             .preview-scroll-container {
@@ -810,46 +814,83 @@ export default function VouchersPage() {
               -webkit-overflow-scrolling: touch !important;
             }
             #printable-voucher-card {
-              min-width: 760px !important;
+              min-width: 720px !important;
               margin: 0 auto !important;
             }
           }
           @media print {
             @page {
               size: A4 portrait !important;
-              margin: 6mm 8mm !important;
+              margin: 10mm auto !important;
             }
-            body * {
-              visibility: hidden !important;
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            #printable-voucher-card, #printable-voucher-card * {
-              visibility: visible !important;
-            }
-            #printable-voucher-card {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
-              max-width: 210mm !important;
-              min-width: 0 !important;
-              margin: 0 auto !important;
-              padding: 12px 16px !important;
+            html, body {
+              background: #ffffff !important;
               background-color: #ffffff !important;
               color: #000000 !important;
-              border: 2px solid #000000 !important;
-              border-radius: 6px !important;
+              width: 100% !important;
+              height: 100% !important;
+              min-height: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            /* إخفاء الواجهة الرئيسية وجميع خلفيات النمط المظلم */
+            .main-content-vouchers-page,
+            header, nav, aside, .print-hidden-element,
+            div[class*="backdrop-blur"],
+            .voucher-modal-overlay > div:first-child {
+              display: none !important;
+              visibility: hidden !important;
+            }
+            .voucher-modal-overlay {
+              position: static !important;
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+              overflow: visible !important;
+              display: block !important;
+            }
+            .preview-scroll-container {
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              width: 100% !important;
+            }
+            #printable-voucher-card {
+              box-sizing: border-box !important;
               box-shadow: none !important;
+              border: 1.5px solid #cbd5e1 !important;
+              border-radius: 6px !important;
+              margin: 0 auto !important;
+              width: 100% !important;
+              max-width: 195mm !important;
+              height: auto !important;
+              min-height: 0 !important;
+              max-height: none !important;
+              padding: 0 !important;
+              overflow: visible !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
               page-break-after: avoid !important;
               break-after: avoid !important;
-              overflow: hidden !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: flex-start !important;
+              background: #ffffff !important;
+              background-color: #ffffff !important;
             }
           }
         `}</style>
 
-        {/* 1. قسم إدارة السندات */}
-        <div className="space-y-5">
+        {/* 1. قسم إدارة السندات (يتم إخفاؤه تماماً أثناء الطباعة) */}
+        <div className="main-content-vouchers-page space-y-5 print:hidden">
           
           {/* الترويسة الرئيسية */}
           <div className="max-w-7xl mx-auto pb-3 border-b border-slate-800/80">
@@ -1690,7 +1731,7 @@ export default function VouchersPage() {
           </div>
         )}
 
-        {/* 2. قالب السند الورقي الدفتري الرسمي المطبوع المعزول كلياً عن أي عناصر خارجية */}
+        {/* 2. قالب السند الورقي الدفتري الرسمي المطبوع المعزول كلياً بحجم السند الطبيعي والترويسة المطابقة للكتب الرسمية */}
         {selectedVoucher && (() => {
           const details = parseVoucherData(selectedVoucher);
           const isReceipt = String(selectedVoucher.voucher_type || '').toUpperCase() === 'RECEIPT';
@@ -1703,13 +1744,20 @@ export default function VouchersPage() {
           const englishWords = numberToEnglishWords(numVal, selectedVoucher.currency);
 
           const matchedBranch = branches.find(b => b.branch_id === selectedVoucher.branch_id || b.branch_code === selectedVoucher.branch_id);
-          const printedBranchName = matchedBranch?.name_ar || selectedVoucher.branch_name || 'المقر الرئيسي (النجف الأشرف)';
+          const printedBranchName = matchedBranch?.name_ar || selectedVoucher.branch_name || 'المقر الرئيسي (عرض المنظومة الموحدة)';
+
+          const activeOrigin = typeof window !== 'undefined' && window.location.origin
+            ? window.location.origin
+            : (companySettings.website || 'https://rtco2025.netlify.app');
+
+          const verificationUrl = `${activeOrigin}/verify?type=voucher&no=${encodeURIComponent(selectedVoucher.voucher_number)}`;
+          const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(verificationUrl)}`;
 
           return (
-            <div className="fixed inset-0 bg-slate-950/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
+            <div className="voucher-modal-overlay fixed inset-0 bg-slate-950/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
               
               {/* شريط أزرار الطباعة في الشاشة فقط */}
-              <div className="sticky top-0 z-50 w-full max-w-4xl bg-slate-900/95 border-b border-slate-700 backdrop-blur px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl rounded-2xl mb-4 print:hidden">
+              <div className="sticky top-0 z-50 w-full max-w-[200mm] bg-slate-900/95 border-b border-slate-700 backdrop-blur px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xl rounded-2xl mb-4 print:hidden">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 sm:px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg transition cursor-pointer flex-1 sm:flex-none whitespace-nowrap">
                     <Printer className="w-4 h-4" /> أمر الطباعة الآن (Print)
@@ -1726,202 +1774,316 @@ export default function VouchersPage() {
                 </button>
               </div>
 
-              {/* بطاقة السند الرسمية المحددة بالـ ID الخاص للطباعة النظيفة لورقة A4 واحدة */}
+              {/* بطاقة السند الرسمية المجهزة بمقاس السند الطبيعي وخلفية بيضاء بالكامل دون أي قص للتذييل */}
               <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none flex justify-center">
                 <div 
                   id="printable-voucher-card"
-                  className="bg-white text-slate-900 w-full rounded-xl shadow-2xl p-4 sm:p-5 border-2 relative overflow-hidden"
-                  style={{ borderColor: primaryCol }}
+                  className="bg-white text-slate-950 w-full max-w-[200mm] rounded-xl shadow-2xl print:shadow-none p-0 border-2 border-slate-300 relative overflow-visible font-sans flex flex-col justify-start"
                 >
+                  {/* العلامة المائية للشركة */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                    <div className="w-[320px] h-[320px] rounded-full border-[4px] border-[#e2e8f0] flex flex-col items-center justify-center opacity-15 relative p-4">
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {hasLogo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img 
+                            src={companySettings.logo_url} 
+                            alt="العلامة المائية للشركة" 
+                            className="w-[170px] h-[170px] object-contain grayscale opacity-60" 
+                          />
+                        ) : (
+                          <Image 
+                            src="/logo.png" 
+                            alt="شركة البرج المتألق" 
+                            width={170} 
+                            height={170} 
+                            className="object-contain grayscale opacity-60" 
+                            priority 
+                          />
+                        )}
+                      </div>
+                      <div className="text-center mt-32 text-[#64748b] text-[9px] font-bold tracking-wider">
+                        {companySettings.company_name}
+                      </div>
+                    </div>
+                  </div>
+
                   {isCancelled && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                      <div className="border-8 border-rose-600/30 text-rose-600/30 font-black text-6xl md:text-8xl tracking-widest uppercase rotate-[-25deg] px-12 py-4 rounded-3xl select-none">
+                      <div className="border-8 border-rose-600/30 text-rose-600/30 font-black text-6xl md:text-7xl tracking-widest uppercase rotate-[-25deg] px-10 py-3 rounded-2xl select-none">
                         VOID / ملغي
                       </div>
                     </div>
                   )}
 
-                  <div dir="ltr" className="w-full bg-white text-slate-900 font-sans">
+                  <div className="relative z-10 flex flex-col w-full">
                     
-                    {/* الترويسة المطبوعة */}
-                    <div className="grid grid-cols-3 items-center border-b-2 pb-2.5 mb-2.5" style={{ borderBottomColor: primaryCol }}>
-                      <div className="text-left flex flex-col justify-between h-full">
-                        <div>
-                          <h2 className="text-sm sm:text-base font-black tracking-tight font-serif leading-none" style={{ color: primaryCol }}>
-                            THE SHINING TOWER
-                          </h2>
-                          <p className="text-[9px] sm:text-[10px] text-slate-800 font-semibold leading-tight mt-1">
-                            For general contracting<br />
-                            general trade, public transportation<br />
-                            and real estate investments
-                          </p>
-                        </div>
-                        <div className="mt-2 flex items-center gap-1.5 sm:gap-2">
-                          <div className="text-red-600 font-black text-base sm:text-lg font-mono tracking-wider">
-                            No: {numOnly}
+                    {/* 1. الترويسة الرسمية المطابقة للكتب الرسمية تماماً */}
+                    {hasLetterhead ? (
+                      <div className="w-full border-b border-slate-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={companySettings.letterhead_url} 
+                          alt="ترويسة الشركة الرسمية" 
+                          className="w-full max-h-[100px] object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="h-3 w-full" style={{ backgroundColor: secondaryCol }}></div>
+                        <div className="px-6 sm:px-8 pt-2 pb-1.5 flex items-center justify-between border-b border-slate-200">
+                          <div className="text-right flex-1 font-sans">
+                            <h1 className="text-base sm:text-lg font-black tracking-wide leading-none" style={{ color: primaryCol }}>
+                              {companySettings.company_name}
+                            </h1>
+                            <p className="text-[9px] sm:text-[10px] font-black text-slate-900 tracking-wide mt-0.5 leading-snug whitespace-pre-line">
+                              {companySettings.tagline || 'للمقاولات العامة والاستثمارات العقارية\nوالتجارة العامة والنقل العام'}
+                            </p>
                           </div>
-                          <div className={`px-1.5 py-0.5 rounded border text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${isCancelled ? 'border-red-600 text-red-600 bg-red-50' : 'border-emerald-700 text-emerald-800 bg-emerald-50'}`}>
-                            {isCancelled ? 'ملغي | VOID' : 'جاري | ACTIVE'}
+
+                          <div className="w-14 h-14 relative flex items-center justify-center shrink-0 mx-2">
+                            {hasLogo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img 
+                                src={companySettings.logo_url} 
+                                alt="شعار الشركة" 
+                                className="w-[50px] h-[50px] object-contain" 
+                              />
+                            ) : (
+                              <Image 
+                                src="/logo.png" 
+                                alt="شعار شركة البرج المتألق" 
+                                width={50} 
+                                height={50} 
+                                className="object-contain" 
+                                priority 
+                              />
+                            )}
+                          </div>
+
+                          <div className="text-left flex-1 font-sans text-[9px] sm:text-[10px] text-slate-700 leading-tight space-y-0.5" dir="ltr">
+                            <p className="font-bold text-slate-900 text-[10px] sm:text-[11px]">Resplendently Tower Co</p>
+                            <p className="font-semibold" style={{ color: primaryCol }}>General Contracting</p>
+                            <p className="font-semibold" style={{ color: primaryCol }}>General Trading</p>
+                            <p className="font-semibold" style={{ color: primaryCol }}>General Transport</p>
+                            <p className="font-semibold" style={{ color: primaryCol }}>Real Estate Investments</p>
                           </div>
                         </div>
+                      </>
+                    )}
+
+                    {/* 2. شريط السند المالي الرسمي المطابق للكتب مع اسم الفرع والنوع */}
+                    <div className="mx-6 sm:mx-8 mt-1.5 bg-[#e4e4e7] px-4 py-1 rounded-sm flex items-center justify-between font-black text-xs text-slate-900 border border-slate-300">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-900 font-bold">التاريخ :</span>
+                        <span className="font-mono text-xs tracking-widest">{formattedDate}</span>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center text-center">
-                        <div className="w-16 sm:w-20 h-14 sm:h-16 relative flex items-center justify-center">
-                          {hasLogo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                          ) : (
-                            <Image src="/logo.png" alt="شركة البرج المتألق" width={65} height={65} className="object-contain" priority />
-                          )}
-                        </div>
-                        <div className="mt-0.5 text-center">
-                          <div className="font-black text-xs sm:text-sm text-slate-950 leading-tight">
-                            {isReceipt ? 'وصل قبض' : 'سند صرف'}
-                          </div>
-                          <div 
-                            className="font-serif font-black text-[9px] sm:text-[10px] tracking-wider uppercase border-b-2 pb-0.5 whitespace-nowrap"
-                            style={{ color: primaryCol, borderBottomColor: primaryCol }}
-                          >
-                            {isReceipt ? 'RECEIPT VOUCHER' : 'PAYMENT VOUCHER'}
-                          </div>
-                        </div>
+                      <div className="border bg-white px-2.5 py-0.5 rounded text-[10px] font-black" style={{ borderColor: primaryCol, color: primaryCol }}>
+                        <span>{isReceipt ? 'وصل قبض رسمي (Receipt)' : 'سند صرف رسمي (Payment)'}</span>
+                        <span className="mx-1.5 text-slate-400">|</span>
+                        <span className="text-slate-800 font-bold">{printedBranchName}</span>
                       </div>
 
-                      <div className="text-right flex flex-col justify-between h-full" dir="rtl">
-                        <div>
-                          <h1 className="text-base sm:text-lg font-black leading-none" style={{ color: primaryCol }}>
-                            {companySettings.company_name}
-                          </h1>
-                          <p className="text-[9px] sm:text-[10px] text-slate-800 font-bold leading-tight mt-1 whitespace-pre-line">
-                            {companySettings.tagline || 'للمقاولات العامة والتجارة العامة\nوالنقل العام والإستثمارات العقارية'}
-                          </p>
-                          <p className="text-[9px] sm:text-[10px] text-slate-700 font-bold mt-0.5">
-                            الفرع: <span style={{ color: primaryCol }}>{printedBranchName}</span>
-                          </p>
-                        </div>
-                        <div className="mt-1.5 inline-flex border-2 bg-slate-50 font-bold text-xs self-start" style={{ borderColor: primaryCol }}>
-                          <div 
-                            className="px-2 sm:px-3 py-0.5 font-mono border-l-2 min-w-[80px] sm:min-w-[100px] text-center text-slate-950 font-black text-xs sm:text-sm"
-                            style={{ borderLeftColor: primaryCol }}
-                          >
-                            {Number(selectedVoucher.total_amount).toLocaleString()}
-                          </div>
-                          <div className="px-2 sm:px-2.5 py-0.5 text-xs text-slate-800 flex items-center justify-center font-bold">
-                            {selectedVoucher.currency === 'USD' ? '$' : 'د.ع'}
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-900 font-bold">رقم السند :</span>
+                        <span className="font-mono text-xs tracking-wider" style={{ color: primaryCol }}>{selectedVoucher.voucher_number}</span>
                       </div>
                     </div>
 
-                    {/* بيانات الوصل النظيفة */}
-                    <div className="space-y-2.5 text-xs font-bold text-slate-900">
-                      <div className="flex items-center">
-                        <span className="font-serif text-slate-800 min-w-[65px] text-xs">Date:</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-4">
-                          <span className="font-mono text-slate-800 text-xs">{formattedDate}</span>
-                          <span className="font-mono text-slate-800 text-xs">{formattedDate}</span>
-                        </div>
-                        <span className="min-w-[65px] text-right text-xs" dir="rtl">: التاريخ</span>
+                    {/* 3. صندوق المبلغ المحرر */}
+                    <div className="mx-6 sm:mx-8 mt-1.5 flex justify-between items-center bg-slate-50 border-2 p-1.5 px-3 rounded-lg" style={{ borderColor: primaryCol }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-slate-800">المبلغ رقماً (Amount):</span>
+                        <span className="font-mono text-base font-black px-2.5 py-0.5 bg-white border rounded text-slate-950 shadow-inner" style={{ borderColor: `${primaryCol}80` }}>
+                          {Number(selectedVoucher.total_amount).toLocaleString()}
+                        </span>
+                        <span className="font-black text-xs text-slate-800">
+                          {selectedVoucher.currency === 'USD' ? 'دولار أمريكي ($)' : 'دينار عراقي (IQD)'}
+                        </span>
                       </div>
 
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-bold text-slate-600">الرقم الدفتري:</span>
+                        <span className="text-red-600 font-mono font-black text-sm">No: {numOnly}</span>
+                      </div>
+                    </div>
+
+                    {/* 4. بيانات السند المنظمة هندسياً ومريحة للعين بخط 14 */}
+                    <div className="px-6 sm:px-8 py-2.5 space-y-2.5 text-slate-900 text-[13px] sm:text-[14px]">
+                      
+                      {/* السطر الأول: الطرف / المستفيد */}
                       <div className="flex items-center">
-                        <span className="font-serif text-slate-800 min-w-[110px] sm:min-w-[120px] text-xs">
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px]">
+                          {isReceipt ? 'استلمت من السيد / السادة:' : 'سلمت إلى السيد / السادة:'}
+                        </span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-2 gap-2">
+                          <span className="font-black text-slate-950 text-[14px] sm:text-[15px] flex-1 truncate">{details.partyAr}</span>
+                          <span className="font-serif font-bold text-slate-700 text-xs text-left truncate" dir="ltr">{details.partyEn}</span>
+                        </div>
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left" dir="ltr">
                           {isReceipt ? 'Received From:' : 'Delivered To:'}
                         </span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-2 sm:px-4 gap-2 sm:gap-4">
-                          <span className="font-serif font-black text-slate-950 text-xs sm:text-sm text-left flex-1 font-sans truncate">{details.partyEn}</span>
-                          <span className="font-black text-slate-950 text-xs sm:text-sm text-right flex-1 truncate" dir="rtl">{details.partyAr}</span>
-                        </div>
-                        <span className="min-w-[80px] sm:min-w-[90px] text-right text-xs whitespace-nowrap" dir="rtl">
-                          : {isReceipt ? 'استلمت من' : 'سلمت الى'}
-                        </span>
                       </div>
 
+                      {/* السطر الثاني: المبلغ كتابةً وتفقيطاً */}
                       <div className="flex items-start">
-                        <span className="font-serif text-slate-800 min-w-[80px] sm:min-w-[90px] text-xs pt-0.5">Amount of:</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-start px-2 sm:px-4 gap-3 sm:gap-6 pb-0.5">
-                          <span className="font-serif text-slate-900 text-[10px] sm:text-[11px] text-left leading-relaxed flex-1 font-bold">{englishWords}</span>
-                          <span className="text-slate-900 text-[10px] sm:text-[11px] font-black text-right leading-relaxed flex-1" dir="rtl">{arabicWords}</span>
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5">مبلغ وقدره (كتابةً):</span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
+                          <span className="font-black text-slate-950 text-[13px] sm:text-[14px] leading-relaxed">{arabicWords}</span>
+                          <span className="font-serif text-slate-700 text-[11px] text-left leading-relaxed mt-0.5 font-bold" dir="ltr">{englishWords}</span>
                         </div>
-                        <span className="min-w-[70px] sm:min-w-[80px] text-right text-xs pt-0.5 whitespace-nowrap" dir="rtl">: مبلغ وقدره</span>
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5" dir="ltr">Amount of:</span>
                       </div>
 
+                      {/* السطر الثالث: البيان وسبب الصرف */}
                       <div className="flex items-start">
-                        <span className="font-serif text-slate-800 min-w-[65px] text-xs pt-0.5">For:</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 sm:px-4 gap-0.5 pb-0.5">
-                          <span className="font-serif text-slate-950 text-[10px] sm:text-[11px] text-left font-bold" dir="ltr">{details.forReasonEn}</span>
-                          <span className="text-slate-950 text-[10px] sm:text-[11px] font-black text-right" dir="rtl">{details.forReasonAr}</span>
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5">وذلك عن (البيان):</span>
+                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
+                          <span className="font-black text-slate-950 text-[13px] sm:text-[14px] leading-relaxed">{details.forReasonAr}</span>
+                          <span className="font-serif text-slate-700 text-[11px] text-left leading-relaxed mt-0.5 font-bold" dir="ltr">{details.forReasonEn}</span>
                         </div>
-                        <span className="min-w-[65px] text-right text-xs pt-0.5 whitespace-nowrap" dir="rtl">: وذلك عن</span>
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5" dir="ltr">For Purpose:</span>
                       </div>
 
-                      <div className="pt-0.5 space-y-1.5 font-bold text-slate-900">
-                        <div className="flex items-center justify-between" dir="rtl">
-                          <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="flex items-center gap-1">
-                              <span className="text-slate-900 text-xs font-bold">نقد</span>
-                              <span className="border-2 border-slate-800 w-3.5 h-3.5 inline-flex items-center justify-center font-black text-[10px] bg-white">
+                      {/* السطر الرابع: طريقة الدفع والشيك */}
+                      <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-5">
+                            <span className="text-slate-950 font-black text-xs">طريقة السداد:</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-slate-900 font-bold text-xs">نقداً (Cash)</span>
+                              <span className="border border-slate-800 w-3.5 h-3.5 inline-flex items-center justify-center font-black text-[10px] bg-white">
                                 {details.method === 'CASH' ? '✓' : ''}
                               </span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-slate-900 text-xs font-bold">شيك رقم</span>
-                              <span className="border-2 border-slate-800 w-3.5 h-3.5 inline-flex items-center justify-center font-black text-[10px] bg-white">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-slate-900 font-bold text-xs">شيك (Cheque)</span>
+                              <span className="border border-slate-800 w-3.5 h-3.5 inline-flex items-center justify-center font-black text-[10px] bg-white">
                                 {details.method === 'CHEQUE' ? '✓' : ''}
                               </span>
                             </div>
                           </div>
-                          <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 text-center font-mono font-bold text-xs">
-                            {details.chequeNo || ''}
-                          </div>
-                          <div className="font-serif text-slate-900 text-xs font-bold text-left min-w-[80px] sm:min-w-[90px]" dir="ltr">
-                            Cash CHg No
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-700 font-bold text-[11px]">شيك رقم:</span>
+                            <span className="font-mono font-bold text-slate-950 min-w-[70px] border-b border-slate-400 text-center text-xs">
+                              {details.chequeNo || '-------'}
+                            </span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between" dir="rtl">
-                          <div className="flex items-center flex-1 gap-1.5">
-                            <span className="text-slate-900 text-xs font-bold min-w-[45px] sm:min-w-[50px]">على البنك</span>
-                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-bold text-slate-900 px-1 text-[10px] sm:text-[11px]">
-                              {details.bank || ''}
+                        {details.method === 'CHEQUE' && (
+                          <div className="flex items-center justify-between pt-1 border-t border-slate-200 text-[11px] font-bold text-slate-800">
+                            <div>
+                              <span>على مصرف: </span>
+                              <strong className="text-slate-950">{details.bank || '---'}</strong>
                             </div>
-                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px] text-center" dir="ltr">Bank</span>
+                            <div>
+                              <span>بتاريخ: </span>
+                              <strong className="font-mono text-slate-950">{formattedDate}</strong>
+                            </div>
                           </div>
-                          <div className="flex items-center flex-1 gap-1.5 mr-2 sm:mr-3">
-                            <span className="text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px]">تاريخ</span>
-                            <div className="flex-1 border-b-2 border-dotted border-slate-400 text-center font-mono font-bold text-slate-900 px-1 text-[10px] sm:text-[11px]">
-                              {details.method === 'CHEQUE' ? formattedDate : ''}
+                        )}
+                      </div>
+
+                      {/* التواقيع الرسمية */}
+                      <div className="grid grid-cols-3 gap-4 pt-1.5 text-center">
+                        <div className="space-y-0.5">
+                          <p className="font-black text-slate-950 text-xs">توقيع المستلم (Receiver)</p>
+                          <div className="h-6"></div>
+                          <div className="border-b-2 border-slate-400 w-24 sm:w-28 mx-auto"></div>
+                        </div>
+
+                        <div className="space-y-0.5">
+                          <p className="font-black text-slate-950 text-xs">المحاسب المالي (Accountant)</p>
+                          <div className="h-6"></div>
+                          <div className="border-b-2 border-slate-400 w-24 sm:w-28 mx-auto"></div>
+                        </div>
+
+                        <div className="space-y-0.5">
+                          <p className="font-black text-slate-950 text-xs">المدير المفوض (Manager)</p>
+                          <div className="h-6"></div>
+                          <div className="border-b-2 border-slate-400 w-24 sm:w-28 mx-auto"></div>
+                        </div>
+                      </div>
+
+                      {/* الباركود والختم الرقمي */}
+                      <div className="flex justify-between items-end pt-1 px-1 border-t border-slate-200">
+                        <div className="flex flex-col items-center">
+                          <div className="w-11 h-11 border border-slate-300 rounded p-0.5 bg-white flex items-center justify-center shadow-sm">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={qrCodeApiUrl} alt="باركود التحقق من السند" className="w-full h-full object-contain" />
+                          </div>
+                          <span className="font-mono text-[7px] text-slate-500 mt-0.5">VOUCHER VERIFIED</span>
+                        </div>
+
+                        <div className="text-center space-y-0.5 min-w-[170px]">
+                          <p className="font-black text-xs text-slate-950">{companySettings.company_name}</p>
+                          <p className="text-[9px] text-slate-600 font-bold">{printedBranchName}</p>
+                          
+                          <div className="h-7 flex items-center justify-center relative">
+                            <div 
+                              className="border-2 border-dashed rounded-full w-11 h-11 flex flex-col items-center justify-center rotate-[-12deg] p-0.5 pointer-events-none absolute"
+                              style={{ borderColor: primaryCol, color: primaryCol }}
+                            >
+                              <span className="text-[5px] font-black">{companySettings.company_name}</span>
+                              <span className="text-[5px] font-bold">مصادق مالياً</span>
+                              <span className="text-[5px] font-mono">{formattedDate}</span>
                             </div>
-                            <span className="font-serif text-slate-900 text-xs font-bold min-w-[30px] sm:min-w-[35px] text-center" dir="ltr">Date</span>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* التواقيع */}
-                    <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-1 text-center">
-                      <div>
-                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Manager : المدير</p>
-                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
-                      </div>
-                      <div>
-                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Accountant : المحاسب</p>
-                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
-                      </div>
-                      <div>
-                        <p className="font-serif font-black text-slate-900 text-[10px] sm:text-xs">Receiver : المستلم</p>
-                        <div className="border-b-2 mt-4 w-20 sm:w-28 mx-auto" style={{ borderBottomColor: primaryCol }}></div>
-                      </div>
-                    </div>
-
-                    {/* التذييل */}
-                    <div className="border-t border-slate-400 mt-2 pt-1 text-center text-[8px] sm:text-[9px] text-slate-800 font-bold" dir="rtl">
-                      العنوان : {companySettings.address} / التلفون : {companySettings.phone_primary} {companySettings.phone_secondary ? ` - ${companySettings.phone_secondary}` : ''}
                     </div>
                   </div>
+
+                  {/* 5. التذييل الرسمي المطابق للكتب الرسمية في الأسفل مع ظهور كامل التفاصيل */}
+                  <div className="relative z-10 w-full bg-white mt-1">
+                    <div className="px-6 sm:px-8 pb-1 flex items-center justify-between text-[10px] font-bold text-slate-800 border-t border-slate-200 pt-1">
+                      <div className="flex items-center gap-1 font-mono text-[9px] text-slate-700 dir-ltr">
+                        <div className="w-4 h-4 rounded bg-[#27272a] text-white flex items-center justify-center shrink-0">
+                          <Globe className="w-2.5 h-2.5" />
+                        </div>
+                        <span className="hover:underline">{companySettings.website || activeOrigin}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-[10px] text-slate-800">
+                        <div className="w-4 h-4 rounded bg-[#27272a] text-white flex items-center justify-center shrink-0">
+                          <MapPin className="w-2.5 h-2.5" />
+                        </div>
+                        <span>{companySettings.address}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1 font-mono text-[10px] text-slate-800">
+                        <div className="w-4 h-4 rounded bg-[#27272a] text-white flex items-center justify-center shrink-0">
+                          <Phone className="w-2.5 h-2.5" />
+                        </div>
+                        <span className="font-bold">
+                          {companySettings.phone_primary}
+                          {companySettings.phone_secondary && ` - ${companySettings.phone_secondary}`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="h-1 w-full mb-0.5" style={{ backgroundColor: primaryCol }}></div>
+
+                    {/* الزخرفة السفلية المزدوجة الظاهرة بالكامل */}
+                    <div className="relative h-5 w-full">
+                      <div 
+                        className="absolute bottom-0 left-0 w-24 h-4 rounded-tr-[30px] opacity-90 transition-colors"
+                        style={{ backgroundColor: secondaryCol }}
+                      ></div>
+                      <div 
+                        className="absolute bottom-0 right-0 w-28 h-5 rounded-tl-[45px] transition-colors"
+                        style={{ backgroundColor: primaryCol }}
+                      ></div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
+
             </div>
           );
         })()}

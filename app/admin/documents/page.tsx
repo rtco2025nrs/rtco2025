@@ -41,10 +41,19 @@ import {
   FileCode, 
   Zap, 
   Home,
-  Lock
+  Lock,
+  Table as TableIcon
 } from 'lucide-react';
 import AuthGuard, { hasPermission } from '@/components/AuthGuard';
 import { useBranch } from '@/context/BranchContext';
+
+interface TableData {
+  enabled: boolean;
+  placement: 'INLINE' | 'ATTACHMENT';
+  title?: string;
+  headers: string[];
+  rows: string[][];
+}
 
 interface OfficialDoc {
   id: string;
@@ -66,6 +75,7 @@ interface OfficialDoc {
   signatoryName?: string;
   mainLetterUrl?: string;
   scannedFileUrls?: string[];
+  tableData?: TableData;
   notes?: string;
   createdAt: string;
 }
@@ -192,6 +202,15 @@ export default function AdministrativeDocumentsPage() {
   const [outSignatoryName, setOutSignatoryName] = useState('عامر الطرفي');
   const [outScannedUrls, setOutScannedUrls] = useState<string[]>([]);
 
+  // جدول الصادر
+  const [outTableData, setOutTableData] = useState<TableData>({
+    enabled: false,
+    placement: 'INLINE',
+    title: '',
+    headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+    rows: [['1', '', '', '']]
+  });
+
   // حقول الوارد
   const [inDocNumber, setInDocNumber] = useState('');
   const [inDocDate, setInDocDate] = useState(() => new Date().toISOString().substring(0, 10));
@@ -215,6 +234,15 @@ export default function AdministrativeDocumentsPage() {
   const [orderSignatoryTitle, setOrderSignatoryTitle] = useState('المدير المفوض');
   const [orderSignatoryName, setOrderSignatoryName] = useState('عامر الطرفي');
   const [orderScannedUrls, setOrderScannedUrls] = useState<string[]>([]);
+
+  // جدول الأمر الإداري
+  const [orderTableData, setOrderTableData] = useState<TableData>({
+    enabled: false,
+    placement: 'INLINE',
+    title: '',
+    headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
+    rows: [['1', '', '', '']]
+  });
 
   const outCameraRef = useRef<HTMLInputElement>(null);
   const outFileRef = useRef<HTMLInputElement>(null);
@@ -590,6 +618,13 @@ export default function AdministrativeDocumentsPage() {
       setOutContent(tpl.content || '');
       setOutAttachments(tpl.attachments || 'لا يوجد');
       setOutScannedUrls([]);
+      setOutTableData({
+        enabled: false,
+        placement: 'INLINE',
+        title: '',
+        headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+        rows: [['1', '', '', '']]
+      });
       setShowOutgoingModal(true);
     } else if (activeTab === 'INTERNAL_ORDER') {
       setOrderDocNumber(generateCode('أ.إ'));
@@ -598,6 +633,13 @@ export default function AdministrativeDocumentsPage() {
       setOrderContent(tpl.content || '');
       setOrderAttachments(tpl.attachments || 'لا يوجد');
       setOrderScannedUrls([]);
+      setOrderTableData({
+        enabled: false,
+        placement: 'INLINE',
+        title: '',
+        headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
+        rows: [['1', '', '', '']]
+      });
       setShowOrderModal(true);
     } else if (activeTab === 'INCOMING') {
       setInDocNumber(generateCode('و'));
@@ -632,6 +674,13 @@ export default function AdministrativeDocumentsPage() {
       setOutSignatoryTitle(doc.signatoryTitle || 'المدير المفوض');
       setOutSignatoryName(doc.signatoryName || 'عامر الطرفي');
       setOutScannedUrls(doc.scannedFileUrls || []);
+      setOutTableData(doc.tableData || {
+        enabled: false,
+        placement: 'INLINE',
+        title: '',
+        headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+        rows: [['1', '', '', '']]
+      });
       setShowOutgoingModal(true);
     } else if (doc.type === 'INCOMING') {
       setInDocNumber(doc.docNumber || '');
@@ -656,6 +705,13 @@ export default function AdministrativeDocumentsPage() {
       setOrderSignatoryTitle(doc.signatoryTitle || 'المدير المفوض');
       setOrderSignatoryName(doc.signatoryName || 'عامر الطرفي');
       setOrderScannedUrls(doc.scannedFileUrls || []);
+      setOrderTableData(doc.tableData || {
+        enabled: false,
+        placement: 'INLINE',
+        title: '',
+        headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
+        rows: [['1', '', '', '']]
+      });
       setShowOrderModal(true);
     }
   };
@@ -712,6 +768,63 @@ export default function AdministrativeDocumentsPage() {
     }
   };
 
+  // دوال إدارة الجدول المخصص
+  const addTableColumn = (setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => ({
+      ...prev,
+      headers: [...prev.headers, `عمود ${prev.headers.length + 1}`],
+      rows: prev.rows.map(row => [...row, ''])
+    }));
+  };
+
+  const removeTableColumn = (colIdx: number, setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => {
+      if (prev.headers.length <= 1) return prev;
+      return {
+        ...prev,
+        headers: prev.headers.filter((_, i) => i !== colIdx),
+        rows: prev.rows.map(row => row.filter((_, i) => i !== colIdx))
+      };
+    });
+  };
+
+  const addTableRow = (setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => ({
+      ...prev,
+      rows: [...prev.rows, [String(prev.rows.length + 1), ...new Array(Math.max(0, prev.headers.length - 1)).fill('')]]
+    }));
+  };
+
+  const removeTableRow = (rowIdx: number, setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => {
+      if (prev.rows.length <= 1) return prev;
+      return {
+        ...prev,
+        rows: prev.rows.filter((_, i) => i !== rowIdx)
+      };
+    });
+  };
+
+  const updateTableHeader = (colIdx: number, value: string, setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => {
+      const newH = [...prev.headers];
+      newH[colIdx] = value;
+      return { ...prev, headers: newH };
+    });
+  };
+
+  const updateTableCell = (rowIdx: number, colIdx: number, value: string, setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
+    setTable(prev => {
+      const newRows = prev.rows.map((row, r) => {
+        if (r !== rowIdx) return row;
+        const newR = [...row];
+        newR[colIdx] = value;
+        return newR;
+      });
+      return { ...prev, rows: newRows };
+    });
+  };
+
   const handleSaveOutgoing = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -751,6 +864,7 @@ export default function AdministrativeDocumentsPage() {
         signatoryTitle: outSignatoryTitle.trim(),
         signatoryName: outSignatoryName.trim(),
         scannedFileUrls: outScannedUrls,
+        tableData: outTableData.enabled ? outTableData : undefined,
         createdAt: existingDoc?.createdAt || new Date().toISOString()
       };
 
@@ -779,6 +893,13 @@ export default function AdministrativeDocumentsPage() {
         setOutSubject('');
         setOutContent('');
         setOutScannedUrls([]);
+        setOutTableData({
+          enabled: false,
+          placement: 'INLINE',
+          title: '',
+          headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+          rows: [['1', '', '', '']]
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -902,6 +1023,7 @@ export default function AdministrativeDocumentsPage() {
         signatoryTitle: orderSignatoryTitle.trim(),
         signatoryName: orderSignatoryName.trim(),
         scannedFileUrls: orderScannedUrls,
+        tableData: orderTableData.enabled ? orderTableData : undefined,
         createdAt: existingDoc?.createdAt || new Date().toISOString()
       };
 
@@ -929,6 +1051,13 @@ export default function AdministrativeDocumentsPage() {
         setOrderSubject('م / أمر إداري');
         setOrderContent('');
         setOrderScannedUrls([]);
+        setOrderTableData({
+          enabled: false,
+          placement: 'INLINE',
+          title: '',
+          headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
+          rows: [['1', '', '', '']]
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -1282,6 +1411,195 @@ export default function AdministrativeDocumentsPage() {
     setSelectedDocForPrint(doc);
   };
 
+  // مكوّن محرر الجدول المدمج
+  const renderTableEditor = (tableData: TableData, setTableData: React.Dispatch<React.SetStateAction<TableData>>, themeColor: string) => {
+    return (
+      <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <label className="flex items-center gap-2 text-xs font-bold text-white cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={tableData.enabled}
+              onChange={(e) => setTableData(prev => ({ ...prev, enabled: e.target.checked }))}
+              className="w-4 h-4 rounded text-amber-500 focus:ring-0 cursor-pointer"
+            />
+            <TableIcon className="w-4 h-4" style={{ color: themeColor }} />
+            <span>تضمين جدول رسمي وبيانات مفصلة في الكتاب</span>
+          </label>
+
+          {tableData.enabled && (
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-slate-400 font-semibold">موضع ظهور الجدول:</span>
+              <div className="flex items-center gap-2 text-xs">
+                <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <input
+                    type="radio"
+                    name="table-placement"
+                    checked={tableData.placement === 'INLINE'}
+                    onChange={() => setTableData(prev => ({ ...prev, placement: 'INLINE' }))}
+                    className="cursor-pointer"
+                  />
+                  <span>الصفحة الأولى (أسفل النص)</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                  <input
+                    type="radio"
+                    name="table-placement"
+                    checked={tableData.placement === 'ATTACHMENT'}
+                    onChange={() => setTableData(prev => ({ ...prev, placement: 'ATTACHMENT' }))}
+                    className="cursor-pointer"
+                  />
+                  <span>مرفق طي الكتاب (صفحة ثانية)</span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {tableData.enabled && (
+          <div className="space-y-3 pt-2 border-t border-slate-800">
+            <div>
+              <label className="block text-[11px] text-slate-400 mb-1 font-semibold">عنوان / ترويسة الجدول (اختياري)</label>
+              <input
+                type="text"
+                placeholder="مثال: جدول الكميات والمواد المطلوب توريدها / جدول أسماء أعضاء اللجنة"
+                value={tableData.title || ''}
+                onChange={(e) => setTableData(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white outline-none text-xs"
+              />
+            </div>
+
+            <div className="w-full overflow-x-auto pb-2 border border-slate-800 rounded-xl p-2 bg-slate-900/60">
+              <table className="w-full text-right text-xs">
+                <thead>
+                  <tr className="border-b border-slate-700">
+                    {tableData.headers.map((h, cIdx) => (
+                      <th key={cIdx} className="p-1.5 min-w-[130px]">
+                        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-700">
+                          <input
+                            type="text"
+                            value={h}
+                            onChange={(e) => updateTableHeader(cIdx, e.target.value, setTableData)}
+                            className="w-full bg-transparent text-white font-bold text-center outline-none"
+                          />
+                          {tableData.headers.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeTableColumn(cIdx, setTableData)}
+                              className="text-slate-500 hover:text-rose-400 p-0.5"
+                              title="حذف هذا العمود"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      </th>
+                    ))}
+                    <th className="p-1.5 w-10 text-center">
+                      <button
+                        type="button"
+                        onClick={() => addTableColumn(setTableData)}
+                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer"
+                        title="إضافة عمود جديد"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800">
+                  {tableData.rows.map((row, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-slate-800/30">
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx} className="p-1.5">
+                          <input
+                            type="text"
+                            value={cell}
+                            onChange={(e) => updateTableCell(rIdx, cIdx, e.target.value, setTableData)}
+                            className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500/70 rounded-lg p-1.5 text-white outline-none text-xs text-center"
+                            placeholder={cIdx === 0 ? String(rIdx + 1) : '...'}
+                          />
+                        </td>
+                      ))}
+                      <td className="p-1.5 text-center">
+                        {tableData.rows.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeTableRow(rIdx, setTableData)}
+                            className="p-1 text-slate-500 hover:text-rose-400 cursor-pointer"
+                            title="حذف هذا الصف"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-start">
+              <button
+                type="button"
+                onClick={() => addTableRow(setTableData)}
+                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" /> + إضافة سطر / صف جديد
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // مكوّن عرض الجدول الرسمي للطباعة
+  const renderOfficialTable = (tableData: TableData, primaryCol: string, secondaryCol: string) => {
+    if (!tableData || !tableData.enabled) return null;
+
+    return (
+      <div className="w-full my-3">
+        {tableData.title && (
+          <div className="text-center font-bold text-[13px] text-slate-900 mb-1.5">
+            {tableData.title}
+          </div>
+        )}
+        <div className="w-full border-2 rounded-sm overflow-hidden" style={{ borderColor: primaryCol }}>
+          <table className="w-full text-center border-collapse">
+            <thead>
+              <tr style={{ backgroundColor: primaryCol, color: '#ffffff' }}>
+                {tableData.headers.map((h, i) => (
+                  <th key={i} className="p-2 text-[12px] font-black border-l border-white/30 last:border-l-0">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.rows.map((row, rIdx) => {
+                const isEven = rIdx % 2 === 0;
+                return (
+                  <tr 
+                    key={rIdx} 
+                    className="border-t border-slate-300"
+                    style={{ backgroundColor: isEven ? '#ffffff' : '#f8fafc' }}
+                  >
+                    {row.map((cell, cIdx) => (
+                      <td key={cIdx} className="p-1.5 text-[12px] font-semibold text-slate-900 border-l border-slate-300 last:border-l-0">
+                        {cell || '---'}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <AuthGuard moduleName="admin_docs" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
@@ -1427,6 +1745,13 @@ export default function AdministrativeDocumentsPage() {
                       setEditingDocId(null);
                       setOutDocNumber(generateCode('ص'));
                       setOutScannedUrls([]);
+                      setOutTableData({
+                        enabled: false,
+                        placement: 'INLINE',
+                        title: '',
+                        headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+                        rows: [['1', '', '', '']]
+                      });
                       setShowOutgoingModal(true);
                     }}
                     className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg whitespace-nowrap active:scale-95 cursor-pointer"
@@ -1455,6 +1780,13 @@ export default function AdministrativeDocumentsPage() {
                       setEditingDocId(null);
                       setOrderDocNumber(generateCode('أ.إ'));
                       setOrderScannedUrls([]);
+                      setOrderTableData({
+                        enabled: false,
+                        placement: 'INLINE',
+                        title: '',
+                        headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
+                        rows: [['1', '', '', '']]
+                      });
                       setShowOrderModal(true);
                     }}
                     className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
@@ -1612,7 +1944,8 @@ export default function AdministrativeDocumentsPage() {
                   </tr>
                 ) : (
                   currentTabDocs.map((doc) => {
-                    const totalPages = (doc.mainLetterUrl ? 1 : 0) + (doc.scannedFileUrls ? doc.scannedFileUrls.length : 0);
+                    const hasTableAttachment = doc.tableData?.enabled && doc.tableData.placement === 'ATTACHMENT';
+                    const totalPages = (doc.mainLetterUrl ? 1 : 0) + (doc.scannedFileUrls ? doc.scannedFileUrls.length : 0) + (hasTableAttachment ? 1 : 0);
                     const docBranchDisplay = doc.branch_name || resolveBranchName(doc.branch_id);
 
                     return (
@@ -1698,7 +2031,7 @@ export default function AdministrativeDocumentsPage() {
                   <Send className="w-5 h-5" style={{ color: companySettings.primary_color || '#d97706' }} />
                   <div>
                     <h3 className="text-base font-bold text-white">
-                      {editingDocId ? 'تعديل كتاب صادر رسمي' : 'تحرير كتاب صادر رسمي (إرفاق صور ومستندات متعددة)'}
+                      {editingDocId ? 'تعديل كتاب صادر رسمي' : 'تحرير كتاب صادر رسمي (إرفاق صور ومستندات وجدول رسمي)'}
                     </h3>
                     <p className="text-[11px] text-slate-400">ستطبع المرفقات في صفحات ثانية ولاحقة مستقلة وبدقة عالية وكبيرة</p>
                   </div>
@@ -1800,14 +2133,17 @@ export default function AdministrativeDocumentsPage() {
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold">نص ومضمون الكتاب الصادر يدوياً *</label>
                   <textarea
-                    rows={7}
+                    rows={6}
                     required
                     placeholder="اكتب تفاصيل المخاطبة الرسمية هنا..."
                     value={outContent}
                     onChange={(e) => setOutContent(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none resize-none leading-relaxed text-xs"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none resize-none leading-relaxed text-[14px]"
                   />
                 </div>
+
+                {/* محرر الجدول المدمج للكتاب الصادر */}
+                {renderTableEditor(outTableData, setOutTableData, companySettings.primary_color || '#d97706')}
 
                 <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-3">
                   <div className="flex items-center justify-between">
@@ -2216,7 +2552,7 @@ export default function AdministrativeDocumentsPage() {
                     placeholder="التوجيه الإداري، المتابعة الميدانية..."
                     value={inNotes}
                     onChange={(e) => setInNotes(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none text-xs"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none text-[14px]"
                   />
                 </div>
 
@@ -2244,7 +2580,7 @@ export default function AdministrativeDocumentsPage() {
                   <Bookmark className="w-5 h-5 text-emerald-400" />
                   <div>
                     <h3 className="text-base font-bold text-white">
-                      {editingDocId ? 'تعديل أمر إداري داخلي' : 'إصدار أمر إداري داخلي'}
+                      {editingDocId ? 'تعديل أمر إداري داخلي' : 'إصدار أمر إداري داخلي (مع جدول تنظيمي وقرارات)'}
                     </h3>
                     <p className="text-[11px] text-slate-400">تشكيل لجان، استلام مواقع، وتكليف مهندسين</p>
                   </div>
@@ -2330,14 +2666,17 @@ export default function AdministrativeDocumentsPage() {
                 <div>
                   <label className="block text-slate-400 mb-1 font-semibold">نص وقرار الأمر الإداري *</label>
                   <textarea
-                    rows={8}
+                    rows={6}
                     required
                     placeholder="اكتب تفاصيل القرار الإداري والتكليف هنا..."
                     value={orderContent}
                     onChange={(e) => setOrderContent(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none resize-none leading-relaxed text-xs"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white outline-none resize-none leading-relaxed text-[14px]"
                   />
                 </div>
+
+                {/* محرر الجدول المدمج للأمر الإداري */}
+                {renderTableEditor(orderTableData, setOrderTableData, '#10b981')}
 
                 <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2.5">
                   <div className="flex items-center justify-between">
@@ -2480,6 +2819,9 @@ export default function AdministrativeDocumentsPage() {
 
           const docBranchOfficialName = doc.branch_name || resolveBranchName(doc.branch_id);
 
+          const hasInlineTable = Boolean(doc.tableData?.enabled && doc.tableData.placement === 'INLINE');
+          const hasAttachmentTable = Boolean(doc.tableData?.enabled && doc.tableData.placement === 'ATTACHMENT');
+
           return (
             <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 md:p-8 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
               
@@ -2500,6 +2842,14 @@ export default function AdministrativeDocumentsPage() {
                     >
                       {isIncoming ? 'الكتاب الرئيسي (ص 1)' : 'الكتاب الصادر'}
                     </button>
+                    {hasAttachmentTable && (
+                      <button
+                        onClick={() => scrollToSection('table-attachment-page')}
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-bold shrink-0 border border-slate-700 cursor-pointer"
+                      >
+                        جدول البيانات المرفق
+                      </button>
+                    )}
                     {attachmentsList.map((_, i) => (
                       <button
                         key={i}
@@ -2514,7 +2864,7 @@ export default function AdministrativeDocumentsPage() {
 
                 <div className="flex items-center gap-3 self-end sm:self-auto">
                   <span className="text-[10px] text-slate-300 font-bold hidden md:inline">
-                    عدد الصفحات: {attachmentsList.length + 1}
+                    عدد الصفحات: {attachmentsList.length + 1 + (hasAttachmentTable ? 1 : 0)}
                   </span>
                   <button
                     onClick={() => setSelectedDocForPrint(null)}
@@ -2581,7 +2931,7 @@ export default function AdministrativeDocumentsPage() {
                               <h1 className="text-xl md:text-2xl font-black tracking-wide leading-none" style={{ color: primaryCol }}>
                                 {companySettings.company_name}
                               </h1>
-                              <p className="text-[10px] font-black text-slate-900 tracking-wide mt-1 leading-snug whitespace-pre-line">
+                              <p className="text-[11px] font-black text-slate-900 tracking-wide mt-1 leading-snug whitespace-pre-line">
                                 {companySettings.tagline || 'للمقاولات العامة والاستثمارات العقارية\nوالتجارة العامة والنقل العام'}
                               </p>
                             </div>
@@ -2606,8 +2956,8 @@ export default function AdministrativeDocumentsPage() {
                               )}
                             </div>
 
-                            <div className="text-left flex-1 font-sans text-[10px] text-slate-700 leading-tight space-y-0.5">
-                              <p className="font-bold text-slate-900 text-[11px]">Resplendently Tower Co</p>
+                            <div className="text-left flex-1 font-sans text-[11px] text-slate-700 leading-tight space-y-0.5">
+                              <p className="font-bold text-slate-900 text-[12px]">Resplendently Tower Co</p>
                               <p className="font-semibold" style={{ color: primaryCol }}>General Contracting</p>
                               <p className="font-semibold" style={{ color: primaryCol }}>General Trading</p>
                               <p className="font-semibold" style={{ color: primaryCol }}>General Transport</p>
@@ -2618,13 +2968,13 @@ export default function AdministrativeDocumentsPage() {
                       )}
 
                       {/* شريط العدد والتاريخ واسم الفرع في السند الرسمي الأنيق */}
-                      <div className="mx-10 mt-2 bg-[#e4e4e7] px-5 py-1.5 rounded-sm flex items-center justify-between font-black text-xs text-slate-900 border border-slate-300">
+                      <div className="mx-10 mt-2 bg-[#e4e4e7] px-5 py-2 rounded-sm flex items-center justify-between font-black text-[13px] text-slate-900 border border-slate-300">
                         <div className="flex items-center gap-2">
                           <span className="text-slate-900 font-bold">{isIncoming ? 'تاريخ استلام الوارد :' : 'التاريخ :'}</span>
                           <span className="font-mono text-sm tracking-widest">{doc.docDate}</span>
                         </div>
 
-                        <div className="border bg-white px-2.5 py-0.5 rounded text-[10px] font-black" style={{ borderColor: primaryCol, color: primaryCol }}>
+                        <div className="border bg-white px-3 py-0.5 rounded text-[11px] font-black" style={{ borderColor: primaryCol, color: primaryCol }}>
                           {isIncoming ? 'سجل الكتب الواردة' : isOrder ? 'أمر إداري داخلي' : 'كتاب صادر رسمي'}
                           <span className="mx-1 text-slate-400">|</span>
                           <span className="text-slate-800 font-bold">{docBranchOfficialName}</span>
@@ -2639,31 +2989,36 @@ export default function AdministrativeDocumentsPage() {
                       {isIncoming && (
                         <div className="mx-10 mt-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl grid grid-cols-2 gap-4 text-xs font-semibold">
                           <div>
-                            <span className="text-slate-500 block text-[10px]">عدد كتاب الجهة المرسلة:</span>
+                            <span className="text-slate-500 block text-[11px]">عدد كتاب الجهة المرسلة:</span>
                             <strong className="font-mono text-slate-950 text-xs">{doc.senderDocNumber || '---'}</strong>
                           </div>
                           <div>
-                            <span className="text-slate-500 block text-[10px]">تاريخ كتاب الجهة المرسلة:</span>
+                            <span className="text-slate-500 block text-[11px]">تاريخ كتاب الجهة المرسلة:</span>
                             <strong className="font-mono text-slate-950 text-xs">{doc.senderDocDate || '---'}</strong>
                           </div>
                         </div>
                       )}
 
-                      <div className="px-12 py-3 space-y-3 flex-1 text-slate-900 flex flex-col">
-                        <div className="text-center font-black text-base text-slate-950 pt-1">
+                      <div className="px-12 py-3 space-y-3.5 flex-1 text-slate-900 flex flex-col">
+                        <div className="text-center font-black text-[16px] text-slate-950 pt-1">
                           {isIncoming ? `من / ${doc.partyName}` : `إلى / ${doc.partyName}`}
                         </div>
 
-                        <div className="text-center font-black text-sm text-slate-900">
+                        <div className="text-center font-black text-[15px] text-slate-900">
                           <span className="border-b-2 pb-0.5 px-4 inline-block" style={{ borderBottomColor: primaryCol }}>
                             {doc.subject}
                           </span>
                         </div>
 
                         {!isIncoming && doc.content && (
-                          <div className="text-[13px] leading-[2.1] font-medium text-slate-900 text-justify whitespace-pre-line pt-1">
+                          <div className="text-[14px] leading-[2.2] font-medium text-slate-900 text-justify whitespace-pre-line pt-1">
                             {doc.content}
                           </div>
+                        )}
+
+                        {/* إدراج الجدول المباشر في الصفحة الأولى إذا اختير INLINE */}
+                        {!isIncoming && hasInlineTable && doc.tableData && (
+                          renderOfficialTable(doc.tableData, primaryCol, secondaryCol)
                         )}
 
                         {isIncoming && doc.mainLetterUrl && (
@@ -2685,7 +3040,7 @@ export default function AdministrativeDocumentsPage() {
 
                         {!isIncoming && (
                           <>
-                            <div className="text-center pt-3 text-sm font-black text-slate-900">
+                            <div className="text-center pt-3 text-[14px] font-black text-slate-900">
                               ... مع فائق الشكر والتقدير
                             </div>
 
@@ -2699,9 +3054,9 @@ export default function AdministrativeDocumentsPage() {
                               </div>
 
                               <div className="text-center space-y-0.5 min-w-[200px]">
-                                <p className="font-black text-sm text-slate-950">{doc.signatoryName}</p>
-                                <p className="text-[11px] font-bold text-slate-700">{doc.signatoryTitle}</p>
-                                <p className="text-[10px] text-slate-500">{companySettings.company_name}</p>
+                                <p className="font-black text-[15px] text-slate-950">{doc.signatoryName}</p>
+                                <p className="text-[12px] font-bold text-slate-700">{doc.signatoryTitle}</p>
+                                <p className="text-[11px] text-slate-500">{companySettings.company_name}</p>
                                 
                                 <div className="h-12 flex items-center justify-center relative">
                                   <div 
@@ -2723,15 +3078,16 @@ export default function AdministrativeDocumentsPage() {
 
                     {/* تذييل الصفحة المطبوعة */}
                     <div className="relative z-10 w-full bg-white mt-auto">
-                      <div className="mx-10 pt-2 pb-1 border-t border-slate-300 text-[10px] text-slate-700 space-y-0.5 font-medium">
+                      <div className="mx-10 pt-2 pb-1 border-t border-slate-300 text-[11px] text-slate-700 space-y-0.5 font-medium">
                         <div className="flex items-center justify-between">
                           <p>
                             <strong>المرفقات: </strong> {doc.attachments || 'لا يوجد'} 
+                            {hasAttachmentTable && ' (طياً جدول البيانات الرسمي في صفحة ثانية)'}
                             {attachmentsList.length > 0 && ` (مرفق طياً في الصفحات التالية عدد ${attachmentsList.length} صفحة)`}
                           </p>
-                          {attachmentsList.length > 0 && (
+                          {(attachmentsList.length > 0 || hasAttachmentTable) && (
                             <button
-                              onClick={() => scrollToSection('att-0')}
+                              onClick={() => scrollToSection(hasAttachmentTable ? 'table-attachment-page' : 'att-0')}
                               className="font-bold hover:underline flex items-center gap-1 print:hidden cursor-pointer"
                               style={{ color: primaryCol }}
                             >
@@ -2787,6 +3143,52 @@ export default function AdministrativeDocumentsPage() {
                     </div>
 
                   </div>
+
+                  {/* صفحة مرفق الجدول المخصص إذا كان ATTACHMENT */}
+                  {hasAttachmentTable && doc.tableData && (
+                    <div 
+                      id="table-attachment-page"
+                      className="print-attachment-sheet w-full bg-white text-slate-950 shadow-2xl print:shadow-none relative overflow-hidden font-sans p-6 md:p-8 border border-slate-300 flex flex-col justify-between items-center min-h-[1080px] max-h-[1115px] print:min-h-0 print:border-none print:m-0"
+                    >
+                      <div className="w-full flex items-center justify-between border-b-2 border-slate-900 pb-2.5 mb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 relative flex items-center justify-center">
+                            {hasLogo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={companySettings.logo_url} alt="شعار الشركة" className="w-full h-full object-contain" />
+                            ) : (
+                              <Image src="/logo.png" alt="شركة البرج المتألق" width={36} height={36} className="object-contain" priority />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-black text-slate-900 text-xs">{companySettings.company_name}</h4>
+                            <p className="text-[10px] font-bold" style={{ color: primaryCol }}>جدول البيانات المرفق طي الوثيقة الرسمية</p>
+                          </div>
+                        </div>
+
+                        <div className="text-left font-mono text-[11px] space-y-0.5">
+                          <span className="bg-slate-950 text-white px-2 py-0.5 rounded font-bold text-[9px]">
+                            مرفق جدول بيانات رسمي
+                          </span>
+                          <p className="text-[9px] text-slate-600 font-sans">
+                            تابع للوثيقة: <strong className="font-mono text-slate-950">{doc.docNumber}</strong> بتاريخ: <strong className="font-mono">{doc.docDate}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="w-full flex-1 flex flex-col justify-start pt-4">
+                        <div className="text-center font-bold text-[15px] text-slate-950 mb-3 border-b-2 pb-1 inline-block mx-auto" style={{ borderBottomColor: primaryCol }}>
+                          {doc.tableData.title || `جدول البيانات المرفق مع ${isOrder ? 'الأمر الإداري' : 'الكتاب الصادر'}`}
+                        </div>
+                        {renderOfficialTable(doc.tableData, primaryCol, secondaryCol)}
+                      </div>
+
+                      <div className="w-full text-center text-[9px] text-slate-400 font-mono border-t border-slate-200 pt-2 mt-2 flex items-center justify-between">
+                        <span>وثيقة مؤرشفة إلكترونياً • نظام الأرشفة والوثائق المركزي</span>
+                        <span>صفحة جدول البيانات المرفق مع الوثيقة</span>
+                      </div>
+                    </div>
+                  )}
 
                   {attachmentsList.map((attUrl, aIdx) => (
                     <div 

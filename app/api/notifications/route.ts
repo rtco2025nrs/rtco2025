@@ -64,6 +64,8 @@ export async function GET(req: Request) {
           n.link, 
           n.branch_id,
           n.created_by_user,
+          n.created_by_user AS created_by,
+          n.created_by_user AS user_name,
           COALESCE(s.is_read, FALSE) AS is_read, 
           to_char(n.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
         FROM system_notifications n
@@ -87,6 +89,8 @@ export async function GET(req: Request) {
           n.link, 
           n.branch_id,
           n.created_by_user,
+          n.created_by_user AS created_by,
+          n.created_by_user AS user_name,
           COALESCE(s.is_read, FALSE) AS is_read, 
           to_char(n.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
         FROM system_notifications n
@@ -122,12 +126,15 @@ export async function POST(req: Request) {
     await initNotificationsTable();
     const body = await req.json().catch(() => ({}));
 
-    const username = String(body.username || 'SYSTEM').trim().toLowerCase();
+    const username = String(body.username || body.user_name || '').trim().toLowerCase();
 
     // 1. تسجيل إشعار جديد في النظام
     if (body.title && !body.action?.includes('READ')) {
-      const { notification_id, id, sector, action_type, title, message, link, branch_id, created_by_user } = body;
+      const { notification_id, id, sector, action_type, title, message, link, branch_id, created_by_user, created_by, user_name, sender } = body;
       const notifId = String(notification_id || id || `NTF-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
+      
+      // اعتماد اسم الموظف المنفذ من أي حقل مرسل
+      const author = created_by_user || created_by || user_name || sender || username || 'SYSTEM';
 
       const res = await query(`
         INSERT INTO system_notifications (
@@ -143,7 +150,7 @@ export async function POST(req: Request) {
         message || '',
         link || '/',
         branch_id || 'ALL',
-        created_by_user || username || 'SYSTEM'
+        author
       ]);
 
       return NextResponse.json({ success: true, notification: res.rows[0] });
@@ -177,7 +184,7 @@ export async function PATCH(req: Request) {
   try {
     await initNotificationsTable();
     const body = await req.json().catch(() => ({}));
-    const username = String(body.username || 'SYSTEM').trim().toLowerCase();
+    const username = String(body.username || body.user_name || 'SYSTEM').trim().toLowerCase();
     const targetNotifId = String(body.notification_id || body.id || '');
 
     if (!targetNotifId || !username) {

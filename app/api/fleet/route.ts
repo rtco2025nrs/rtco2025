@@ -452,13 +452,15 @@ export async function POST(req: Request) {
         `, [`في الطريق إلى: ${destination}`, String(vehicle_id)]);
       }
 
-      // قيد إيراد النقل المستقل مرتبطة بالفرع الصحيح
+      // قيد إيراد النقل المستقل مرتبطة بالفرع الصحيح ومعرف الرحلة
       if (Number(trip_cost) > 0) {
         try {
           const voucherNumber = `V-FLT-${Date.now().toString().slice(-6)}`;
           const voucherNotes = JSON.stringify({
             sector: 'TRANSPORT_LOGISTICS',
             category: 'FLEET_REVENUE',
+            trip_id: finalTripId,
+            vehicle_id: vehicle_id ? String(vehicle_id) : undefined,
             partyAr: isExternal ? `أجور نقل شحنة [شاحنة خارجية: ${external_truck_info || ''}]` : (captain_name || 'كابتن الأسطول'),
             forReasonAr: `إيراد أجور نقل حمولة (${cargo_description}) من ${origin} إلى ${destination}`,
             method: 'CASH'
@@ -473,13 +475,14 @@ export async function POST(req: Request) {
         }
       }
 
-      // قيد كلفة استئجار الشاحنة الخارجية كمصروف مرتبطة بالفرع
+      // قيد كلفة استئجار الشاحنة الخارجية كمصروف مرتبطة بالفرع ومعرف الرحلة
       if (isExternal && Number(external_rental_cost) > 0) {
         try {
           const vExpNumber = `V-RENT-${Date.now().toString().slice(-6)}`;
           const vExpNotes = JSON.stringify({
             sector: 'TRANSPORT_LOGISTICS',
             category: 'FLEET_EXPENSE',
+            trip_id: finalTripId,
             partyAr: external_driver_name || 'صاحب الشاحنة المستأجرة',
             forReasonAr: `كلفة استئجار سيارة نقل خارجية (${external_truck_info || ''}) لنقل (${cargo_description})`,
             method: 'CASH'
@@ -560,6 +563,8 @@ export async function POST(req: Request) {
           const voucherNotes = JSON.stringify({
             sector: 'TRANSPORT_LOGISTICS',
             category: 'FLEET_EXPENSE',
+            log_id: finalLogId,
+            vehicle_id: String(vehicle_id),
             partyAr: performed_by || 'ورشة الصيانة / محطة الوقود',
             forReasonAr: `مصروفات تشغيل النقل العام [${typeName}]: ${description}`,
             method: 'CASH'
@@ -670,10 +675,33 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const tripId = searchParams.get('trip_id');
     const vehicleId = searchParams.get('id');
+    const logId = searchParams.get('log_id');
 
+    // 1. حذف سجل صيانة أو وقود وإلغاء السند المالي التابع له
+    if (logId) {
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status NOT IN ('CANCELLED', 'VOID')
+          AND notes ILIKE '%"log_id":"' || $1 || '"%'
+      `, [String(logId)]).catch(() => {});
+
+      await query(`DELETE FROM fleet_maintenance_logs WHERE log_id::text = $1::text`, [String(logId)]);
+      return NextResponse.json({ success: true, message: 'تم حذف سجل الصيانة وإلغاء السند المالي المرتبط' });
+    }
+
+    // 2. حذف رحلة نقل وإلغاء سندات إيرادها أو استئجارها تلقائياً
     if (tripId) {
       const tripData = await query(`SELECT cargo_description FROM fleet_trips WHERE trip_id::text = $1::text`, [String(tripId)]);
       const cargo = tripData.rows[0]?.cargo_description || 'رحلة نقل';
+
+      // إلغاء سندات الإيراد أو كلفة الاستئجار التابعة لهذه الرحلة
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status NOT IN ('CANCELLED', 'VOID')
+          AND notes ILIKE '%"trip_id":"' || $1 || '"%'
+      `, [String(tripId)]).catch(() => {});
 
       await query(`DELETE FROM fleet_trips WHERE trip_id::text = $1::text`, [String(tripId)]);
 
@@ -681,29 +709,40 @@ export async function DELETE(req: Request) {
         'FLEET',
         'DELETE',
         `إلغاء وحذف رحلة نقل: ${cargo}`,
-        `تم حذف سجل رحلة النقل (${cargo}) من جدول تشغيل الأسطول`,
+        `تم حذف سجل رحلة النقل (${cargo}) وإلغاء كافة السندات المالية التابعة لها`,
         '/fleet'
       );
 
-      return NextResponse.json({ success: true, message: 'تم حذف الرحلة بنجاح' });
+      return NextResponse.json({ success: true, message: 'تم حذف الرحلة وإلغاء سنداتها بنجاح' });
     }
 
+    // 3. حذف آلية وإلغاء كافة السندات التابعة لرحلاتها وصيانتها
     if (vehicleId) {
       const vData = await query(`SELECT vehicle_name, plate_number FROM fleet_vehicles WHERE vehicle_id::text = $1::text`, [String(vehicleId)]);
       const vName = vData.rows[0]?.vehicle_name || 'آلية';
       const plate = vData.rows[0]?.plate_number || '';
 
+      // إلغاء كافة السندات المقترنة بالآلية (رحلات وصيانة)
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status NOT IN ('CANCELLED', 'VOID')
+          AND notes ILIKE '%"vehicle_id":"' || $1 || '"%'
+      `, [String(vehicleId)]).catch(() => {});
+
+      await query(`DELETE FROM fleet_maintenance_logs WHERE vehicle_id::text = $1::text`, [String(vehicleId)]);
+      await query(`DELETE FROM fleet_trips WHERE vehicle_id::text = $1::text`, [String(vehicleId)]);
       await query(`DELETE FROM fleet_vehicles WHERE vehicle_id::text = $1::text`, [String(vehicleId)]);
 
       await logNotification(
         'FLEET',
         'DELETE',
         `حذف مركبة من الأسطول: ${vName}`,
-        `تم حذف الآلية (${vName} - لوحة ${plate}) نهائياً من سجلات الأسطول`,
+        `تم حذف الآلية (${vName} - لوحة ${plate}) وكافة سجلاتها وإلغاء سنداتها المالية المرتبطة`,
         '/fleet'
       );
 
-      return NextResponse.json({ success: true, message: 'تم حذف الشاحنة بنجاح' });
+      return NextResponse.json({ success: true, message: 'تم حذف الشاحنة وسجلاتها بنجاح' });
     }
 
     return NextResponse.json({ error: 'المعرف مطلوب' }, { status: 400 });

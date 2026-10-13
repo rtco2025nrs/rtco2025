@@ -199,13 +199,13 @@ export async function GET(req: Request) {
     const projects = projectsRes.rows || [];
 
     const totalItemsCount = items.length;
-    const totalInventoryValue = items.reduce((acc, item) => {
+    const totalInventoryValue = items.reduce((acc: number, item: any) => {
       const qty = Number(item.quantity_on_hand) || 0;
       const cost = Number(item.unit_cost) || 0;
       return acc + (qty * cost);
     }, 0);
 
-    const lowStockItems = items.filter(item => {
+    const lowStockItems = items.filter((item: any) => {
       const qty = Number(item.quantity_on_hand) || 0;
       const min = Number(item.min_reorder_level) || 5;
       return qty <= min;
@@ -393,12 +393,14 @@ export async function POST(req: Request) {
         `, [matId, String(project_id), matName, currentItem.unit, numQty, numPrice]).catch(() => {});
       }
 
-      // قيد السندات المالية بالصندوق تلقائياً مرتبطة بنفس الفرع
+      // قيد السندات المالية بالصندوق تلقائياً مع توثيق trans_id لسهولة الإلغاء التلقائي عند الحذف
       if (trans_type === 'IN' && finalPurpose === 'PURCHASE' && totalAmount > 0) {
         const vId = `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const vNum = `V-INV-IN-${Date.now().toString().slice(-5)}`;
         const vNotes = JSON.stringify({
           sector: 'INVENTORY',
+          trans_id: finalTransId,
+          item_id: String(item_id),
           partyAr: supplier_or_recipient || 'مجهز بضاعة',
           forReasonAr: `شراء وتوريد مخزني: ${numQty} ${currentItem.unit} ${matName}`,
           method: 'CASH'
@@ -413,6 +415,8 @@ export async function POST(req: Request) {
         const vNum = `V-INV-OUT-${Date.now().toString().slice(-5)}`;
         const vNotes = JSON.stringify({
           sector: 'INVENTORY',
+          trans_id: finalTransId,
+          item_id: String(item_id),
           partyAr: supplier_or_recipient || 'عميل تجاري',
           forReasonAr: `مبيعات تجارية مخزنية: ${numQty} ${currentItem.unit} ${matName}`,
           method: 'CASH'
@@ -489,11 +493,23 @@ export async function DELETE(req: Request) {
           `, [qty, String(t.item_id)]);
         }
 
+        // إلغاء السند المالي التابع لهذه الحركة المخزنية تلقائياً
+        await query(`
+          UPDATE vouchers
+          SET status = 'CANCELLED'
+          WHERE status != 'CANCELLED'
+            AND status != 'VOID'
+            AND (
+              notes ILIKE '%"' || $1 || '"%'
+              OR notes ILIKE '%' || $2 || '%'
+            )
+        `, [String(transId), t.trans_code || 'TR-']).catch(() => {});
+
         await logNotification(
           'INVENTORY',
           'DELETE',
-          'إلغاء إذن مخزني',
-          `تم حذف إذن الحركة رقم (${t.trans_code}) وعكس كمية ${qty} على رصيد الصنف`,
+          'إلغاء إذن مخزني وإلغاء سنده',
+          `تم حذف إذن الحركة رقم (${t.trans_code}) وعكس كمية ${qty} على رصيد الصنف وإلغاء السند المالي المرتبط به تلقائياً`,
           '/inventory'
         );
       }
@@ -505,6 +521,15 @@ export async function DELETE(req: Request) {
       const itemRow = await query(`SELECT name, item_name FROM inventory_items WHERE item_id::text = $1::text`, [String(itemId)]);
       const iName = itemRow.rows[0]?.name || itemRow.rows[0]?.item_name || 'صنف';
 
+      // إلغاء كافة السندات المالية التابعة لحركات هذا الصنف تلقائياً قبل الحذف
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status != 'CANCELLED'
+          AND status != 'VOID'
+          AND notes ILIKE '%"' || $1 || '"%'
+      `, [String(itemId)]).catch(() => {});
+
       await query(`DELETE FROM inventory_transactions WHERE item_id::text = $1::text`, [String(itemId)]);
       await query(`DELETE FROM inventory_items WHERE item_id::text = $1::text`, [String(itemId)]);
 
@@ -512,7 +537,7 @@ export async function DELETE(req: Request) {
         'INVENTORY',
         'DELETE',
         'حذف صنف من المخزن',
-        `تم حذف الصنف (${iName}) وكافة سجلاته وحركاته من المخزن`,
+        `تم حذف الصنف (${iName}) وكافة سجلاته وحركاته من المخزن وإلغاء كافة سنداته المالية المرتبطة`,
         '/inventory'
       );
 

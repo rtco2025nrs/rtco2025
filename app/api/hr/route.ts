@@ -525,6 +525,8 @@ export async function POST(req: Request) {
         const vNum = `V-LOAN-${Date.now().toString().slice(-5)}`;
         const notes = JSON.stringify({
           sector: 'HR_PAYROLL',
+          parent_loan_id: parentLoanId,
+          employee_id: String(employee_id),
           partyAr: empName,
           forReasonAr: `سلفة نقدية مقسطة على (${instCount} أشهر) - ${reason || ''}`,
           method: 'CASH'
@@ -568,6 +570,8 @@ export async function POST(req: Request) {
         const vNum = `V-LOAN-${Date.now().toString().slice(-5)}`;
         const notes = JSON.stringify({
           sector: 'HR_PAYROLL',
+          adj_id: singleAdjId,
+          employee_id: String(employee_id),
           partyAr: empName,
           forReasonAr: `سلفة نقدية على الراتب - ${reason || ''}`,
           method: 'CASH'
@@ -720,7 +724,16 @@ export async function POST(req: Request) {
 
       await query(`DELETE FROM hr_payroll_runs WHERE payroll_month = $1`, [targetMonth]);
       const vPattern = `V-PAY-${targetMonth.replace('-', '')}-%`;
-      await query(`DELETE FROM vouchers WHERE voucher_number LIKE $1`, [vPattern]).catch(() => {});
+      
+      // إلغاء السندات المالية الخاصة برواتب هذا الشهر تلقائياً
+      await query(`
+        UPDATE vouchers 
+        SET status = 'CANCELLED' 
+        WHERE status != 'CANCELLED' 
+          AND status != 'VOID' 
+          AND voucher_number LIKE $1
+      `, [vPattern]).catch(() => {});
+
       await query(`UPDATE hr_adjustments SET is_settled = FALSE WHERE effective_month = $1 OR effective_month IS NULL`, [targetMonth]);
       await query(`UPDATE hr_leaves SET is_deducted = FALSE WHERE leave_type = 'UNPAID'`);
 
@@ -728,7 +741,7 @@ export async function POST(req: Request) {
         'HR',
         'DELETE',
         `تصفير مسير رواتب شهر: ${targetMonth}`,
-        `تم تصفير واسترجاع بودرة الرواتب لشهر (${targetMonth}) لإعادة المراجعة والتعديل`,
+        `تم تصفير واسترجاع بودرة الرواتب لشهر (${targetMonth}) وإلغاء السندات التابعة لها لإعادة المراجعة والتعديل`,
         '/hr'
       );
 
@@ -784,11 +797,15 @@ export async function POST(req: Request) {
 
         const net = Math.max(0, (base + allow + bonus + overtime) - (loanDeduct + penalty));
         const deductionNotes = reasonsList.join(' | ');
+        const runId = `RUN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         const vId = `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const vNum = `V-PAY-${targetMonth.replace('-', '')}-${emp.emp_code}`;
         const vNotes = JSON.stringify({
           sector: 'HR_PAYROLL',
+          run_id: runId,
+          employee_id: String(emp.employee_id),
+          payroll_month: targetMonth,
           partyAr: emp.full_name,
           forReasonAr: `راتب شهر (${targetMonth}) للموظف ${emp.full_name}`,
           method: 'CASH',
@@ -803,7 +820,6 @@ export async function POST(req: Request) {
           VALUES ($1, $2, $3, 'PAYMENT', $4, $4, $5, 'POSTED', 'إدارة الموارد البشرية والرواتب', CURRENT_DATE)
         `, [vId, empBranchId, vNum, net, vNotes]).catch(() => {});
 
-        const runId = `RUN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         await query(`
           INSERT INTO hr_payroll_runs (
             run_id, payroll_month, employee_id, base_salary, allowances, bonuses, overtime_amount, loans_deducted, penalties, deduction_reasons, net_salary, status
@@ -862,7 +878,7 @@ export async function DELETE(req: Request) {
     }
 
     if (adjId) {
-      const adjObj = await query(`SELECT leave_id, adj_type FROM hr_adjustments WHERE adj_id::text = $1::text`, [String(adjId)]);
+      const adjObj = await query(`SELECT leave_id, adj_type, employee_id FROM hr_adjustments WHERE adj_id::text = $1::text`, [String(adjId)]);
       if (adjObj.rows.length > 0) {
         const lId = adjObj.rows[0].leave_id;
         const aType = adjObj.rows[0].adj_type;
@@ -873,6 +889,18 @@ export async function DELETE(req: Request) {
         if (lId && aType === 'LOAN') {
           await query(`DELETE FROM hr_adjustments WHERE leave_id::text = $1::text`, [String(lId)]);
         }
+
+        // إلغاء السند المالي للسلفة تلقائياً عند حذف حركة السلفة
+        await query(`
+          UPDATE vouchers
+          SET status = 'CANCELLED'
+          WHERE status != 'CANCELLED'
+            AND status != 'VOID'
+            AND (
+              notes ILIKE '%"' || $1 || '"%'
+              OR (notes ILIKE '%"parent_loan_id":"' || COALESCE($2, '') || '"%' AND $2 IS NOT NULL)
+            )
+        `, [String(adjId), lId || null]).catch(() => {});
       }
 
       await query(`DELETE FROM hr_adjustments WHERE adj_id::text = $1::text`, [String(adjId)]);
@@ -888,13 +916,22 @@ export async function DELETE(req: Request) {
       const empInfo = await query(`SELECT full_name FROM hr_employees WHERE employee_id::text = $1::text`, [String(empId)]);
       const empName = empInfo.rows[0]?.full_name || 'موظف';
 
+      // إلغاء كافة السندات المالية (السلف ومسيرات الرواتب) التابعة لهذا الموظف تلقائياً
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status != 'CANCELLED'
+          AND status != 'VOID'
+          AND notes ILIKE '%"employee_id":"' || $1 || '"%'
+      `, [String(empId)]).catch(() => {});
+
       await query(`DELETE FROM hr_employees WHERE employee_id::text = $1::text`, [String(empId)]);
 
       await logNotification(
         'HR',
         'DELETE',
         `حذف موظف: ${empName}`,
-        `تم حذف ملف وسجلات الموظف (${empName}) نهائياً من أرشيف الكوادر`,
+        `تم حذف ملف وسجلات الموظف (${empName}) نهائياً من أرشيف الكوادر وإلغاء كافة سنداته المالية المرتبطة`,
         '/hr'
       );
 

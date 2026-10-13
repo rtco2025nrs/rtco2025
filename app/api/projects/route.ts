@@ -196,7 +196,7 @@ export async function GET(req: Request) {
           COALESCE(SUM(jl.debit), 0) as calculated_amount 
         FROM vouchers v 
         LEFT JOIN journal_lines jl ON v.voucher_id = jl.voucher_id 
-        WHERE v.status::text != 'VOID' 
+        WHERE v.status::text NOT IN ('VOID', 'CANCELLED') 
         GROUP BY v.voucher_id, v.voucher_type, v.status, v.project_id, v.notes, v.issue_date, v.voucher_number
       `).catch(() => ({ rows: [] }))
     ]);
@@ -213,14 +213,14 @@ export async function GET(req: Request) {
 
     const clean = (t: string) => (t || '').trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/\s+/g, ' ');
 
-    const enriched = projectsList.map((p) => {
+    const enriched = projectsList.map((p: any) => {
       const pId = String(p.project_id || '');
       const pName = clean(p.project_name);
       const mappedBranchName = p.branch_name || 'فرع الشركة';
 
       const projMilestones = milestones
-        .filter((m) => String(m.project_id) === pId)
-        .map((m) => {
+        .filter((m: any) => String(m.project_id) === pId)
+        .map((m: any) => {
           const mNameClean = clean(m.name);
           let milestoneActualPaid = 0;
 
@@ -282,7 +282,7 @@ export async function GET(req: Request) {
         }
       }
 
-      const projectSubs = subs.filter((s) => String(s.project_id) === pId).map((sub) => {
+      const projectSubs = subs.filter((s: any) => String(s.project_id) === pId).map((sub: any) => {
         let finalPaid = 0;
         const subIdStr = String(sub.subcontractor_id || '');
 
@@ -319,7 +319,7 @@ export async function GET(req: Request) {
         };
       });
 
-      const projectTerms = terms.filter((t) => String(t.project_id) === pId).map((term) => {
+      const projectTerms = terms.filter((t: any) => String(t.project_id) === pId).map((term: any) => {
         const tTitle = clean(term.term_title);
         const termIdStr = String(term.term_id || '');
         let actualVoucherPaid = 0;
@@ -366,10 +366,10 @@ export async function GET(req: Request) {
         vouchers: matchedVouchers,
         milestones: projMilestones,
         subcontractors: projectSubs,
-        operating_expenses: operatingExpenses.filter((e) => String(e.project_id) === pId),
-        documents: docs.filter((d) => String(d.project_id) === pId),
-        materials: materials.filter((mat) => String(mat.project_id) === pId),
-        site_logs: logs.filter((l) => String(l.project_id) === pId),
+        operating_expenses: operatingExpenses.filter((e: any) => String(e.project_id) === pId),
+        documents: docs.filter((d: any) => String(d.project_id) === pId),
+        materials: materials.filter((mat: any) => String(mat.project_id) === pId),
+        site_logs: logs.filter((l: any) => String(l.project_id) === pId),
         payment_terms: projectTerms,
       };
     });
@@ -703,7 +703,7 @@ export async function DELETE(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // 1. حذف مقاول الباطن بالمعرف الفردي الحصري وإلغاء السند المرتبط به دون تشويه الـ notes
+    // 1. حذف مقاول الباطن بالمعرف الفردي الحصري وإلغاء السند المرتبط به
     if (body.action === 'DELETE_SUBCONTRACTOR') {
       const subIdStr = String(body.subcontractor_id);
       const sRes = await query(`SELECT name FROM project_subcontractors WHERE subcontractor_id::text = $1`, [subIdStr]);
@@ -711,8 +711,8 @@ export async function DELETE(req: Request) {
 
       await query(`
         UPDATE vouchers 
-        SET status = 'VOID'
-        WHERE status::text != 'VOID'
+        SET status = 'CANCELLED'
+        WHERE status::text NOT IN ('VOID', 'CANCELLED')
           AND notes::text LIKE '%' || $1 || '%'
       `, [subIdStr]);
 
@@ -722,7 +722,7 @@ export async function DELETE(req: Request) {
         'PROJECTS',
         'DELETE',
         `حذف مقاول باطن: ${sName}`,
-        `تم حذف عقد مقاول الباطن وتحويل السند المالي المرتبط به مباشرة إلى حالة ملغي (VOID)`,
+        `تم حذف عقد مقاول الباطن وتحويل السند المالي المرتبط به مباشرة إلى حالة ملغي (CANCELLED)`,
         '/projects'
       );
       return NextResponse.json({ success: true });
@@ -736,8 +736,8 @@ export async function DELETE(req: Request) {
 
       await query(`
         UPDATE vouchers 
-        SET status = 'VOID'
-        WHERE status::text != 'VOID'
+        SET status = 'CANCELLED'
+        WHERE status::text NOT IN ('VOID', 'CANCELLED')
           AND notes::text LIKE '%' || $1 || '%'
       `, [expIdStr]);
 
@@ -747,7 +747,7 @@ export async function DELETE(req: Request) {
         'PROJECTS',
         'DELETE',
         `حذف مصروف تشغيلي: ${eTitle}`,
-        `تم حذف بند المصروف التشغيلي وتحويل السند المرتبط به إلى حالة ملغي (VOID)`,
+        `تم حذف بند المصروف التشغيلي وتحويل السند المرتبط به إلى حالة ملغي (CANCELLED)`,
         '/projects'
       );
       return NextResponse.json({ success: true });
@@ -761,8 +761,8 @@ export async function DELETE(req: Request) {
 
       await query(`
         UPDATE vouchers 
-        SET status = 'VOID'
-        WHERE status::text != 'VOID'
+        SET status = 'CANCELLED'
+        WHERE status::text NOT IN ('VOID', 'CANCELLED')
           AND notes::text LIKE '%' || $1 || '%'
       `, [matIdStr]);
 
@@ -772,7 +772,7 @@ export async function DELETE(req: Request) {
         'PROJECTS',
         'DELETE',
         `حذف مادة توريد: ${mName}`,
-        `تم حذف سجل المادة وتحويل سند المورد المرتبط إلى حالة ملغي (VOID)`,
+        `تم حذف سجل المادة وتحويل سند المورد المرتبط إلى حالة ملغي (CANCELLED)`,
         '/projects'
       );
       return NextResponse.json({ success: true });
@@ -787,8 +787,8 @@ export async function DELETE(req: Request) {
 
       await query(`
         UPDATE vouchers 
-        SET status = 'VOID'
-        WHERE status::text != 'VOID'
+        SET status = 'CANCELLED'
+        WHERE status::text NOT IN ('VOID', 'CANCELLED')
           AND voucher_type::text = 'RECEIPT'
           AND (
             notes::text LIKE '%' || $1 || '%'
@@ -810,7 +810,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 5. حذف المشروع بالكامل مع تحويل سنداته إلى VOID
+    // 5. حذف المشروع بالكامل مع تحويل سنداته إلى CANCELLED
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('id');
     if (projectId) {
@@ -819,8 +819,8 @@ export async function DELETE(req: Request) {
 
       await query(`
         UPDATE vouchers 
-        SET status = 'VOID'
-        WHERE status::text != 'VOID'
+        SET status = 'CANCELLED'
+        WHERE status::text NOT IN ('VOID', 'CANCELLED')
           AND (project_id::text = $1::text OR notes LIKE '%' || $2 || '%')
       `, [String(projectId), pName]);
 

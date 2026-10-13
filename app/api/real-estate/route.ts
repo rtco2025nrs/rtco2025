@@ -20,7 +20,6 @@ async function logNotification(sector: string, action_type: string, title: strin
   }
 }
 
-// خريطة مسميات الفروع المعتمدة
 const BRANCH_NAMES_MAP: Record<string, string> = {
   'BR-HQ-01': 'المقر الرئيسي (النجف الأشرف)',
   'BR-CONST-02': 'فرع المقاولات والمشاريع الهندسية',
@@ -33,7 +32,6 @@ const BRANCH_NAMES_MAP: Record<string, string> = {
 async function initRealEstateTables() {
   await query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
-  // التأكد من وجود هيكل جدول الفروع فقط دون زرع أي بيانات قسرية
   await query(`
     CREATE TABLE IF NOT EXISTS branches (
       branch_id VARCHAR(50) PRIMARY KEY,
@@ -48,7 +46,6 @@ async function initRealEstateTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
-  await query(`ALTER TABLE branches ALTER COLUMN branch_code DROP NOT NULL;`).catch(() => {});
 
   await query(`
     CREATE TABLE IF NOT EXISTS real_estate_units (
@@ -57,8 +54,8 @@ async function initRealEstateTables() {
       unit_code VARCHAR(50),
       title VARCHAR(255),
       unit_name VARCHAR(255),
-      property_type VARCHAR(100) DEFAULT 'شقة سكنية',
-      unit_type VARCHAR(100) DEFAULT 'شقة سكنية',
+      property_type VARCHAR(100) DEFAULT 'شقة سكنية فاخرة',
+      unit_type VARCHAR(100) DEFAULT 'شقة سكنية فاخرة',
       area_sqm NUMERIC DEFAULT 0,
       area NUMERIC DEFAULT 0,
       price NUMERIC DEFAULT 0,
@@ -66,58 +63,22 @@ async function initRealEstateTables() {
       city VARCHAR(100) DEFAULT 'النجف الأشرف',
       location VARCHAR(255),
       status VARCHAR(50) DEFAULT 'AVAILABLE',
+      sale_type VARCHAR(50) DEFAULT 'INSTALLMENTS',
       buyer_name VARCHAR(150),
       buyer_phone VARCHAR(50),
       total_paid NUMERIC DEFAULT 0,
       total_remaining NUMERIC DEFAULT 0,
+      images JSONB DEFAULT '[]',
       notes TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
   await query(`
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS branch_id VARCHAR(50) DEFAULT 'BR-RE-05';
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS unit_code VARCHAR(50);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS title VARCHAR(255);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS unit_name VARCHAR(255);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS property_type VARCHAR(100) DEFAULT 'شقة سكنية';
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS unit_type VARCHAR(100) DEFAULT 'شقة سكنية';
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS area_sqm NUMERIC DEFAULT 0;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS area NUMERIC DEFAULT 0;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS price NUMERIC DEFAULT 0;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS base_price NUMERIC DEFAULT 0;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT 'النجف الأشرف';
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS location VARCHAR(255);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'AVAILABLE';
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS buyer_name VARCHAR(150);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS buyer_phone VARCHAR(50);
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS total_paid NUMERIC DEFAULT 0;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS total_remaining NUMERIC DEFAULT 0;
+    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]';
+    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS sale_type VARCHAR(50) DEFAULT 'INSTALLMENTS';
     ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS notes TEXT;
-    ALTER TABLE real_estate_units ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-  `);
-
-  await query(`
-    DO $$ 
-    BEGIN 
-      BEGIN
-        ALTER TABLE real_estate_units ALTER COLUMN unit_type DROP NOT NULL;
-      EXCEPTION WHEN OTHERS THEN NULL;
-      END;
-      BEGIN
-        ALTER TABLE real_estate_units ALTER COLUMN base_price DROP NOT NULL;
-      EXCEPTION WHEN OTHERS THEN NULL;
-      END;
-      BEGIN
-        ALTER TABLE real_estate_units ALTER COLUMN unit_name DROP NOT NULL;
-      EXCEPTION WHEN OTHERS THEN NULL;
-      END;
-      BEGIN
-        ALTER TABLE real_estate_units ALTER COLUMN area DROP NOT NULL;
-      EXCEPTION WHEN OTHERS THEN NULL;
-      END;
-    END $$;
-  `);
+  `).catch(() => {});
 
   await query(`
     CREATE TABLE IF NOT EXISTS real_estate_installments (
@@ -128,9 +89,14 @@ async function initRealEstateTables() {
       due_date DATE,
       is_paid BOOLEAN DEFAULT FALSE,
       paid_at TIMESTAMP,
+      voucher_number VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  await query(`
+    ALTER TABLE real_estate_installments ADD COLUMN IF NOT EXISTS voucher_number VARCHAR(100);
+  `).catch(() => {});
 }
 
 export async function GET(req: Request) {
@@ -169,10 +135,24 @@ export async function GET(req: Request) {
       const uInst = installments.filter((i: any) => String(i.unit_id) === String(u.unit_id));
       const totalPaid = uInst.filter((i: any) => i.is_paid).reduce((acc: number, curr: any) => acc + Number(curr.amount || 0), 0);
       const totalRemaining = uInst.filter((i: any) => !i.is_paid).reduce((acc: number, curr: any) => acc + Number(curr.amount || 0), 0);
-      const mappedBranchName = u.branch_name || BRANCH_NAMES_MAP[u.branch_id] || 'فرع الشركة';
+      const mappedBranchName = u.branch_name || BRANCH_NAMES_MAP[u.branch_id] || 'فرع الاستثمارات العقارية';
+
+      let parsedImages: string[] = [];
+      try {
+        if (Array.isArray(u.images)) {
+          parsedImages = u.images;
+        } else if (typeof u.images === 'string' && u.images.startsWith('[')) {
+          parsedImages = JSON.parse(u.images);
+        } else if (typeof u.images === 'string' && u.images.trim()) {
+          parsedImages = [u.images.trim()];
+        }
+      } catch {
+        parsedImages = [];
+      }
 
       return {
         ...u,
+        images: parsedImages,
         branch_name: mappedBranchName,
         title: u.title || u.unit_name || 'وحدة عقارية',
         property_type: u.property_type || u.unit_type || 'شقة سكنية',
@@ -196,20 +176,21 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action } = body;
 
-    // 1. إضافة وحدة عقارية جديدة
+    // 1. إضافة وحدة أو عقار جديد مع الصور
     if (action === 'ADD_UNIT') {
-      const { unit_id, id, branch_id, unit_code, title, property_type, area_sqm, price, city, location, notes } = body;
+      const { unit_id, id, branch_id, unit_code, title, property_type, area_sqm, price, city, location, notes, images } = body;
       const finalUnitId = String(unit_id || id || `UNT-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
       
       const finalBranchId = branch_id && String(branch_id).trim() !== '' && String(branch_id).trim() !== 'ALL'
         ? String(branch_id).trim()
-        : null;
+        : 'BR-RE-05';
 
       const code = String(unit_code || `UNIT-${Date.now().toString().slice(-4)}`).trim().toUpperCase();
-      const selectedType = property_type || 'شقة سكنية';
+      const selectedType = property_type || 'شقة سكنية فاخرة';
       const numPrice = Number(price) || 0;
       const numArea = Number(area_sqm) || 0;
       const unitTitle = title || 'وحدة جديدة';
+      const imagesArr = Array.isArray(images) ? images : [];
 
       const res = await query(`
         INSERT INTO real_estate_units (
@@ -227,11 +208,12 @@ export async function POST(req: Request) {
           city, 
           location, 
           notes, 
+          images,
           status,
           total_paid,
           total_remaining
         )
-        VALUES ($1, $2, $3, $4, $4, $5, $5, $6, $6, $7, $7, $8, $9, $10, 'AVAILABLE', 0, $7)
+        VALUES ($1, $2, $3, $4, $4, $5, $5, $6, $6, $7, $7, $8, $9, $10, $11, 'AVAILABLE', 0, $7)
         RETURNING *
       `, [
         finalUnitId,
@@ -242,64 +224,79 @@ export async function POST(req: Request) {
         numArea,
         numPrice,
         city || 'النجف الأشرف',
-        location || 'شارع الكوفة',
-        notes || ''
+        location || 'حي الفرات',
+        notes || '',
+        JSON.stringify(imagesArr)
       ]);
 
       const bRes = finalBranchId ? await query(`SELECT name_ar FROM branches WHERE branch_id::text = $1`, [finalBranchId]) : { rows: [] };
-      const bName = bRes.rows[0]?.name_ar || 'فرع الشركة';
+      const bName = bRes.rows[0]?.name_ar || 'فرع الاستثمارات العقارية';
 
       await logNotification(
         'REAL_ESTATE',
         'ADD',
-        `إدراج وحدة عقارية: ${unitTitle} (${bName})`,
-        `تم إضافة وحدة عقارية (${unitTitle} - ${selectedType}) في (${bName}) برمز (${code}) بمساحة ${numArea} م² وسعر ${numPrice.toLocaleString('en-US')} د.ع`,
+        `إدراج عقار جديد: ${unitTitle} (${bName})`,
+        `تم تسجيل عقار (${unitTitle} - ${selectedType}) في (${bName}) برمز (${code}) بمساحة ${numArea} م² بقيمة ${numPrice.toLocaleString('en-US')} د.ع`,
         '/real-estate'
       );
 
       return NextResponse.json({ success: true, unit: { ...res.rows[0], branch_name: bName } });
     }
 
-    // 2. حجز أو بيع وحدة وتقسيم الأقساط
+    // 2. بيع العقار (نقداً مباشر أو بالتقسيط المجدول)
     if (action === 'SELL_UNIT') {
-      const { unit_id, buyer_name, buyer_phone, down_payment, installments_count, total_price } = body;
+      const { unit_id, sale_type, buyer_name, buyer_phone, down_payment, installments_count, first_due_date, total_price } = body;
 
-      const downPay = Number(down_payment) || 0;
+      const isCash = sale_type === 'CASH';
       const tPrice = Number(total_price) || 0;
-      const remainingPrice = Math.max(0, tPrice - downPay);
-      const count = Math.max(1, Number(installments_count) || 1);
-      const instAmount = Math.round(remainingPrice / count);
+      const downPay = isCash ? tPrice : (Number(down_payment) || 0);
+      const remainingPrice = isCash ? 0 : Math.max(0, tPrice - downPay);
+      const count = isCash ? 0 : Math.max(1, Number(installments_count) || 1);
+      const instAmount = count > 0 ? Math.round(remainingPrice / count) : 0;
 
       await query(`
         UPDATE real_estate_units
         SET status = 'SOLD',
-            buyer_name = $1,
-            buyer_phone = $2,
-            total_paid = $3,
-            total_remaining = $4
-        WHERE unit_id::text = $5::text
-      `, [buyer_name, buyer_phone, downPay, remainingPrice, String(unit_id)]);
+            sale_type = $1,
+            buyer_name = $2,
+            buyer_phone = $3,
+            total_paid = $4,
+            total_remaining = $5
+        WHERE unit_id::text = $6::text
+      `, [sale_type || 'INSTALLMENTS', buyer_name, buyer_phone, downPay, remainingPrice, String(unit_id)]);
 
       const unitInfo = await query(`SELECT title, unit_name, unit_code, branch_id FROM real_estate_units WHERE unit_id::text = $1::text`, [String(unit_id)]);
-      const uName = unitInfo.rows[0]?.title || unitInfo.rows[0]?.unit_name || unitInfo.rows[0]?.unit_code || 'وحدة عقارية';
-      const uBranchId = unitInfo.rows[0]?.branch_id || null;
+      const uName = unitInfo.rows[0]?.title || unitInfo.rows[0]?.unit_name || unitInfo.rows[0]?.unit_code || 'عقار استثماري';
+      const uBranchId = unitInfo.rows[0]?.branch_id || 'BR-RE-05';
+
+      // إلغاء أي سندات سابقة قبل إعادة الجدولة
+      await query(`
+        UPDATE vouchers
+        SET status = 'CANCELLED'
+        WHERE status NOT IN ('CANCELLED', 'VOID')
+          AND notes ILIKE '%"unit_id":"' || $1 || '"%'
+      `, [String(unit_id)]).catch(() => {});
 
       await query(`DELETE FROM real_estate_installments WHERE unit_id::text = $1::text`, [String(unit_id)]);
 
       if (downPay > 0) {
         const firstInstId = `INST-DP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const titleStr = isCash ? 'سداد قيمة العقار كاملاً (بيع مباشر نقداً)' : 'الدفعة الأولى (المقدمة)';
+        const vNum = `V-EST-${Date.now().toString().slice(-5)}`;
+
         await query(`
-          INSERT INTO real_estate_installments (installment_id, unit_id, installment_title, amount, due_date, is_paid, paid_at)
-          VALUES ($1, $2, 'الدفعة الأولى (المقدمة)', $3, CURRENT_DATE, TRUE, CURRENT_TIMESTAMP)
-        `, [firstInstId, String(unit_id), downPay]);
+          INSERT INTO real_estate_installments (installment_id, unit_id, installment_title, amount, due_date, is_paid, paid_at, voucher_number)
+          VALUES ($1, $2, $3, $4, CURRENT_DATE, TRUE, CURRENT_TIMESTAMP, $5)
+        `, [firstInstId, String(unit_id), titleStr, downPay, vNum]);
 
         try {
           const vId = `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-          const vNum = `V-EST-${Date.now().toString().slice(-5)}`;
           const voucherNotes = JSON.stringify({
             sector: 'REAL_ESTATE',
+            unit_id: String(unit_id),
+            installment_id: firstInstId,
             partyAr: buyer_name,
-            forReasonAr: `دفعة مقدمة لشراء وحدة عقارية (${uName})`,
+            forReasonAr: isCash ? `سداد قيمة شراء عقار بالكامل (${uName})` : `دفعة مقدمة لشراء وحدة عقارية (${uName})`,
             method: 'CASH'
           });
 
@@ -312,42 +309,48 @@ export async function POST(req: Request) {
         }
       }
 
-      const baseDate = new Date();
-      for (let i = 1; i <= count; i++) {
-        const instId = `INST-${Date.now()}-${i}-${Math.floor(Math.random() * 1000)}`;
-        const dueDate = new Date(baseDate);
-        dueDate.setMonth(dueDate.getMonth() + i);
-        const dueDateStr = dueDate.toISOString().substring(0, 10);
+      if (!isCash && count > 0) {
+        const baseDate = first_due_date ? new Date(first_due_date) : new Date();
+        for (let i = 1; i <= count; i++) {
+          const instId = `INST-${Date.now()}-${i}-${Math.floor(Math.random() * 1000)}`;
+          const dueDate = new Date(baseDate);
+          dueDate.setMonth(dueDate.getMonth() + (i - 1));
+          const dueDateStr = dueDate.toISOString().substring(0, 10);
 
-        await query(`
-          INSERT INTO real_estate_installments (installment_id, unit_id, installment_title, amount, due_date, is_paid)
-          VALUES ($1, $2, $3, $4::date, FALSE)
-        `, [instId, String(unit_id), `القسط الشهري رقم (${i})`, instAmount, dueDateStr]);
+          await query(`
+            INSERT INTO real_estate_installments (installment_id, unit_id, installment_title, amount, due_date, is_paid)
+            VALUES ($1, $2, $3, $4::date, FALSE)
+          `, [instId, String(unit_id), `القسط الشهري رقم (${i})`, instAmount, dueDateStr]);
+        }
       }
 
       await logNotification(
         'REAL_ESTATE',
         'UPDATE',
-        `تثبيت بيع وحدة: ${uName}`,
-        `تم تثبيت بيع (${uName}) للمشتري (${buyer_name}) بمبلغ إجمالي ${tPrice.toLocaleString('en-US')} د.ع (مقدمة: ${downPay.toLocaleString('en-US')} د.ع مقسطة على ${count} أشهر)`,
+        `تثبيت بيع عقار: ${uName}`,
+        isCash 
+          ? `تم بيع (${uName}) للمشتري (${buyer_name}) نقداً بمبلغ كامل ${tPrice.toLocaleString('en-US')} د.ع` 
+          : `تم بيع (${uName}) للمشتري (${buyer_name}) بأقساط مجدولة (${count} قسط) بقيمة ${tPrice.toLocaleString('en-US')} د.ع (مقدمة: ${downPay.toLocaleString('en-US')} د.ع)`,
         '/real-estate'
       );
 
-      return NextResponse.json({ success: true, message: 'تم تثبيت البيع وجدولة الأقساط بنجاح' });
+      return NextResponse.json({ success: true, message: 'تم تثبيت البيع بنجاح' });
     }
 
     // 3. تسديد قسط شهري
     if (action === 'PAY_INSTALLMENT') {
       const { installment_id, unit_id, amount, buyer_name, installment_title } = body;
+      const vNum = `V-INST-${Date.now().toString().slice(-5)}`;
 
       await query(`
         UPDATE real_estate_installments
         SET is_paid = TRUE,
-            paid_at = CURRENT_TIMESTAMP
-        WHERE installment_id::text = $1::text
-      `, [String(installment_id)]);
+            paid_at = CURRENT_TIMESTAMP,
+            voucher_number = $1
+        WHERE installment_id::text = $2::text
+      `, [vNum, String(installment_id)]);
 
-      let uBranchId = null;
+      let uBranchId = 'BR-RE-05';
       if (unit_id) {
         await query(`
           UPDATE real_estate_units
@@ -364,9 +367,10 @@ export async function POST(req: Request) {
 
       try {
         const vId = `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        const vNum = `V-INST-${Date.now().toString().slice(-5)}`;
         const voucherNotes = JSON.stringify({
           sector: 'REAL_ESTATE',
+          unit_id: unit_id ? String(unit_id) : undefined,
+          installment_id: String(installment_id),
           partyAr: buyer_name || 'مشتري الوحدة العقارية',
           forReasonAr: `سداد ${installment_title || 'قسط عقاري'}`,
           method: 'CASH'
@@ -384,11 +388,11 @@ export async function POST(req: Request) {
         'REAL_ESTATE',
         'UPDATE',
         `تسديد قسط عقاري: ${installment_title || 'قسط'}`,
-        `تم تحصيل وتسديد (${installment_title || 'قسط عقاري'}) بمبلغ ${Number(amount || 0).toLocaleString('en-US')} د.ع من (${buyer_name || 'المشتري'}) وتوليد وصل قبض في الصندوق`,
+        `تم تحصيل وتسديد (${installment_title || 'قسط عقاري'}) بمبلغ ${Number(amount || 0).toLocaleString('en-US')} د.ع من (${buyer_name || 'المشتري'}) برقم سند (${vNum})`,
         '/real-estate'
       );
 
-      return NextResponse.json({ success: true, message: 'تم تسديد القسط بنجاح' });
+      return NextResponse.json({ success: true, voucher_number: vNum, message: 'تم تسديد القسط بنجاح' });
     }
 
     return NextResponse.json({ error: 'إجراء غير معروف' }, { status: 400 });
@@ -408,7 +412,15 @@ export async function DELETE(req: Request) {
     }
 
     const unitInfo = await query(`SELECT title, unit_name, unit_code FROM real_estate_units WHERE unit_id::text = $1::text`, [String(unitId)]);
-    const uName = unitInfo.rows[0]?.title || unitInfo.rows[0]?.unit_name || unitInfo.rows[0]?.unit_code || 'وحدة عقارية';
+    const uName = unitInfo.rows[0]?.title || unitInfo.rows[0]?.unit_name || unitInfo.rows[0]?.unit_code || 'عقار استثماري';
+
+    // إلغاء كافة السندات المقترنة بهذا العقار تلقائياً
+    await query(`
+      UPDATE vouchers
+      SET status = 'CANCELLED'
+      WHERE status NOT IN ('CANCELLED', 'VOID')
+        AND notes ILIKE '%"unit_id":"' || $1 || '"%'
+    `, [String(unitId)]).catch(() => {});
 
     await query(`DELETE FROM real_estate_installments WHERE unit_id::text = $1::text`, [String(unitId)]);
     await query(`DELETE FROM real_estate_units WHERE unit_id::text = $1::text`, [String(unitId)]);
@@ -416,8 +428,8 @@ export async function DELETE(req: Request) {
     await logNotification(
       'REAL_ESTATE',
       'DELETE',
-      `حذف وحدة عقارية: ${uName}`,
-      `تم حذف الوحدة العقارية (${uName}) وكافة جداول أقساطها من سجلات الاستثمار العقاري`,
+      `حذف عقار استثماري: ${uName}`,
+      `تم حذف العقار (${uName}) وكافة جداول أقساطه وإلغاء كافة سندات القبض المالية التابعة له تلقائياً`,
       '/real-estate'
     );
 

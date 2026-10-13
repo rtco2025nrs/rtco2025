@@ -803,9 +803,9 @@ export default function VouchersPage() {
 
   return (
     <AuthGuard moduleName="vouchers" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-[#070b14] text-slate-100 p-3 md:p-6 font-cairo text-[14px]">
+      <div dir="rtl" className="min-h-screen bg-[#070b14] print:bg-white print:min-h-0 text-slate-100 print:text-black p-3 md:p-6 print:p-0 font-cairo text-[14px]">
         
-        {/* تنسيقات الطباعة الصارمة لعزل كامل الصفحة وإظهار كرت السند المطبوع فقط في صفحة واحدة نظيفة بحجم دفتري متناسق وخلفية بيضاء نقية */}
+        {/* عزل الطباعة بالكامل وإجبار الصفحة على أن تكون بيضاء نقية 100% بدون أي مساحة سوداء */}
         <style jsx global>{`
           @media screen and (max-width: 768px) {
             .preview-scroll-container {
@@ -821,7 +821,7 @@ export default function VouchersPage() {
           @media print {
             @page {
               size: A4 portrait !important;
-              margin: 10mm auto !important;
+              margin: 6mm auto !important;
             }
             * {
               -webkit-print-color-adjust: exact !important;
@@ -837,9 +837,22 @@ export default function VouchersPage() {
               margin: 0 !important;
               padding: 0 !important;
             }
-            /* إخفاء الواجهة الرئيسية وجميع خلفيات النمط المظلم */
+            /* إزالة أي خلفيات داكنة وتصفير الحاويات تماماً */
+            div[class*="min-h-screen"],
             .main-content-vouchers-page,
-            header, nav, aside, .print-hidden-element,
+            .voucher-modal-overlay,
+            .preview-scroll-container {
+              background: #ffffff !important;
+              background-color: #ffffff !important;
+              min-height: 100% !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              box-shadow: none !important;
+            }
+            /* إخفاء الواجهة ومكونات الموقع أثناء الطباعة */
+            .main-content-vouchers-page,
+            header, nav, aside, footer,
+            .print-hidden-element,
             div[class*="backdrop-blur"],
             .voucher-modal-overlay > div:first-child {
               display: none !important;
@@ -853,6 +866,7 @@ export default function VouchersPage() {
               margin: 0 !important;
               width: 100% !important;
               height: auto !important;
+              min-height: 100% !important;
               overflow: visible !important;
               display: block !important;
             }
@@ -862,6 +876,8 @@ export default function VouchersPage() {
               padding: 0 !important;
               margin: 0 !important;
               width: 100% !important;
+              height: 100% !important;
+              display: block !important;
             }
             #printable-voucher-card {
               box-sizing: border-box !important;
@@ -875,7 +891,7 @@ export default function VouchersPage() {
               min-height: 0 !important;
               max-height: none !important;
               padding: 0 !important;
-              overflow: visible !important;
+              overflow: hidden !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
               page-break-after: avoid !important;
@@ -889,7 +905,7 @@ export default function VouchersPage() {
           }
         `}</style>
 
-        {/* 1. قسم إدارة السندات (يتم إخفاؤه تماماً أثناء الطباعة) */}
+        {/* 1. قسم إدارة السندات */}
         <div className="main-content-vouchers-page space-y-5 print:hidden">
           
           {/* الترويسة الرئيسية */}
@@ -1774,11 +1790,11 @@ export default function VouchersPage() {
                 </button>
               </div>
 
-              {/* بطاقة السند الرسمية المجهزة بمقاس السند الطبيعي وخلفية بيضاء بالكامل دون أي قص للتذييل */}
+              {/* بطاقة السند الرسمية المجهزة بمقاس السند الطبيعي وخلفية بيضاء بالكامل دون أي قص للتذييل وبشكل محكم */}
               <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none flex justify-center">
                 <div 
                   id="printable-voucher-card"
-                  className="bg-white text-slate-950 w-full max-w-[200mm] rounded-xl shadow-2xl print:shadow-none p-0 border-2 border-slate-300 relative overflow-visible font-sans flex flex-col justify-start"
+                  className="bg-white text-slate-950 w-full max-w-[200mm] rounded-xl shadow-2xl print:shadow-none p-0 border-2 border-slate-300 relative overflow-hidden font-sans flex flex-col justify-start"
                 >
                   {/* العلامة المائية للشركة */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
@@ -1909,41 +1925,43 @@ export default function VouchersPage() {
                       </div>
                     </div>
 
-                    {/* 4. بيانات السند المنظمة هندسياً ومريحة للعين بخط 14 */}
+                    {/* 4. بيانات السند المنظمة هندسياً ومحكمة بدون أي خروج خارج الورقة */}
                     <div className="px-6 sm:px-8 py-2.5 space-y-2.5 text-slate-900 text-[13px] sm:text-[14px]">
                       
-                      {/* السطر الأول: الطرف / المستفيد */}
-                      <div className="flex items-center">
-                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px]">
+                      {/* السطر الأول: الطرف / المستفيد - محكم ومنظم عمودياً كباقي الأسطر لمنع خروجه */}
+                      <div className="flex items-start">
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5 shrink-0 whitespace-nowrap">
                           {isReceipt ? 'استلمت من السيد / السادة:' : 'سلمت إلى السيد / السادة:'}
                         </span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex justify-between items-center px-2 gap-2">
-                          <span className="font-black text-slate-950 text-[14px] sm:text-[15px] flex-1 truncate">{details.partyAr}</span>
-                          <span className="font-serif font-bold text-slate-700 text-xs text-left truncate" dir="ltr">{details.partyEn}</span>
+                        <div className="flex-1 min-w-0 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
+                          <span className="font-black text-slate-950 text-[14px] sm:text-[15px] leading-relaxed truncate">{details.partyAr}</span>
+                          {details.partyEn && details.partyEn !== '—' && (
+                            <span className="font-serif font-bold text-slate-700 text-xs text-left leading-relaxed mt-0.5 truncate" dir="ltr">{details.partyEn}</span>
+                          )}
                         </div>
-                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left" dir="ltr">
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5 shrink-0 whitespace-nowrap" dir="ltr">
                           {isReceipt ? 'Received From:' : 'Delivered To:'}
                         </span>
                       </div>
 
                       {/* السطر الثاني: المبلغ كتابةً وتفقيطاً */}
                       <div className="flex items-start">
-                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5">مبلغ وقدره (كتابةً):</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5 shrink-0 whitespace-nowrap">مبلغ وقدره (كتابةً):</span>
+                        <div className="flex-1 min-w-0 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
                           <span className="font-black text-slate-950 text-[13px] sm:text-[14px] leading-relaxed">{arabicWords}</span>
                           <span className="font-serif text-slate-700 text-[11px] text-left leading-relaxed mt-0.5 font-bold" dir="ltr">{englishWords}</span>
                         </div>
-                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5" dir="ltr">Amount of:</span>
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5 shrink-0 whitespace-nowrap" dir="ltr">Amount of:</span>
                       </div>
 
                       {/* السطر الثالث: البيان وسبب الصرف */}
                       <div className="flex items-start">
-                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5">وذلك عن (البيان):</span>
-                        <div className="flex-1 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
+                        <span className="min-w-[140px] text-slate-950 font-black text-[13px] sm:text-[14px] pt-0.5 shrink-0 whitespace-nowrap">وذلك عن (البيان):</span>
+                        <div className="flex-1 min-w-0 border-b-2 border-dotted border-slate-400 mx-2 flex flex-col px-2 pb-0.5">
                           <span className="font-black text-slate-950 text-[13px] sm:text-[14px] leading-relaxed">{details.forReasonAr}</span>
                           <span className="font-serif text-slate-700 text-[11px] text-left leading-relaxed mt-0.5 font-bold" dir="ltr">{details.forReasonEn}</span>
                         </div>
-                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5" dir="ltr">For Purpose:</span>
+                        <span className="font-serif text-slate-600 text-xs min-w-[105px] text-left pt-0.5 shrink-0 whitespace-nowrap" dir="ltr">For Purpose:</span>
                       </div>
 
                       {/* السطر الرابع: طريقة الدفع والشيك */}

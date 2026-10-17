@@ -36,6 +36,59 @@ import {
 } from 'lucide-react';
 import { useBranch } from '@/context/BranchContext';
 
+// دالة ذكية لتحديد اسم منفذ الإجراء الحقيقي واستبعاد كلمة system نهائياً
+function resolveNotifUser(n: any, currentU: any): string {
+  const isSystemOrEmpty = (val: any) => {
+    if (!val || typeof val !== 'string') return true;
+    const v = val.trim().toLowerCase();
+    return v === '' || v === 'system' || v === 'null' || v === 'undefined';
+  };
+
+  const candidates = [
+    n.created_by_user,
+    n.user_full_name,
+    n.full_name,
+    n.user_name,
+    n.author,
+    n.executed_by,
+    n.action_by,
+    n.created_by,
+    n.username,
+    n.sender
+  ];
+
+  for (const c of candidates) {
+    if (!isSystemOrEmpty(c)) {
+      return String(c).trim();
+    }
+  }
+
+  const msg = String(n.message || '');
+  const patterns = [
+    /(?:بواسطة|من قبل|المستخدم|المنفذ|الموظف)[:\s]+(?:\()?([^\)\n,،]+)(?:\))?/i,
+    /\(([^)]+)\)\s*$/
+  ];
+
+  for (const pat of patterns) {
+    const match = msg.match(pat);
+    if (match && match[1]) {
+      const extracted = match[1].trim();
+      if (!isSystemOrEmpty(extracted) && extracted !== 'إدارة' && extracted.length > 1) {
+        return extracted;
+      }
+    }
+  }
+
+  if (currentU) {
+    const fallback = currentU.full_name || currentU.name || currentU.username;
+    if (!isSystemOrEmpty(fallback)) {
+      return String(fallback).trim();
+    }
+  }
+
+  return 'الإدارة المركزية';
+}
+
 export default function TopNavbarClient() {
   const router = useRouter();
   const pathname = usePathname();
@@ -217,7 +270,8 @@ export default function TopNavbarClient() {
     window.location.href = '/login';
   };
 
-  if (pathname === '/login') {
+  // حجب وإخفاء الشريط العلوي بالكامل في صفحة التحقق وفي صفحة تسجيل الدخول
+  if (pathname === '/login' || pathname?.startsWith('/verify')) {
     return null;
   }
 
@@ -519,8 +573,7 @@ export default function TopNavbarClient() {
                       const meta = getSectorMeta(n.sector);
                       const formattedTime = n.created_at ? String(n.created_at).replace('T', ' ').slice(0, 16) : '';
                       
-                      // اعتماد اسم المستخدم الحقيقي من حقول الإشعار أو من جلسة المستخدم الحالي
-                      const userAuthor = n.created_by_user || n.created_by || n.user_name || n.username || n.sender || currentUser?.full_name || currentUser?.username || 'الإدارة المركزية';
+                      const userAuthor = resolveNotifUser(n, currentUser);
 
                       return (
                         <div
@@ -688,8 +741,7 @@ export default function TopNavbarClient() {
                 const isUnread = !n.is_read;
                 const meta = getSectorMeta(n.sector);
                 
-                // اعتماد اسم المستخدم الحقيقي في شاشات الموبايل أيضاً
-                const userAuthor = n.created_by_user || n.created_by || n.user_name || n.username || n.sender || currentUser?.full_name || currentUser?.username || 'الإدارة المركزية';
+                const userAuthor = resolveNotifUser(n, currentUser);
 
                 return (
                   <div
@@ -751,7 +803,7 @@ export default function TopNavbarClient() {
         </div>
       )}
 
-      {/* قائمة الموبايل المنسدلة النظيفة الخالية من أزرار الباك أب وقفل الشهر المكررة */}
+      {/* قائمة الموبايل المنسدلة */}
       {showMobileMenu && (
         <div className="xl:hidden mt-2 bg-[#0c1220] border border-slate-700 rounded-2xl p-4 shadow-2xl text-right space-y-4 animate-in fade-in slide-in-from-top-2 max-h-[85vh] overflow-y-auto">
           
@@ -842,7 +894,7 @@ export default function TopNavbarClient() {
             </div>
           </div>
 
-          {/* أدوات الإدارة العليا للموبايل (مخصصة ومنظمة) */}
+          {/* أدوات الإدارة العليا للموبايل */}
           {isSuperAdmin && (
             <div className="pt-3 border-t border-slate-800 space-y-2">
               <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">

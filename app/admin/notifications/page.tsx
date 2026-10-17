@@ -31,6 +31,59 @@ import {
 } from 'lucide-react';
 import AuthGuard from '@/components/AuthGuard';
 
+// دالة ذكية لتحديد اسم منفذ الإجراء الحقيقي واستبعاد كلمة system نهائياً
+function resolveUserAuthor(n: any, fallbackUser: string | null): string {
+  const isSystemOrEmpty = (val: any) => {
+    if (!val || typeof val !== 'string') return true;
+    const v = val.trim().toLowerCase();
+    return v === '' || v === 'system' || v === 'null' || v === 'undefined';
+  };
+
+  // 1. فحص حقول الإشعار المباشرة وترتيب الأولوية مع استبعاد system
+  const candidates = [
+    n.created_by_user,
+    n.user_full_name,
+    n.full_name,
+    n.user_name,
+    n.author,
+    n.executed_by,
+    n.action_by,
+    n.created_by,
+    n.username,
+    n.sender
+  ];
+
+  for (const c of candidates) {
+    if (!isSystemOrEmpty(c)) {
+      return String(c).trim();
+    }
+  }
+
+  // 2. محاولة استخراج اسم المنفذ من نص الرسالة إذا كان مضمناً بها
+  const msg = String(n.message || '');
+  const patterns = [
+    /(?:بواسطة|من قبل|المستخدم|المنفذ|الموظف|التوقيع)[:\s]+(?:\()?([^\)\n,،]+)(?:\))?/i,
+    /\(([^)]+)\)\s*$/
+  ];
+
+  for (const pat of patterns) {
+    const match = msg.match(pat);
+    if (match && match[1]) {
+      const extracted = match[1].trim();
+      if (!isSystemOrEmpty(extracted) && extracted !== 'إدارة' && extracted.length > 1) {
+        return extracted;
+      }
+    }
+  }
+
+  // 3. الاعتماد على اسم مستخدم الجلسة الحالي النشط
+  if (fallbackUser && !isSystemOrEmpty(fallbackUser)) {
+    return fallbackUser.trim();
+  }
+
+  return 'الإدارة المركزية';
+}
+
 export default function NotificationsPage() {
   const router = useRouter();
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -200,21 +253,33 @@ export default function NotificationsPage() {
     } catch {}
   };
 
+  // قراءة المستخدم الحالي من الجلسة
+  const currentSessionUser = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const parsed = JSON.parse(localStorage.getItem('erp_user') || '{}');
+      return parsed?.full_name || parsed?.name || parsed?.username || null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const filteredNotifications = useMemo(() => {
     return notifications.filter(n => {
       const q = searchQuery.toLowerCase().trim();
+      const author = resolveUserAuthor(n, currentSessionUser).toLowerCase();
       const matchSearch = !q || 
         String(n.title || '').toLowerCase().includes(q) || 
         String(n.message || '').toLowerCase().includes(q) ||
         String(n.sector || '').toLowerCase().includes(q) ||
-        String(n.created_by || n.user_name || n.username || n.sender || n.author || '').toLowerCase().includes(q);
+        author.includes(q);
 
       const matchSector = sectorFilter === 'ALL' || String(n.sector).toUpperCase() === sectorFilter;
       const matchStatus = statusFilter === 'ALL' || (statusFilter === 'UNREAD' ? !n.is_read : n.is_read);
 
       return matchSearch && matchSector && matchStatus;
     });
-  }, [notifications, searchQuery, sectorFilter, statusFilter]);
+  }, [notifications, searchQuery, sectorFilter, statusFilter, currentSessionUser]);
 
   const unreadCount = useMemo(() => {
     return notifications.filter(n => !n.is_read).length;
@@ -346,17 +411,8 @@ export default function NotificationsPage() {
               const nId = n.notification_id || n.id;
               const meta = getSectorMeta(n.sector);
               
-              // قراءة اسم المستخدم من الإشعار أو من جلسة المستخدم الحالي المسجل دخوله
-              const currentSessionUser = typeof window !== 'undefined' ? (() => {
-                try {
-                  const parsed = JSON.parse(localStorage.getItem('erp_user') || '{}');
-                  return parsed?.full_name || parsed?.name || parsed?.username;
-                } catch {
-                  return null;
-                }
-              })() : null;
-
-              const userAuthor = n.created_by || n.user_name || n.username || n.sender || n.author || n.executed_by || currentSessionUser || 'الإدارة المركزية';
+              // تحديد اسم منفذ الإجراء الحقيقي
+              const userAuthor = resolveUserAuthor(n, currentSessionUser);
               const formattedTime = n.created_at ? String(n.created_at).replace('T', ' ').slice(0, 16) : 'الآن';
 
               return (

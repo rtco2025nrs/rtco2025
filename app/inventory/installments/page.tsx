@@ -126,6 +126,56 @@ async function syncInstallmentToCloud(plan: any) {
   }
 }
 
+// دالة ترحيل سند القبض تلقائياً إلى السندات والصناديق
+async function postInstallmentVoucher(branchId: string, voucherNumber: string, amount: number, customerName: string, purpose: string, planId: string, installmentNo?: number) {
+  try {
+    const notes = JSON.stringify({
+      sector: 'INVENTORY',
+      plan_id: planId,
+      installment_no: installmentNo || undefined,
+      partyAr: customerName,
+      forReasonAr: purpose,
+      method: 'CASH'
+    });
+
+    const res = await fetch('/api/vouchers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        branch_id: branchId || 'TRD-01',
+        voucher_number: voucherNumber,
+        voucher_type: 'RECEIPT',
+        amount: amount,
+        currency: 'IQD',
+        notes
+      })
+    });
+    const data = await res.json();
+    return data?.voucher_id || null;
+  } catch (err) {
+    console.error('Failed to register auto voucher:', err);
+    return null;
+  }
+}
+
+// دالة إلغاء السند المالي تلقائياً
+async function cancelVoucherRecord(params: { voucher_id?: string; voucher_number?: string; plan_id?: string; cancel_reason?: string }) {
+  try {
+    await fetch('/api/vouchers', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        voucher_id: params.voucher_id || undefined,
+        voucher_number: params.voucher_number || undefined,
+        plan_id: params.plan_id || undefined,
+        cancel_reason: params.cancel_reason || 'إلغاء قيد القسط واسترجاعه'
+      })
+    });
+  } catch (err) {
+    console.error('Failed to cancel voucher:', err);
+  }
+}
+
 export default function InstallmentsPage() {
   const { selectedBranchId, branches } = useBranch();
   const [currentUser, setCurrentUser] = useState<any | null>(null);
@@ -174,7 +224,6 @@ export default function InstallmentsPage() {
   const [receiptVoucherForPrint, setReceiptVoucherForPrint] = useState<any | null>(null);
   const [expandedClients, setExpandedClients] = useState<Record<string, boolean>>({});
 
-  // فحص تقييد الموظف بفرع محدد
   const isRestrictedBranch = useMemo(() => {
     return Boolean(
       currentUser && 
@@ -186,7 +235,6 @@ export default function InstallmentsPage() {
     );
   }, [currentUser]);
 
-  // دالة مطابقة اسم الفرع المعتمد رسمياً بدقة تامة
   const resolveBranchName = (bId?: string): string => {
     if (!bId || bId === 'ALL') {
       return 'المقر الرئيسي (النجف الأشرف)';
@@ -305,19 +353,6 @@ export default function InstallmentsPage() {
       try {
         const u = JSON.parse(raw);
         setCurrentUser(u);
-
-        if (u.user_id && u.session_token) {
-          fetch(`/api/auth?action=VERIFY_SESSION&user_id=${encodeURIComponent(u.user_id)}&session_token=${encodeURIComponent(u.session_token)}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data && data.valid === false) {
-                localStorage.removeItem('erp_user');
-                alert('تنبيه أمني: تم فتح هذا الحساب من جهاز آخر، سيتم تحويلك لصفحة تسجيل الدخول.');
-                window.location.href = '/login';
-              }
-            })
-            .catch(() => {});
-        }
       } catch {}
     }
   }, []);
@@ -326,17 +361,9 @@ export default function InstallmentsPage() {
     return Boolean(currentUser?.is_super_admin || currentUser?.role === 'ADMIN');
   }, [currentUser]);
 
-  const canAdd = useMemo(() => {
-    return Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'add'));
-  }, [currentUser, isSuperAdmin]);
-
-  const canEdit = useMemo(() => {
-    return Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'edit'));
-  }, [currentUser, isSuperAdmin]);
-
-  const canDelete = useMemo(() => {
-    return Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'delete'));
-  }, [currentUser, isSuperAdmin]);
+  const canAdd = useMemo(() => Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'add')), [currentUser, isSuperAdmin]);
+  const canEdit = useMemo(() => Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'edit')), [currentUser, isSuperAdmin]);
+  const canDelete = useMemo(() => Boolean(isSuperAdmin || hasPermission(currentUser, 'installments', 'delete')), [currentUser, isSuperAdmin]);
 
   const handleAddItemLine = () => {
     setItemLines([...itemLines, { itemName: '', qty: 1, unit: 'قطعة', price: 0, total: 0 }]);
@@ -380,7 +407,6 @@ export default function InstallmentsPage() {
     };
   }, [itemLines, profitRate, downPayment, monthsCount]);
 
-  // فتح نافذة التعديل لعقد تقسيط
   const handleEditPlan = (plan: any) => {
     if (!canEdit) {
       alert('ليس لديك صلاحية لتعديل عقود التقسيط.');
@@ -450,7 +476,8 @@ export default function InstallmentsPage() {
           dueDate: dueDate.toISOString().substring(0, 10),
           status: 'UNPAID',
           paidAt: null,
-          voucherNo: null
+          voucherNo: null,
+          voucherId: null
         });
       }
     }
@@ -465,9 +492,26 @@ export default function InstallmentsPage() {
     }
 
     const assignedBranchName = resolveBranchName(assignedBranchId);
+    const targetPlanId = editingPlanId || `INST-${Date.now().toString().slice(-6)}`;
+    const initialDown = Number(downPayment) || 0;
+
+    // إذا كانت هناك دفعة مقدمة يتم ترحيل سند قبض رسمي في الصندوق فوراً
+    let dpVoucherId = existingPlan?.downPaymentVoucherId || null;
+    let dpVoucherNo = existingPlan?.downPaymentVoucherNo || null;
+    if (!editingPlanId && initialDown > 0) {
+      dpVoucherNo = `V-DP-${Date.now().toString().slice(-5)}`;
+      dpVoucherId = await postInstallmentVoucher(
+        assignedBranchId,
+        dpVoucherNo,
+        initialDown,
+        customerName.trim(),
+        `الدفعة الأولى (المقدمة) عن عقد تقسيط ${targetPlanId} - ${goodsDescriptionSummary}`,
+        targetPlanId
+      );
+    }
 
     const planPayload = {
-      id: editingPlanId || `INST-${Date.now().toString().slice(-6)}`,
+      id: targetPlanId,
       branch_id: assignedBranchId,
       branch_name: assignedBranchName,
       customerType,
@@ -480,9 +524,15 @@ export default function InstallmentsPage() {
       cashPrice: sumCashPrice,
       profitRate: Number(profitRate),
       totalInstallmentPrice,
-      downPayment: Number(downPayment),
-      remainingBalance: editingPlanId && existingPlan ? Math.max(0, totalInstallmentPrice - (Number(existingPlan.totalPaid) || 0)) : remainingToPay,
-      totalPaid: editingPlanId && existingPlan ? Number(existingPlan.totalPaid) || Number(downPayment) : Number(downPayment),
+      downPayment: initialDown,
+      downPaymentVoucherId: dpVoucherId,
+      downPaymentVoucherNo: dpVoucherNo,
+      remainingBalance: editingPlanId && existingPlan 
+        ? Math.max(0, totalInstallmentPrice - (Number(existingPlan.totalPaid) || 0)) 
+        : remainingToPay,
+      totalPaid: editingPlanId && existingPlan 
+        ? Number(existingPlan.totalPaid) || initialDown 
+        : initialDown,
       monthsCount: Number(monthsCount),
       monthlyInstallment,
       startDate,
@@ -515,11 +565,32 @@ export default function InstallmentsPage() {
     setSelectedPlanForPrint(planPayload);
   };
 
+  // تسديد القسط وتوليد سند قبض رسمي في الصندوق ودفتر السندات
   const handlePayInstallment = async (planId: string, instIndex: number) => {
     if (!canEdit && !canAdd) {
       alert('ليس لديك صلاحية تسجيل وقبض الأقساط');
       return;
     }
+
+    const currentPlan = plans.find(p => p.id === planId);
+    if (!currentPlan) return;
+
+    const targetInst = currentPlan.installments[instIndex];
+    if (targetInst.status === 'PAID') return;
+
+    const currentPlanBranchName = currentPlan.branch_name || resolveBranchName(currentPlan.branch_id);
+    const vNo = `V-INST-${Date.now().toString().slice(-6)}`;
+
+    // 1. ترحيل سند القبض في جدول السندات المركزي
+    const createdVoucherId = await postInstallmentVoucher(
+      currentPlan.branch_id,
+      vNo,
+      targetInst.amount,
+      currentPlan.customerName,
+      `سداد القسط الشهري رقم (${targetInst.installmentNumber}) عن عقد (${planId}) بضاعة (${currentPlan.goodsDescription})`,
+      planId,
+      targetInst.installmentNumber
+    );
 
     let voucherData: any = null;
     let modifiedPlan: any = null;
@@ -527,21 +598,20 @@ export default function InstallmentsPage() {
     const updated = plans.map(p => {
       if (p.id === planId) {
         const instList = [...p.installments];
-        const inst = instList[instIndex];
-        if (inst.status === 'PAID') return p;
+        const inst = { ...instList[instIndex] };
 
-        const vNo = `RCP-${Math.floor(100000 + Math.random() * 900000)}`;
         inst.status = 'PAID';
         inst.paidAt = new Date().toISOString().substring(0, 10);
         inst.voucherNo = vNo;
+        inst.voucherId = createdVoucherId;
+        instList[instIndex] = inst;
 
         const newPaid = (Number(p.totalPaid) || 0) + Number(inst.amount);
         const newRemaining = Math.max(0, (Number(p.totalInstallmentPrice) || 0) - newPaid);
 
-        const currentPlanBranchName = p.branch_name || resolveBranchName(p.branch_id);
-
         voucherData = {
           voucherNo: vNo,
+          voucherId: createdVoucherId,
           customerName: p.customerName,
           branchName: currentPlanBranchName,
           amount: inst.amount,
@@ -579,7 +649,7 @@ export default function InstallmentsPage() {
     if (voucherData) {
       await pushSystemNotification(
         `قبض قسط شهري: ${voucherData.voucherNo}`,
-        `تم تسديد القسط رقم (${voucherData.installmentNumber}) للعميل (${voucherData.customerName}) بمبلغ ${formatNum(voucherData.amount)} د.ع في (${voucherData.branchName})`,
+        `تم تسديد القسط رقم (${voucherData.installmentNumber}) للعميل (${voucherData.customerName}) بمبلغ ${formatNum(voucherData.amount)} د.ع في (${voucherData.branchName}) وتوليد سند قبض رسمي`,
         'INSTALLMENTS',
         '/inventory/installments',
         'UPDATE'
@@ -587,34 +657,44 @@ export default function InstallmentsPage() {
     }
   };
 
+  // التراجع عن السداد وإلغاء سند القبض تلقائياً
   const handleRollbackInstallment = async (planId: string, instIndex: number) => {
     if (!canEdit && !canDelete) {
       alert('ليس لديك صلاحية التراجع عن السداد');
       return;
     }
 
-    if (!confirm('تأكيد الرجوع عن تسديد هذا القسط وإعادته إلى قائمة الأقساط المستحقة وتعديل الرصيد؟')) return;
+    if (!confirm('تأكيد الرجوع عن تسديد هذا القسط؟ سيتم إلغاء سند القبض المالي المقترن به تلقائياً وإعادة المبلغ إلى الذمة المتبقية.')) return;
 
-    let rollbackInfo: any = null;
+    const currentPlan = plans.find(p => p.id === planId);
+    if (!currentPlan) return;
+
+    const targetInst = currentPlan.installments[instIndex];
+    if (targetInst.status !== 'PAID') return;
+
+    const targetVoucherId = targetInst.voucherId;
+    const targetVoucherNo = targetInst.voucherNo;
+
+    // 1. إلغاء السند المالي المقترن بالقسط فوراً في جدول السندات
+    await cancelVoucherRecord({
+      voucher_id: targetVoucherId,
+      voucher_number: targetVoucherNo,
+      cancel_reason: `تراجع عن سداد القسط رقم (${targetInst.installmentNumber}) لعقد التقسيط (${planId})`
+    });
+
     let modifiedPlan: any = null;
 
     const updated = plans.map(p => {
       if (p.id === planId) {
         const instList = [...p.installments];
-        const inst = instList[instIndex];
-        if (inst.status !== 'PAID') return p;
+        const inst = { ...instList[instIndex] };
 
         const deductedAmount = Number(inst.amount) || 0;
-        rollbackInfo = {
-          customerName: p.customerName,
-          installmentNumber: inst.installmentNumber,
-          amount: deductedAmount,
-          planId: p.id
-        };
-
         inst.status = 'UNPAID';
         inst.paidAt = null;
         inst.voucherNo = null;
+        inst.voucherId = null;
+        instList[instIndex] = inst;
 
         const newPaid = Math.max(0, (Number(p.totalPaid) || 0) - deductedAmount);
         const newRemaining = Math.max(0, (Number(p.totalInstallmentPrice) || 0) - newPaid);
@@ -640,17 +720,16 @@ export default function InstallmentsPage() {
       await syncInstallmentToCloud(modifiedPlan);
     }
 
-    if (rollbackInfo) {
-      await pushSystemNotification(
-        `تراجع عن سداد قسط: ${rollbackInfo.planId}`,
-        `تم إلغاء تسديد القسط رقم (${rollbackInfo.installmentNumber}) للعميل (${rollbackInfo.customerName}) بمبلغ ${formatNum(rollbackInfo.amount)} د.ع وإعادته إلى الرصيد المتبقي`,
-        'INSTALLMENTS',
-        '/inventory/installments',
-        'UPDATE'
-      );
-    }
+    await pushSystemNotification(
+      `تراجع عن سداد قسط: ${planId}`,
+      `تم إلغاء تسديد القسط رقم (${targetInst.installmentNumber}) للعميل (${currentPlan.customerName}) وإلغاء سند القبض رقم (${targetVoucherNo || '---'}) وتعديل الرصيد`,
+      'INSTALLMENTS',
+      '/inventory/installments',
+      'UPDATE'
+    );
   };
 
+  // حذف عقد التقسيط وإلغاء كافة السندات المقترنة به
   const handleDeletePlan = async (id: string) => {
     if (!canDelete) {
       alert('ليس لديك صلاحية حذف سجلات التقسيط');
@@ -660,7 +739,32 @@ export default function InstallmentsPage() {
     const planToDelete = plans.find(p => p.id === id);
     if (!planToDelete) return;
 
-    if (!confirm(`هل أنت متأكد من حذف عقد التقسيط (${planToDelete.id}) للعميل (${planToDelete.customerName}) بالكامل وسجلاته؟`)) return;
+    if (!confirm(`تحذير: هل أنت متأكد من حذف عقد التقسيط (${planToDelete.id}) للعميل (${planToDelete.customerName})؟\nسيتم إلغاء كافة سندات القبض الخاصة بالأقساط المسددة والدفعة المقدمة تلقائياً.`)) return;
+
+    // 1. إلغاء كافة سندات العقد دفعة واحدة عبر معرّف العقد
+    await cancelVoucherRecord({
+      plan_id: planToDelete.id,
+      cancel_reason: `إلغاء تلقائي بسبب حذف عقد التقسيط رقم (${planToDelete.id}) للعميل (${planToDelete.customerName})`
+    });
+
+    // 2. إلغاء فردي إضافي لسند الدفعة المقدمة وأي قسط مسدد للتأكيد المطلق
+    if (planToDelete.downPaymentVoucherNo || planToDelete.downPaymentVoucherId) {
+      await cancelVoucherRecord({
+        voucher_id: planToDelete.downPaymentVoucherId,
+        voucher_number: planToDelete.downPaymentVoucherNo,
+        cancel_reason: `إلغاء دفعة مقدمة لعقد محذوف (${planToDelete.id})`
+      });
+    }
+
+    for (const inst of (planToDelete.installments || [])) {
+      if (inst.status === 'PAID' && (inst.voucherId || inst.voucherNo)) {
+        await cancelVoucherRecord({
+          voucher_id: inst.voucherId,
+          voucher_number: inst.voucherNo,
+          cancel_reason: `إلغاء قسط لعقد محذوف (${planToDelete.id})`
+        });
+      }
+    }
 
     const updated = plans.filter(p => p.id !== id);
     setPlans(updated);
@@ -678,7 +782,7 @@ export default function InstallmentsPage() {
 
     await pushSystemNotification(
       `حذف عقد تقسيط: ${planToDelete.id}`,
-      `تم حذف عقد التقسيط ذي الرقم (${planToDelete.id}) للعميل (${planToDelete.customerName}) وإلغاء جدولة أقساطه من المنظومة`,
+      `تم حذف عقد التقسيط ذي الرقم (${planToDelete.id}) للعميل (${planToDelete.customerName}) وإلغاء كافة سندات القبض التابعة له في الحسابات`,
       'INSTALLMENTS',
       '/inventory/installments',
       'DELETE'
@@ -710,7 +814,6 @@ export default function InstallmentsPage() {
   const mergedClientsDisplay = useMemo(() => {
     let sourcePlans = plans;
 
-    // حصر العرض بفرع الموظف المقيد أو الفرع المختار بدقة
     if (isRestrictedBranch && currentUser?.assigned_branch_id) {
       const assignedId = String(currentUser.assigned_branch_id).trim().toUpperCase();
       const assignedName = resolveBranchName(assignedId).trim();
@@ -863,7 +966,7 @@ export default function InstallmentsPage() {
           @media print {
             @page {
               size: A4 portrait !important;
-              margin: 0 !important;
+              margin: 8mm auto !important;
             }
             * {
               -webkit-print-color-adjust: exact !important;
@@ -875,7 +978,7 @@ export default function InstallmentsPage() {
               margin: 0 !important;
               padding: 0 !important;
               width: 100% !important;
-              height: 100% !important;
+              height: auto !important;
             }
             header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
               display: none !important;
@@ -886,42 +989,42 @@ export default function InstallmentsPage() {
               box-shadow: none !important;
               border: none !important;
               border-radius: 0 !important;
-              padding: 6mm 8mm !important;
+              padding: 0 !important;
               margin: 0 auto !important;
               width: 100% !important;
-              max-width: 210mm !important;
-              height: 275mm !important;
-              max-height: 275mm !important;
+              max-width: 200mm !important;
+              height: auto !important;
+              max-height: none !important;
               min-height: 0 !important;
-              overflow: hidden !important;
+              overflow: visible !important;
               page-break-after: auto !important;
               break-after: auto !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
               display: flex !important;
               flex-direction: column !important;
-              justify-content: space-between !important;
+              justify-content: flex-start !important;
             }
             .print-voucher-sheet {
               box-sizing: border-box !important;
               box-shadow: none !important;
               border: none !important;
               border-radius: 0 !important;
-              padding: 8mm 10mm !important;
+              padding: 0 !important;
               margin: 0 auto !important;
               width: 100% !important;
-              max-width: 210mm !important;
-              height: 275mm !important;
-              max-height: 275mm !important;
+              max-width: 200mm !important;
+              height: auto !important;
+              max-height: none !important;
               min-height: 0 !important;
-              overflow: hidden !important;
+              overflow: visible !important;
               page-break-after: auto !important;
               break-after: auto !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
               display: flex !important;
               flex-direction: column !important;
-              justify-content: space-between !important;
+              justify-content: flex-start !important;
             }
           }
         `}</style>
@@ -1167,7 +1270,7 @@ export default function InstallmentsPage() {
                                   المادة: <span style={{ color: primaryCol }}>{plan.goodsDescription}</span>
                                 </h4>
                                 <span className="text-[11px] text-slate-500 font-mono">
-                                  (القسط: {formatNum(plan.monthlyInstallment)} د.ع | المستحق: {paidCount}/{plan.monthsCount})
+                                  (القسط: {formatNum(plan.monthlyInstallment)} د.ع | المسدد: {paidCount}/{plan.monthsCount})
                                 </span>
 
                                 <span className="inline-flex items-center px-3 py-1 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 font-bold text-xs shadow-xs whitespace-nowrap">
@@ -1202,7 +1305,7 @@ export default function InstallmentsPage() {
                                   <button
                                     onClick={() => handleDeletePlan(plan.id)}
                                     className="p-1 bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition cursor-pointer"
-                                    title="حذف هذا العقد"
+                                    title="حذف هذا العقد وإلغاء وصولاته"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
@@ -1244,7 +1347,7 @@ export default function InstallmentsPage() {
                                           <button
                                             onClick={() => handleRollbackInstallment(plan.id, idx)}
                                             className="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                                            title="إلغاء تسديد هذا القسط وإعادة المتبقي"
+                                            title="إلغاء تسديد هذا القسط وإلغاء سنده المالي"
                                           >
                                             <RotateCcw className="w-2.5 h-2.5" /> تراجع
                                           </button>
@@ -1292,7 +1395,6 @@ export default function InstallmentsPage() {
               </div>
 
               <form onSubmit={handleCreateOrUpdatePlan} className="space-y-4 text-xs flex-1">
-                {/* اختيار الفرع صراحة */}
                 <div className="bg-slate-950 p-3 rounded-2xl border border-amber-500/30">
                   <label className="block text-amber-400 mb-1 font-bold">الفرع الصادر منه العقد رسمياً *</label>
                   {isRestrictedBranch ? (
@@ -1567,7 +1669,7 @@ export default function InstallmentsPage() {
 
             <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
               <div 
-                className="print-voucher-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 md:p-12 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 font-sans flex flex-col justify-between min-h-[1050px] max-h-[1090px] print:min-h-0 print:max-h-none"
+                className="print-voucher-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 md:p-12 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
                 style={{ borderColor: primaryCol }}
               >
                 <div className="space-y-4 flex-1">
@@ -1672,12 +1774,11 @@ export default function InstallmentsPage() {
 
               <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
                 <div 
-                  className="print-paper-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-3 font-sans flex flex-col justify-between min-h-[1050px] max-h-[1090px] print:min-h-0 print:max-h-none"
+                  className="print-paper-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-3 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
                   style={{ borderColor: primaryCol }}
                 >
                   
                   <div className="space-y-3 flex-1">
-                    {/* رأس ورقة التقسيط */}
                     {hasLetterhead ? (
                       <div className="w-full border-b pb-2 mb-1">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1717,7 +1818,6 @@ export default function InstallmentsPage() {
                       </div>
                     )}
 
-                    {/* شريط توثيق العقد والفرع */}
                     <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1.5 font-cairo shadow-xs text-xs font-bold text-slate-800">
                       <div className="flex items-center gap-1.5" dir="rtl">
                         <span className="text-slate-500 font-medium text-[11px]">العدد :</span>
@@ -1738,7 +1838,6 @@ export default function InstallmentsPage() {
                       </div>
                     </div>
 
-                    {/* بيانات المشتري والحساب */}
                     <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
                       <div className="space-y-0.5">
                         <strong className="block border-b border-slate-200 pb-0.5 text-[11px]" style={{ color: primaryCol }}>معلومات المشتري:</strong>
@@ -1756,7 +1855,6 @@ export default function InstallmentsPage() {
                       </div>
                     </div>
 
-                    {/* قائمة المواد والبضائع */}
                     {selectedPlanForPrint.items && selectedPlanForPrint.items.length > 0 && (
                       <div>
                         <strong className="text-[11px] font-bold block mb-1" style={{ color: primaryCol }}>قائمة المواد والبضائع المدمجة بالعقد:</strong>
@@ -1785,7 +1883,6 @@ export default function InstallmentsPage() {
                       </div>
                     )}
 
-                    {/* جدول استحقاق الأقساط */}
                     <div>
                       <strong className="text-[11px] font-bold block mb-1" style={{ color: primaryCol }}>جدول استحقاق الأقساط الشهرية:</strong>
                       <div className="border border-slate-300 rounded-xl overflow-hidden">
@@ -1823,7 +1920,6 @@ export default function InstallmentsPage() {
                     </div>
                   </div>
 
-                  {/* منطقة التواقيع والباركود */}
                   <div className="space-y-2 pt-2 mt-auto">
                     <div className="grid grid-cols-4 gap-3 pt-2 text-center text-xs items-end border-t border-slate-200">
                       <div>

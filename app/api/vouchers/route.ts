@@ -143,7 +143,7 @@ export async function POST(req: Request) {
     await initVoucherTables();
 
     const body = await req.json();
-    const { branch_id, project_id, voucher_type, amount, currency, notes, created_by } = body;
+    const { branch_id, project_id, voucher_type, amount, currency, notes, created_by, voucher_number, voucher_id } = body;
 
     const issueMonth = new Date().toISOString().slice(0, 7);
     const lockCheck = await query(
@@ -158,8 +158,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const vNum = `VCH-${Date.now().toString().slice(-6)}`;
-    const finalVoucherId = `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // اعتماد رقم السند المرسل إن وجد لضمان تطابق الأرقام مع الأقساط
+    const vNum = (voucher_number && String(voucher_number).trim() !== '') 
+      ? String(voucher_number).trim() 
+      : `VCH-${Date.now().toString().slice(-6)}`;
+
+    const finalVoucherId = (voucher_id && String(voucher_id).trim() !== '') 
+      ? String(voucher_id).trim() 
+      : `VOUCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     let userId = null;
     try {
@@ -200,7 +206,7 @@ export async function POST(req: Request) {
         created_by
       )
       VALUES ($1, $2, $3, $4, $5, $6, $6, CURRENT_DATE, $7, 'POSTED', $8, $9)
-      RETURNING voucher_id::text AS voucher_id
+      RETURNING voucher_id::text AS voucher_id, voucher_number
     `, [
       finalVoucherId,
       finalBranchId, 
@@ -213,7 +219,8 @@ export async function POST(req: Request) {
       finalCreatedBy
     ]);
 
-    const voucherId = vRes.rows[0]?.voucher_id || finalVoucherId;
+    const createdVoucherId = vRes.rows[0]?.voucher_id || finalVoucherId;
+    const createdVoucherNum = vRes.rows[0]?.voucher_number || vNum;
 
     if (cashAccId && revAccId) {
       if (voucher_type === 'RECEIPT') {
@@ -222,14 +229,14 @@ export async function POST(req: Request) {
           VALUES 
             ($1, $2, $3, 0, 1, 'قبض نقدية'),
             ($1, $4, 0, $3, 2, 'إيراد / دفعة مستلمة')
-        `, [voucherId, cashAccId, numAmount, revAccId]).catch(() => {});
+        `, [createdVoucherId, cashAccId, numAmount, revAccId]).catch(() => {});
       } else {
         await query(`
           INSERT INTO journal_lines (voucher_id, account_id, debit, credit, line_order, description)
           VALUES 
             ($1, $4, $3, 0, 1, 'صرف مستحقات ومواد مشروع'),
             ($1, $2, 0, $3, 2, 'صرف نقدية من الصندوق')
-        `, [voucherId, cashAccId, numAmount, revAccId]).catch(() => {});
+        `, [createdVoucherId, cashAccId, numAmount, revAccId]).catch(() => {});
       }
     }
 
@@ -250,44 +257,25 @@ export async function POST(req: Request) {
     await logNotification(
       'FINANCE',
       'ADD',
-      `${typeTitle}: ${vNum} (${branchNameStr})`,
+      `${typeTitle}: ${createdVoucherNum} (${branchNameStr})`,
       `تم قيد ${typeTitle} بمبلغ ${numAmount.toLocaleString('en-US')} ${currency || 'IQD'} لصالح (${partyTitle}) في (${branchNameStr})${reasonTitle}`,
       '/vouchers'
     );
 
-    return NextResponse.json({ success: true, voucher_number: vNum });
+    return NextResponse.json({ success: true, voucher_id: createdVoucherId, voucher_number: createdVoucherNum });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// تعديل ربط السند بمشروع أو إلغاء السند (VOID) مع التحقق من إقفال الفترة
+// تعديل ربط السند بمشروع أو إلغاء السند المالي الشامل (بالمعرف، برقم السند، أو برقم العقد)
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { voucher_id, cancel_reason, assign_project_id } = body;
+    const { voucher_id, voucher_number, plan_id, cancel_reason, assign_project_id } = body;
 
-    if (!voucher_id) {
-      return NextResponse.json({ error: 'معرّف السند مطلوب' }, { status: 400 });
-    }
-
-    if (cancel_reason) {
-      const vDateRes = await query('SELECT issue_date FROM vouchers WHERE voucher_id::text = $1::text', [String(voucher_id)]);
-      const vMonth = String(vDateRes.rows[0]?.issue_date || '').slice(0, 7);
-      const lockCheck = await query(
-        `SELECT * FROM closed_financial_periods WHERE period_month = $1`,
-        [vMonth]
-      ).catch(() => ({ rows: [] }));
-
-      if (lockCheck.rows.length > 0) {
-        return NextResponse.json(
-          { error: `لا يمكن إلغاء السند لأنه ينتمي لفترة مالية مقفلة (${vMonth}).` },
-          { status: 403 }
-        );
-      }
-    }
-
-    if (assign_project_id !== undefined) {
+    // 1. ربط السند بمشروع إنشائي
+    if (assign_project_id !== undefined && voucher_id) {
       await query(
         `UPDATE vouchers SET project_id = $1 WHERE voucher_id::text = $2::text`,
         [assign_project_id ? String(assign_project_id) : null, String(voucher_id)]
@@ -313,56 +301,127 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: true, message: 'تم تحديث ربط المشروع بنجاح' });
     }
 
-    const checkRes = await query('SELECT * FROM vouchers WHERE voucher_id::text = $1::text', [String(voucher_id)]);
-    if (checkRes.rows.length === 0) {
-      return NextResponse.json({ error: 'السند غير موجود' }, { status: 404 });
+    // 2. إلغاء السند (VOID / CANCELLED)
+    if (!voucher_id && !voucher_number && !plan_id) {
+      return NextResponse.json({ error: 'معرّف السند أو رقم السند أو رقم العقد مطلوب للإلغاء' }, { status: 400 });
     }
 
-    const currentVoucher = checkRes.rows[0];
-    if (currentVoucher.status === 'VOID' || currentVoucher.status === 'CANCELLED') {
-      return NextResponse.json({ error: 'السند ملغي بالفعل مسبقاً' }, { status: 400 });
+    const reason = cancel_reason || 'تم الإلغاء وتصفير القيد المالي';
+
+    // البحث عن كافة السندات المطابقة بغض النظر عن طريقة الاستدعاء
+    const targetVouchers = await query(`
+      SELECT voucher_id::text AS voucher_id, voucher_number, total_amount, amount, notes, issue_date 
+      FROM vouchers 
+      WHERE status NOT IN ('VOID', 'CANCELLED')
+        AND (
+          ($1::text IS NOT NULL AND voucher_id::text = $1::text)
+          OR ($2::text IS NOT NULL AND voucher_number::text = $2::text)
+          OR ($3::text IS NOT NULL AND (notes::text LIKE '%' || $3::text || '%' OR voucher_number::text LIKE '%' || $3::text || '%'))
+        )
+    `, [
+      voucher_id ? String(voucher_id) : null,
+      voucher_number ? String(voucher_number) : null,
+      plan_id ? String(plan_id) : null
+    ]);
+
+    if (targetVouchers.rows.length === 0) {
+      return NextResponse.json({ success: true, message: 'لا توجد سندات نشطة مطابقة للإلغاء' });
     }
 
-    let notesData: any = {};
-    try {
-      notesData = JSON.parse(currentVoucher.notes || '{}');
-    } catch {
-      notesData = { forReasonAr: currentVoucher.notes || '' };
-    }
-    notesData.isCancelled = true;
-    notesData.cancelReason = cancel_reason || 'تم الإلغاء رقابياً';
+    for (const v of targetVouchers.rows) {
+      let notesData: any = {};
+      try {
+        notesData = JSON.parse(v.notes || '{}');
+      } catch {
+        notesData = { forReasonAr: v.notes || '' };
+      }
+      notesData.isCancelled = true;
+      notesData.cancelReason = reason;
 
-    await query(
-      `UPDATE vouchers 
-       SET status = 'VOID', notes = $1 
-       WHERE voucher_id::text = $2::text`,
-      [JSON.stringify(notesData), String(voucher_id)]
-    );
+      await query(`
+        UPDATE vouchers 
+        SET status = 'CANCELLED', notes = $1 
+        WHERE voucher_id::text = $2::text
+      `, [JSON.stringify(notesData), String(v.voucher_id)]);
 
-    try {
-      await query(
-        `UPDATE journal_lines 
-         SET description = description || ' (ملغي)' 
-         WHERE voucher_id::text = $1::text`,
-        [String(voucher_id)]
+      try {
+        await query(`
+          UPDATE journal_lines 
+          SET description = description || ' (ملغي)' 
+          WHERE voucher_id::text = $1::text
+        `, [String(v.voucher_id)]);
+      } catch {}
+
+      const vNum = v.voucher_number || 'سند';
+      const vAmt = Number(v.total_amount || v.amount || 0);
+
+      await logNotification(
+        'FINANCE',
+        'DELETE',
+        `إلغاء سند مالي: ${vNum}`,
+        `تم إلغاء السند المالي رقم (${vNum}) بمبلغ ${vAmt.toLocaleString('en-US')} د.ع - السبب: ${reason}`,
+        '/vouchers'
       );
-    } catch {}
-
-    const vNum = currentVoucher.voucher_number || 'سند';
-    const vAmt = Number(currentVoucher.total_amount || currentVoucher.amount || 0);
-
-    await logNotification(
-      'FINANCE',
-      'DELETE',
-      `إلغاء سند مالي: ${vNum}`,
-      `تم إلغاء السند المالي رقم (${vNum}) بمبلغ ${vAmt.toLocaleString('en-US')} د.ع - السبب: ${cancel_reason || 'إلغاء وتصفير القيد'}`,
-      '/vouchers'
-    );
+    }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'تم إلغاء السند واعتماده كـ VOID بنجاح' 
+      cancelledCount: targetVouchers.rows.length, 
+      message: 'تم إلغاء السندات المالية وتصفير قيودها بنجاح' 
     });
+  } catch (error: any) {
+    console.error('PATCH Voucher Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// دعم الإلغاء عبر DELETE
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const voucher_id = searchParams.get('id') || searchParams.get('voucher_id');
+    const voucher_number = searchParams.get('no') || searchParams.get('voucher_number');
+    const plan_id = searchParams.get('plan_id');
+
+    if (!voucher_id && !voucher_number && !plan_id) {
+      return NextResponse.json({ error: 'المعرف مطلوب للحذف' }, { status: 400 });
+    }
+
+    const reason = 'تم إلغاء السند عبر أمر الحذف';
+
+    const targetVouchers = await query(`
+      SELECT voucher_id::text AS voucher_id, voucher_number, notes 
+      FROM vouchers 
+      WHERE status NOT IN ('VOID', 'CANCELLED')
+        AND (
+          ($1::text IS NOT NULL AND voucher_id::text = $1::text)
+          OR ($2::text IS NOT NULL AND voucher_number::text = $2::text)
+          OR ($3::text IS NOT NULL AND (notes::text LIKE '%' || $3::text || '%' OR voucher_number::text LIKE '%' || $3::text || '%'))
+        )
+    `, [
+      voucher_id ? String(voucher_id) : null,
+      voucher_number ? String(voucher_number) : null,
+      plan_id ? String(plan_id) : null
+    ]);
+
+    for (const v of targetVouchers.rows) {
+      let notesData: any = {};
+      try {
+        notesData = JSON.parse(v.notes || '{}');
+      } catch {
+        notesData = { forReasonAr: v.notes || '' };
+      }
+      notesData.isCancelled = true;
+      notesData.cancelReason = reason;
+
+      await query(`
+        UPDATE vouchers 
+        SET status = 'CANCELLED', notes = $1 
+        WHERE voucher_id::text = $2::text
+      `, [JSON.stringify(notesData), String(v.voucher_id)]);
+    }
+
+    return NextResponse.json({ success: true, message: 'تم إلغاء السندات بنجاح' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

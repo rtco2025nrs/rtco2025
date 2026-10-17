@@ -22,10 +22,8 @@ async function logNotification(sector: string, action_type: string, title: strin
 
 async function initTables() {
   try {
-    // التأكد من دعم توليد UUID
     await query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
-    // التأكد من وجود هيكل جدول الفروع فقط دون زرع أي بيانات قسرية
     await query(`
       CREATE TABLE IF NOT EXISTS branches (
         branch_id VARCHAR(50) PRIMARY KEY,
@@ -56,6 +54,8 @@ async function initTables() {
         status VARCHAR(50) DEFAULT 'IN_PROGRESS',
         completion_rate NUMERIC(5, 2) DEFAULT 0,
         notes TEXT,
+        created_by_user VARCHAR(150),
+        tender_data JSONB DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -133,6 +133,8 @@ async function initTables() {
       );
 
       ALTER TABLE projects ADD COLUMN IF NOT EXISTS branch_id VARCHAR(50);
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS created_by_user VARCHAR(150);
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS tender_data JSONB DEFAULT '{}';
       ALTER TABLE vouchers ADD COLUMN IF NOT EXISTS project_id VARCHAR(50);
       ALTER TABLE project_subcontractors ADD COLUMN IF NOT EXISTS paid_amount NUMERIC(15, 2) DEFAULT 0;
       ALTER TABLE project_subcontractors ADD COLUMN IF NOT EXISTS notes TEXT;
@@ -386,11 +388,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action } = body;
 
-    const colCheck = await query(`
-      SELECT data_type FROM information_schema.columns 
-      WHERE table_name = 'projects' AND column_name = 'project_id'
-    `).catch(() => ({ rows: [] }));
-    const isProjectUuid = colCheck.rows[0]?.data_type === 'uuid';
+    // حفظ وتحديث بيانات التندر وجدول الكميات (منعزل تماماً عن الحسابات)
+    if (action === 'SAVE_TENDER') {
+      const { project_id, tender_data } = body;
+      await query(
+        `UPDATE projects SET tender_data = $1 WHERE project_id::text = $2::text`,
+        [JSON.stringify(tender_data || {}), String(project_id)]
+      );
+      return NextResponse.json({ success: true, message: 'تم حفظ وثيقة التندر وجدول الكميات بنجاح' });
+    }
 
     if (action === 'ADD_MILESTONE') {
       const { project_id, name, weight } = body;
@@ -517,7 +523,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, term: res.rows[0] });
     }
 
-    // إضافة مشروع جديد
+    // إضافة مشروع جديد مع توثيق المستخدم المنشئ
     const { 
       project_id, 
       id, 
@@ -530,24 +536,32 @@ export async function POST(req: Request) {
       start_date, 
       expected_end_date, 
       completion_rate = 0, 
-      notes 
+      notes,
+      created_by_user
     } = body;
 
     const validStartDate = start_date && String(start_date).trim() !== '' ? String(start_date).trim() : null;
     const validEndDate = expected_end_date && String(expected_end_date).trim() !== '' ? String(expected_end_date).trim() : null;
 
-    // اعتماد معرف الفرع كما تم اختياره من المستخدم
     const finalBranchId = branch_id && String(branch_id).trim() !== '' && String(branch_id).trim() !== 'ALL'
       ? String(branch_id).trim()
       : null;
+
+    const finalCreator = created_by_user && String(created_by_user).trim() !== '' ? String(created_by_user).trim() : 'الإدارة العامة';
+
+    const colCheck = await query(`
+      SELECT data_type FROM information_schema.columns 
+      WHERE table_name = 'projects' AND column_name = 'project_id'
+    `).catch(() => ({ rows: [] }));
+    const isProjectUuid = colCheck.rows[0]?.data_type === 'uuid';
 
     let res;
     if (isProjectUuid) {
       res = await query(`
         INSERT INTO projects (
-          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes
+          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user
         )
-        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, COALESCE($7::date, CURRENT_DATE), $8::date, $9, $10)
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, COALESCE($7::date, CURRENT_DATE), $8::date, $9, $10, $11)
         RETURNING *
       `, [
         finalBranchId,
@@ -559,15 +573,16 @@ export async function POST(req: Request) {
         validStartDate,
         validEndDate,
         Number(completion_rate) || 0,
-        notes || ''
+        notes || '',
+        finalCreator
       ]);
     } else {
       const finalProjectId = String(project_id || id || `PRJ-${Date.now()}`);
       res = await query(`
         INSERT INTO projects (
-          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes
+          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::date, CURRENT_DATE), $9::date, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::date, CURRENT_DATE), $9::date, $10, $11, $12)
         RETURNING *
       `, [
         finalProjectId,
@@ -580,7 +595,8 @@ export async function POST(req: Request) {
         validStartDate,
         validEndDate,
         Number(completion_rate) || 0,
-        notes || ''
+        notes || '',
+        finalCreator
       ]);
     }
 
@@ -591,13 +607,15 @@ export async function POST(req: Request) {
       'PROJECTS',
       'ADD',
       `مشروع مقاولة جديد: ${project_name} (${branchNameStr})`,
-      `تم تسجيل مشروع (${project_name}) للعميل (${client_name}) في فرع (${branchNameStr}) بقيمة عقد ${Number(contract_value).toLocaleString('en-US')} ${currency}`,
+      `تم تسجيل مشروع (${project_name}) للعميل (${client_name}) بواسطة (${finalCreator}) بقيمة عقد ${Number(contract_value).toLocaleString('en-US')} ${currency}`,
       '/projects'
     );
 
     const createdProject = {
       ...res.rows[0],
       branch_name: branchNameStr,
+      created_by_user: finalCreator,
+      tender_data: {},
       milestones: [],
       subcontractors: [],
       operating_expenses: [],
@@ -703,7 +721,7 @@ export async function DELETE(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // 1. حذف مقاول الباطن بالمعرف الفردي الحصري وإلغاء السند المرتبط به
+    // 1. حذف مقاول الباطن وإلغاء السند المرتبط
     if (body.action === 'DELETE_SUBCONTRACTOR') {
       const subIdStr = String(body.subcontractor_id);
       const sRes = await query(`SELECT name FROM project_subcontractors WHERE subcontractor_id::text = $1`, [subIdStr]);
@@ -728,7 +746,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 2. حذف المصروف التشغيلي الفردي بالمعرف الحصري
+    // 2. حذف المصروف التشغيلي وإلغاء السند المرتبط
     if (body.action === 'DELETE_OPERATING_EXPENSE') {
       const expIdStr = String(body.expense_id);
       const eRes = await query(`SELECT title FROM project_operating_expenses WHERE expense_id::text = $1`, [expIdStr]);
@@ -753,7 +771,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 3. حذف مادة التوريد الفردية بالمعرف الحصري
+    // 3. حذف مادة التوريد وإلغاء السند المرتبط
     if (body.action === 'DELETE_MATERIAL') {
       const matIdStr = String(body.material_id);
       const mRes = await query(`SELECT material_name FROM project_materials WHERE material_id::text = $1`, [matIdStr]);
@@ -778,7 +796,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 4. حذف دفعة تعاقدية بالمعرف الحصري
+    // 4. حذف دفعة تعاقدية وإلغاء السند المرتبط
     if (body.action === 'DELETE_PAYMENT_TERM') {
       const termIdStr = String(body.term_id);
       const tRes = await query(`SELECT term_title, project_id FROM project_payment_terms WHERE term_id::text = $1`, [termIdStr]);
@@ -810,7 +828,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 5. حذف المشروع بالكامل مع تحويل سنداته إلى CANCELLED
+    // 5. حذف المشروع بالكامل مع إلغاء كافة سنداته
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('id');
     if (projectId) {

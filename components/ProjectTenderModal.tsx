@@ -368,7 +368,7 @@ export default function ProjectTenderModal({
   };
 
   const hasLetterhead = Boolean(companySettings?.letterhead_url && companySettings.letterhead_url.trim().length > 10);
-  const displayBranchName = project?.branch_name || 'الادارة المركزية';
+  const displayBranchName = project?.branch_name || 'فرع التجارة العامة';
   const currentDateStr = new Date().toISOString().split('T')[0];
 
   const tierTitleMap = {
@@ -714,18 +714,18 @@ export default function ProjectTenderModal({
               </div>
             )}
 
-            {/* 2. شريط توثيق العقد والفرع والرقم والتاريخ (مطابق تماماً لنموذج الكتب الرسمية) */}
+            {/* 2. شريط توثيق العقد والفرع والرقم والتاريخ (مطابق تماماً لنموذج الكتب الرسمية بالصورة الثانية) */}
             <div className="flex items-center justify-between bg-[#f4f4f5] border border-slate-300 rounded-lg px-5 py-2 font-cairo text-[13px] font-bold text-slate-800 mb-3.5 shadow-2xs">
               <div className="flex items-center gap-1.5" dir="rtl">
                 <span className="text-slate-700 font-black">العدد :</span>
                 <span className="font-mono text-slate-950 font-bold text-[14px]">
-                  س / {project?.project_id ? String(project.project_id).slice(-4) : '691'} / 2026
+                  س / {project?.project_id ? String(project.project_id).slice(-4) : '3598'} / 2026
                 </span>
               </div>
 
               <div className="flex items-center justify-center">
                 <span className="inline-flex items-center px-4 py-0.5 rounded-md bg-white border border-[#ea580c]/60 text-[#ea580c] font-black text-xs shadow-xs">
-                  كتاب صادر رسمي | {displayBranchName}
+                  {displayBranchName}
                 </span>
               </div>
 

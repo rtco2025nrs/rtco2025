@@ -80,7 +80,68 @@ interface OfficialDoc {
   createdAt: string;
 }
 
-// ضغط الصور بذكاء لتقليل الحجم بأكثر من 80% مع بقاء المستندات واضحة تماماً
+function cleanDocNumber(num: string | undefined): string {
+  if (!num) return '';
+  return String(num).replace(/\s+/g, '').trim();
+}
+
+function extractTableData(docObj: any): TableData | undefined {
+  if (!docObj) return undefined;
+  if (docObj.tableData && typeof docObj.tableData === 'object' && docObj.tableData.enabled !== undefined) {
+    return docObj.tableData;
+  }
+  if (docObj.table_data && typeof docObj.table_data === 'object' && docObj.table_data.enabled !== undefined) {
+    return docObj.table_data;
+  }
+  if (typeof docObj.tableData === 'string') {
+    try {
+      const parsed = JSON.parse(docObj.tableData);
+      if (parsed && parsed.enabled !== undefined) return parsed;
+    } catch {}
+  }
+  if (typeof docObj.table_data === 'string') {
+    try {
+      const parsed = JSON.parse(docObj.table_data);
+      if (parsed && parsed.enabled !== undefined) return parsed;
+    } catch {}
+  }
+  const searchStr = `${docObj.content || ''} ${docObj.notes || ''}`;
+  if (searchStr.includes('__TABLE_DATA__:')) {
+    try {
+      const match = searchStr.match(/__TABLE_DATA__:([^\n<]+)/);
+      if (match && match[1]) {
+        const parsed = JSON.parse(match[1].trim());
+        if (parsed && parsed.enabled !== undefined) return parsed;
+      }
+    } catch {}
+  }
+  if (typeof window !== 'undefined') {
+    try {
+      const tablesRaw = localStorage.getItem('rtco_doc_tables');
+      if (tablesRaw) {
+        const tablesMap = JSON.parse(tablesRaw);
+        const docNum = cleanDocNumber(docObj.docNumber || docObj.doc_number);
+        const docId = String(docObj.id || docObj.doc_id || '');
+        if (tablesMap[docId]) return tablesMap[docId];
+        if (docNum && tablesMap[docNum]) return tablesMap[docNum];
+      }
+    } catch {}
+  }
+  return undefined;
+}
+
+function backupTableLocally(docId: string, docNumber: string, tableData: TableData | undefined) {
+  if (typeof window === 'undefined' || !tableData || !tableData.enabled) return;
+  try {
+    const raw = localStorage.getItem('rtco_doc_tables');
+    const tablesMap = raw ? JSON.parse(raw) : {};
+    if (docId) tablesMap[docId] = tableData;
+    const cNum = cleanDocNumber(docNumber);
+    if (cNum) tablesMap[cNum] = tableData;
+    localStorage.setItem('rtco_doc_tables', JSON.stringify(tablesMap));
+  } catch {}
+}
+
 async function compressImage(file: File, maxWidth = 900, quality = 0.55): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -120,20 +181,31 @@ async function compressImage(file: File, maxWidth = 900, quality = 0.55): Promis
   });
 }
 
-// ترحيل ومزامنة الوثيقة للسيرفر وقاعدة البيانات السحابية
 async function syncDocToCloud(doc: OfficialDoc) {
   try {
+    let safeNotes = doc.notes || '';
+    if (doc.tableData && doc.tableData.enabled) {
+      if (!safeNotes.includes('__TABLE_DATA__:')) {
+        safeNotes = `${safeNotes} __TABLE_DATA__:${JSON.stringify(doc.tableData)}`;
+      }
+    }
+
+    const payload = {
+      ...doc,
+      notes: safeNotes,
+      tableData: doc.tableData
+    };
+
     await fetch('/api/admin/system', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'SYNC_OFFICIAL_DOC', doc })
+      body: JSON.stringify({ action: 'SYNC_OFFICIAL_DOC', doc: payload })
     });
   } catch (e) {
     console.error('Failed to sync official document to cloud:', e);
   }
 }
 
-// إرسال الإشعار المركزي المباشر إلى الخادم وقاعدة البيانات السحابية مع توثيق اسم المستخدم
 async function pushSystemNotification(title: string, message: string, sector: string, link: string, actionType: string = 'ADD', createdBy: string = '') {
   try {
     await fetch('/api/notifications', {
@@ -183,13 +255,9 @@ export default function AdministrativeDocumentsPage() {
   const [showIncomingModal, setShowIncomingModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
-  // حالة التعديل
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
-
-  // الفرع المختار للوثيقة
   const [docBranchId, setDocBranchId] = useState<string>('BR-HQ-01');
 
-  // حقول الصادر
   const [outDocNumber, setOutDocNumber] = useState('');
   const [outDocDate, setOutDocDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [outPriority, setOutPriority] = useState<'NORMAL' | 'URGENT' | 'TOP_SECRET'>('NORMAL');
@@ -202,7 +270,6 @@ export default function AdministrativeDocumentsPage() {
   const [outSignatoryName, setOutSignatoryName] = useState('عامر الطرفي');
   const [outScannedUrls, setOutScannedUrls] = useState<string[]>([]);
 
-  // جدول الصادر
   const [outTableData, setOutTableData] = useState<TableData>({
     enabled: false,
     placement: 'INLINE',
@@ -211,7 +278,6 @@ export default function AdministrativeDocumentsPage() {
     rows: [['1', '', '', '']]
   });
 
-  // حقول الوارد
   const [inDocNumber, setInDocNumber] = useState('');
   const [inDocDate, setInDocDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [inSenderNumber, setInSenderNumber] = useState('');
@@ -224,7 +290,6 @@ export default function AdministrativeDocumentsPage() {
   const [inScannedUrls, setInScannedUrls] = useState<string[]>([]);
   const [inNotes, setInNotes] = useState('');
 
-  // حقول الأمر الإداري
   const [orderDocNumber, setOrderDocNumber] = useState('');
   const [orderDocDate, setOrderDocDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [orderRecipient, setOrderRecipient] = useState('إلى / كافة الأقسام والمشاريع والكوادر الهندسية');
@@ -235,7 +300,6 @@ export default function AdministrativeDocumentsPage() {
   const [orderSignatoryName, setOrderSignatoryName] = useState('عامر الطرفي');
   const [orderScannedUrls, setOrderScannedUrls] = useState<string[]>([]);
 
-  // جدول الأمر الإداري
   const [orderTableData, setOrderTableData] = useState<TableData>({
     enabled: false,
     placement: 'INLINE',
@@ -256,7 +320,6 @@ export default function AdministrativeDocumentsPage() {
   const [selectedDocForPrint, setSelectedDocForPrint] = useState<OfficialDoc | null>(null);
   const [viewScannedImage, setViewScannedImage] = useState<string | null>(null);
 
-  // فحص ما إذا كان المستخدم الحالي مقيداً بفرع محدد
   const isRestrictedBranch = useMemo(() => {
     return Boolean(
       currentUser && 
@@ -268,7 +331,6 @@ export default function AdministrativeDocumentsPage() {
     );
   }, [currentUser]);
 
-  // دالة تحديد اسم الفرع الصحيح
   const resolveBranchName = (bId?: string): string => {
     if (!bId || bId === 'ALL') {
       return 'المقر الرئيسي (عرض المنظومة الموحدة)';
@@ -316,7 +378,13 @@ export default function AdministrativeDocumentsPage() {
     const stored = localStorage.getItem('rtco_official_documents');
     if (stored) {
       try {
-        localDocs = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          localDocs = parsed.map((d: any) => ({
+            ...d,
+            tableData: extractTableData(d)
+          }));
+        }
       } catch {}
     }
 
@@ -324,20 +392,47 @@ export default function AdministrativeDocumentsPage() {
       const res = await fetch(`/api/admin/system?action=GET_OFFICIAL_DOCS`, { cache: 'no-store' });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.documents)) {
-        const mergedDocs = data.documents.map((remoteDoc: OfficialDoc) => {
-          const match = localDocs.find((ld) => ld.id === remoteDoc.id || ld.docNumber === remoteDoc.docNumber);
-          if (match && match.branch_id) {
-            return {
-              ...remoteDoc,
-              branch_id: match.branch_id,
-              branch_name: match.branch_name
-            };
+        const remoteDocs: OfficialDoc[] = data.documents.map((remoteDoc: any) => {
+          const docNum = remoteDoc.docNumber || remoteDoc.doc_number || '';
+          const docId = remoteDoc.id || remoteDoc.doc_id || '';
+          return {
+            ...remoteDoc,
+            docNumber: docNum,
+            docDate: remoteDoc.docDate || remoteDoc.doc_date || '',
+            partyName: remoteDoc.partyName || remoteDoc.party_name || '',
+            signatoryName: remoteDoc.signatoryName || remoteDoc.signatory_name || '',
+            signatoryTitle: remoteDoc.signatoryTitle || remoteDoc.signatory_title || '',
+            tableData: extractTableData(remoteDoc)
+          };
+        });
+
+        const mergedDocs: OfficialDoc[] = remoteDocs.map((remoteDoc: OfficialDoc) => {
+          const remoteNumClean = cleanDocNumber(remoteDoc.docNumber);
+          const match = localDocs.find((ld) => {
+            return (
+              ld.id === remoteDoc.id ||
+              (remoteNumClean && cleanDocNumber(ld.docNumber) === remoteNumClean) ||
+              (ld.subject === remoteDoc.subject && ld.docDate === remoteDoc.docDate)
+            );
+          });
+
+          const resolvedTable = extractTableData(remoteDoc) || match?.tableData || extractTableData(match);
+
+          if (resolvedTable) {
+            backupTableLocally(remoteDoc.id, remoteDoc.docNumber, resolvedTable);
           }
-          return remoteDoc;
+
+          return {
+            ...remoteDoc,
+            branch_id: remoteDoc.branch_id || match?.branch_id,
+            branch_name: remoteDoc.branch_name || match?.branch_name,
+            tableData: resolvedTable
+          };
         });
 
         localDocs.forEach((ld) => {
-          if (!mergedDocs.some((md: OfficialDoc) => md.id === ld.id)) {
+          const ldNumClean = cleanDocNumber(ld.docNumber);
+          if (!mergedDocs.some((md) => md.id === ld.id || (ldNumClean && cleanDocNumber(md.docNumber) === ldNumClean))) {
             mergedDocs.unshift(ld);
           }
         });
@@ -486,7 +581,7 @@ export default function AdministrativeDocumentsPage() {
           badge: 'تخطيط وتطوير',
           recipient: 'إلى / هيئة استثمار النجف الأشرف - القسم الفني والهندسي',
           subject: 'م / تقديم التصاميم المعمارية والمخططات التنفيذية للمصادقة',
-          content: 'تحية طيبة...\nاستناداً إلى الإجازة الاستثمارية المرقمة (...........) الممنوحة لشركتنا، نرفق طياً التصاميم المعمارية والإنشائية وجداول المواصفات العامة لمشروع (................) والمعدة من قبل المكاتب الاستشارية المعتمدة.\nيرجى تفضلكم بالاطلاع والمصادقة الفنية على المخططات تمهيداً للشروع بإجراءات استلام الأرض والمباشرة الميدانية.\n\nمع التقدير والامتنان.',
+          content: 'تحية طيبة...\nاستناداً إلى الإجازة الاستثمارية المرقمة (...........) الممنوحة لشركتنا، نرفق طياً التصاميم المعمارية والإنشائية وجداول المواصفات العامة لمشروع (................) والمعدة من قبل المكاتب الاستشارية المعتمدة.\nيرجى تفضلكم بالاطلاع والمصادقة الفنية على المخططات تمهيداً للشروع بإجراءات استلاستلام الأرض والمباشرة الميدانية.\n\nمع التقدير والامتنان.',
           attachments: 'طياً ألبوم المخططات الكامل + قرص ليزري بالتصاميم'
         },
         {
@@ -568,7 +663,7 @@ export default function AdministrativeDocumentsPage() {
           badge: 'مالية وحسابات',
           recipient: 'إلى / القسم المالي والحسابات المحترمون',
           subject: 'م / تخويل وصرف سلفة تشغيلية نقدية للمشروع',
-          content: 'يُخوّل السيد (................) بصفته مسؤول الموقع باستلام سلفة نقدية تشغيلية قدرها (............) دينار عراقي مخصصة للصرف على متطلبات المواد الطارئة وأجور النقل والنثريات لموقع مشروع (................).\nتُسوى هذه السلفة بوصولات وفواتير أصولية معتمدة وفق الضوابط والتعليمات المالية للشركة في نهاية كل أسبوع.\n\nللتنفيذ والصرف أصولياً.',
+          content: 'يُخوّل السيد (................) بصفته مسؤول الموقع باستلاستلام سلفة نقدية تشغيلية قدرها (............) دينار عراقي مخصصة للصرف على متطلبات المواد الطارئة وأجور النقل والنثريات لموقع مشروع (................).\nتُسوى هذه السلفة بوصولات وفواتير أصولية معتمدة وفق الضوابط والتعليمات المالية للشركة في نهاية كل أسبوع.\n\nللتنفيذ والصرف أصولياً.',
           attachments: 'لا يوجد'
         }
       ],
@@ -662,25 +757,29 @@ export default function AdministrativeDocumentsPage() {
     setEditingDocId(doc.id);
     setDocBranchId(doc.branch_id || (isRestrictedBranch ? currentUser.assigned_branch_id : 'BR-HQ-01'));
 
+    const effectiveTable = extractTableData(doc) || {
+      enabled: false,
+      placement: 'INLINE',
+      title: '',
+      headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
+      rows: [['1', '', '', '']]
+    };
+
+    const cleanContent = doc.content ? doc.content.replace(/<!--__TABLE_DATA__:[\s\S]*?-->/g, '').split('__TABLE_DATA__:')[0].trim() : '';
+
     if (doc.type === 'OUTGOING') {
       setOutDocNumber(doc.docNumber || '');
       setOutDocDate(doc.docDate || new Date().toISOString().substring(0, 10));
       setOutPriority(doc.priority || 'NORMAL');
       setOutRecipient(doc.partyName || '');
       setOutSubject(doc.subject || '');
-      setOutContent(doc.content || '');
+      setOutContent(cleanContent);
       setOutAttachments(doc.attachments || 'لا يوجد');
       setOutCarbonCopy(doc.carbonCopy || '');
       setOutSignatoryTitle(doc.signatoryTitle || 'المدير المفوض');
       setOutSignatoryName(doc.signatoryName || 'عامر الطرفي');
       setOutScannedUrls(doc.scannedFileUrls || []);
-      setOutTableData(doc.tableData || {
-        enabled: false,
-        placement: 'INLINE',
-        title: '',
-        headers: ['ت', 'البيان والتفاصيل', 'العدد / الكمية', 'ملاحظات'],
-        rows: [['1', '', '', '']]
-      });
+      setOutTableData(effectiveTable);
       setShowOutgoingModal(true);
     } else if (doc.type === 'INCOMING') {
       setInDocNumber(doc.docNumber || '');
@@ -693,25 +792,19 @@ export default function AdministrativeDocumentsPage() {
       setInAttachments(doc.attachments || 'لا يوجد');
       setInMainLetterUrl(doc.mainLetterUrl || '');
       setInScannedUrls(doc.scannedFileUrls || []);
-      setInNotes(doc.notes || '');
+      setInNotes(doc.notes ? doc.notes.replace(/__TABLE_DATA__:[\s\S]*/, '').trim() : '');
       setShowIncomingModal(true);
     } else if (doc.type === 'INTERNAL_ORDER') {
       setOrderDocNumber(doc.docNumber || '');
       setOrderDocDate(doc.docDate || new Date().toISOString().substring(0, 10));
       setOrderRecipient(doc.partyName || '');
       setOrderSubject(doc.subject || '');
-      setOrderContent(doc.content || '');
+      setOrderContent(cleanContent);
       setOrderAttachments(doc.attachments || 'لا يوجد');
       setOrderSignatoryTitle(doc.signatoryTitle || 'المدير المفوض');
       setOrderSignatoryName(doc.signatoryName || 'عامر الطرفي');
       setOrderScannedUrls(doc.scannedFileUrls || []);
-      setOrderTableData(doc.tableData || {
-        enabled: false,
-        placement: 'INLINE',
-        title: '',
-        headers: ['ت', 'الاسم الثلاثي', 'الصفة / التكليف', 'ملاحظات'],
-        rows: [['1', '', '', '']]
-      });
+      setOrderTableData(effectiveTable);
       setShowOrderModal(true);
     }
   };
@@ -768,7 +861,6 @@ export default function AdministrativeDocumentsPage() {
     }
   };
 
-  // دوال إدارة الجدول المخصص
   const addTableColumn = (setTable: React.Dispatch<React.SetStateAction<TableData>>) => {
     setTable(prev => ({
       ...prev,
@@ -846,27 +938,42 @@ export default function AdministrativeDocumentsPage() {
       }
 
       const assignedBranchName = resolveBranchName(assignedBranchId);
+      const docId = editingDocId || `OUT-${Date.now()}`;
+      const docNumber = outDocNumber.trim();
+
+      const finalContent = outTableData.enabled 
+        ? `${outContent.trim()}\n\n<!--__TABLE_DATA__:${JSON.stringify(outTableData)}-->`
+        : outContent.trim();
+
+      const finalNotes = outTableData.enabled
+        ? `${(existingDoc?.notes || '').replace(/__TABLE_DATA__:[\s\S]*/, '').trim()} __TABLE_DATA__:${JSON.stringify(outTableData)}`
+        : existingDoc?.notes || '';
 
       const docPayload: OfficialDoc = {
-        id: editingDocId || `OUT-${Date.now()}`,
+        id: docId,
         branch_id: assignedBranchId,
         branch_name: assignedBranchName,
         type: 'OUTGOING',
         priority: outPriority,
         status: 'COMPLETED',
-        docNumber: outDocNumber.trim(),
+        docNumber: docNumber,
         docDate: outDocDate,
         partyName: outRecipient.trim(),
         subject: outSubject.trim(),
-        content: outContent.trim(),
+        content: finalContent,
         attachments: outAttachments.trim(),
         carbonCopy: outCarbonCopy.trim(),
         signatoryTitle: outSignatoryTitle.trim(),
         signatoryName: outSignatoryName.trim(),
         scannedFileUrls: outScannedUrls,
         tableData: outTableData.enabled ? outTableData : undefined,
+        notes: finalNotes,
         createdAt: existingDoc?.createdAt || new Date().toISOString()
       };
+
+      if (outTableData.enabled) {
+        backupTableLocally(docId, docNumber, outTableData);
+      }
 
       const updated = editingDocId 
         ? documents.map(d => d.id === editingDocId ? docPayload : d)
@@ -875,7 +982,6 @@ export default function AdministrativeDocumentsPage() {
       if (safeSaveToStorage(updated)) {
         await syncDocToCloud(docPayload);
 
-        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
         await pushSystemNotification(
           editingDocId ? `تعديل كتاب صادر: ${docPayload.docNumber}` : `كتاب صادر رسمي: ${docPayload.docNumber}`,
           `تم ${editingDocId ? 'تعديل' : 'إصدار'} كتاب رسمي في (${docPayload.branch_name}) موجه إلى (${docPayload.partyName}) بموضوع: ${docPayload.subject}`,
@@ -959,7 +1065,6 @@ export default function AdministrativeDocumentsPage() {
       if (safeSaveToStorage(updated)) {
         await syncDocToCloud(docPayload);
 
-        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
         await pushSystemNotification(
           editingDocId ? `تعديل كتاب وارد: ${docPayload.docNumber}` : `كتاب وارد جديد: ${docPayload.docNumber}`,
           `تم ${editingDocId ? 'تعديل' : 'تسجيل'} كتاب وارد لـ (${docPayload.branch_name}) من (${docPayload.partyName}) برقم كتابهم (${docPayload.senderDocNumber}) بموضوع: ${docPayload.subject}`,
@@ -1006,26 +1111,41 @@ export default function AdministrativeDocumentsPage() {
       }
 
       const assignedBranchName = resolveBranchName(assignedBranchId);
+      const docId = editingDocId || `ORD-${Date.now()}`;
+      const docNumber = orderDocNumber.trim();
+
+      const finalContent = orderTableData.enabled 
+        ? `${orderContent.trim()}\n\n<!--__TABLE_DATA__:${JSON.stringify(orderTableData)}-->`
+        : orderContent.trim();
+
+      const finalNotes = orderTableData.enabled
+        ? `${(existingDoc?.notes || '').replace(/__TABLE_DATA__:[\s\S]*/, '').trim()} __TABLE_DATA__:${JSON.stringify(orderTableData)}`
+        : existingDoc?.notes || '';
 
       const docPayload: OfficialDoc = {
-        id: editingDocId || `ORD-${Date.now()}`,
+        id: docId,
         branch_id: assignedBranchId,
         branch_name: assignedBranchName,
         type: 'INTERNAL_ORDER',
         priority: 'NORMAL',
         status: 'COMPLETED',
-        docNumber: orderDocNumber.trim(),
+        docNumber: docNumber,
         docDate: orderDocDate,
         partyName: orderRecipient.trim(),
         subject: orderSubject.trim(),
-        content: orderContent.trim(),
+        content: finalContent,
         attachments: orderAttachments.trim(),
         signatoryTitle: orderSignatoryTitle.trim(),
         signatoryName: orderSignatoryName.trim(),
         scannedFileUrls: orderScannedUrls,
         tableData: orderTableData.enabled ? orderTableData : undefined,
+        notes: finalNotes,
         createdAt: existingDoc?.createdAt || new Date().toISOString()
       };
+
+      if (orderTableData.enabled) {
+        backupTableLocally(docId, docNumber, orderTableData);
+      }
 
       const updated = editingDocId 
         ? documents.map(d => d.id === editingDocId ? docPayload : d)
@@ -1034,7 +1154,6 @@ export default function AdministrativeDocumentsPage() {
       if (safeSaveToStorage(updated)) {
         await syncDocToCloud(docPayload);
 
-        // إرسال الإشعار لمرة واحدة فقط مع توثيق اسم المستخدم المنفذ
         await pushSystemNotification(
           editingDocId ? `تعديل أمر إداري: ${docPayload.docNumber}` : `أمر إداري داخلي: ${docPayload.docNumber}`,
           `تم ${editingDocId ? 'تعديل' : 'إصدار'} أمر إداري في (${docPayload.branch_name}) بموضوع: ${docPayload.subject}`,
@@ -1290,7 +1409,7 @@ export default function AdministrativeDocumentsPage() {
       d.signatoryName || 'المدير المفوض'
     ]);
 
-    const incomingHeaders = ['رقم قيد الوارد', 'تاريخ الاستلام', 'عدد كتاب الجهة', 'تاريخ كتاب الجهة', 'الجهة الوارد منها', 'موضوع الكتاب', 'المرفقات'];
+    const incomingHeaders = ['رقم قيد الوارد', 'تاريخ الاستلاستلام', 'عدد كتاب الجهة', 'تاريخ كتاب الجهة', 'الجهة الوارد منها', 'موضوع الكتاب', 'المرفقات'];
     const incomingRows = incomingDocs.map(d => [
       d.docNumber,
       d.docDate,
@@ -1411,7 +1530,6 @@ export default function AdministrativeDocumentsPage() {
     setSelectedDocForPrint(doc);
   };
 
-  // مكوّن محرر الجدول المدمج
   const renderTableEditor = (tableData: TableData, setTableData: React.Dispatch<React.SetStateAction<TableData>>, themeColor: string) => {
     return (
       <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
@@ -1554,7 +1672,6 @@ export default function AdministrativeDocumentsPage() {
     );
   };
 
-  // مكوّن عرض الجدول الرسمي للطباعة
   const renderOfficialTable = (tableData: TableData, primaryCol: string, secondaryCol: string) => {
     if (!tableData || !tableData.enabled) return null;
 
@@ -1944,7 +2061,8 @@ export default function AdministrativeDocumentsPage() {
                   </tr>
                 ) : (
                   currentTabDocs.map((doc) => {
-                    const hasTableAttachment = doc.tableData?.enabled && doc.tableData.placement === 'ATTACHMENT';
+                    const docTable = extractTableData(doc);
+                    const hasTableAttachment = docTable?.enabled && docTable.placement === 'ATTACHMENT';
                     const totalPages = (doc.mainLetterUrl ? 1 : 0) + (doc.scannedFileUrls ? doc.scannedFileUrls.length : 0) + (hasTableAttachment ? 1 : 0);
                     const docBranchDisplay = doc.branch_name || resolveBranchName(doc.branch_id);
 
@@ -2042,7 +2160,6 @@ export default function AdministrativeDocumentsPage() {
               </div>
 
               <form onSubmit={handleSaveOutgoing} className="space-y-4 text-xs flex-1">
-                {/* اختيار الفرع المعتمد رسمياً */}
                 <div className="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/30">
                   <label className="block text-amber-400 mb-1 font-bold">الفرع الصادر منه الكتاب رسمياً *</label>
                   {isRestrictedBranch ? (
@@ -2292,7 +2409,6 @@ export default function AdministrativeDocumentsPage() {
               </div>
 
               <form onSubmit={handleSaveIncoming} className="space-y-4 text-xs flex-1">
-                {/* اختيار الفرع المعتمد رسمياً */}
                 <div className="bg-slate-950 p-3.5 rounded-2xl border border-sky-500/30">
                   <label className="block text-sky-400 mb-1 font-bold">الفرع الوارد إليه الكتاب رسمياً *</label>
                   {isRestrictedBranch ? (
@@ -2591,7 +2707,6 @@ export default function AdministrativeDocumentsPage() {
               </div>
 
               <form onSubmit={handleSaveOrder} className="space-y-4 text-xs flex-1">
-                {/* اختيار الفرع المعتمد رسمياً */}
                 <div className="bg-slate-950 p-3.5 rounded-2xl border border-emerald-500/30">
                   <label className="block text-emerald-400 mb-1 font-bold">الفرع الصادر منه الأمر الإداري *</label>
                   {isRestrictedBranch ? (
@@ -2819,8 +2934,13 @@ export default function AdministrativeDocumentsPage() {
 
           const docBranchOfficialName = doc.branch_name || resolveBranchName(doc.branch_id);
 
-          const hasInlineTable = Boolean(doc.tableData?.enabled && doc.tableData.placement === 'INLINE');
-          const hasAttachmentTable = Boolean(doc.tableData?.enabled && doc.tableData.placement === 'ATTACHMENT');
+          const tableToRender = extractTableData(doc);
+          const hasInlineTable = Boolean(tableToRender?.enabled && tableToRender.placement === 'INLINE');
+          const hasAttachmentTable = Boolean(tableToRender?.enabled && tableToRender.placement === 'ATTACHMENT');
+
+          const cleanDisplayContent = doc.content 
+            ? doc.content.replace(/<!--__TABLE_DATA__:[\s\S]*?-->/g, '').split('__TABLE_DATA__:')[0].trim() 
+            : '';
 
           return (
             <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 md:p-8 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
@@ -2967,17 +3087,15 @@ export default function AdministrativeDocumentsPage() {
                         </>
                       )}
 
-                      {/* شريط العدد والتاريخ واسم الفرع في السند الرسمي الأنيق */}
+                      {/* شريط العدد والتاريخ واسم الفرع في السند الرسمي الأنيق (مطابق للصورة الثانية) */}
                       <div className="mx-10 mt-2 bg-[#e4e4e7] px-5 py-2 rounded-sm flex items-center justify-between font-black text-[13px] text-slate-900 border border-slate-300">
                         <div className="flex items-center gap-2">
                           <span className="text-slate-900 font-bold">{isIncoming ? 'تاريخ استلام الوارد :' : 'التاريخ :'}</span>
                           <span className="font-mono text-sm tracking-widest">{doc.docDate}</span>
                         </div>
 
-                        <div className="border bg-white px-3 py-0.5 rounded text-[11px] font-black" style={{ borderColor: primaryCol, color: primaryCol }}>
-                          {isIncoming ? 'سجل الكتب الواردة' : isOrder ? 'أمر إداري داخلي' : 'كتاب صادر رسمي'}
-                          <span className="mx-1 text-slate-400">|</span>
-                          <span className="text-slate-800 font-bold">{docBranchOfficialName}</span>
+                        <div className="border bg-white px-4 py-0.5 rounded text-[11px] font-black" style={{ borderColor: primaryCol, color: primaryCol }}>
+                          {docBranchOfficialName}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -3010,15 +3128,15 @@ export default function AdministrativeDocumentsPage() {
                           </span>
                         </div>
 
-                        {!isIncoming && doc.content && (
+                        {!isIncoming && cleanDisplayContent && (
                           <div className="text-[14px] leading-[2.2] font-medium text-slate-900 text-justify whitespace-pre-line pt-1">
-                            {doc.content}
+                            {cleanDisplayContent}
                           </div>
                         )}
 
                         {/* إدراج الجدول المباشر في الصفحة الأولى إذا اختير INLINE */}
-                        {!isIncoming && hasInlineTable && doc.tableData && (
-                          renderOfficialTable(doc.tableData, primaryCol, secondaryCol)
+                        {!isIncoming && hasInlineTable && tableToRender && (
+                          renderOfficialTable(tableToRender, primaryCol, secondaryCol)
                         )}
 
                         {isIncoming && doc.mainLetterUrl && (
@@ -3145,7 +3263,7 @@ export default function AdministrativeDocumentsPage() {
                   </div>
 
                   {/* صفحة مرفق الجدول المخصص إذا كان ATTACHMENT */}
-                  {hasAttachmentTable && doc.tableData && (
+                  {hasAttachmentTable && tableToRender && (
                     <div 
                       id="table-attachment-page"
                       className="print-attachment-sheet w-full bg-white text-slate-950 shadow-2xl print:shadow-none relative overflow-hidden font-sans p-6 md:p-8 border border-slate-300 flex flex-col justify-between items-center min-h-[1080px] max-h-[1115px] print:min-h-0 print:border-none print:m-0"
@@ -3178,9 +3296,9 @@ export default function AdministrativeDocumentsPage() {
 
                       <div className="w-full flex-1 flex flex-col justify-start pt-4">
                         <div className="text-center font-bold text-[15px] text-slate-950 mb-3 border-b-2 pb-1 inline-block mx-auto" style={{ borderBottomColor: primaryCol }}>
-                          {doc.tableData.title || `جدول البيانات المرفق مع ${isOrder ? 'الأمر الإداري' : 'الكتاب الصادر'}`}
+                          {tableToRender.title || `جدول البيانات المرفق مع ${isOrder ? 'الأمر الإداري' : 'الكتاب الصادر'}`}
                         </div>
-                        {renderOfficialTable(doc.tableData, primaryCol, secondaryCol)}
+                        {renderOfficialTable(tableToRender, primaryCol, secondaryCol)}
                       </div>
 
                       <div className="w-full text-center text-[9px] text-slate-400 font-mono border-t border-slate-200 pt-2 mt-2 flex items-center justify-between">

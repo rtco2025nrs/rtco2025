@@ -108,7 +108,6 @@ export default function HRManagementPage() {
     return `${year}-${month}`;
   });
 
-  // حقول إضافة موظف جديد
   const [showAddEmpModal, setShowAddEmpModal] = useState(false);
   const [empCode, setEmpCode] = useState('');
   const [department, setDepartment] = useState('المقاولات والمشاريع');
@@ -125,7 +124,6 @@ export default function HRManagementPage() {
   const [bankAccount, setBankAccount] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
 
-  // حقول تعديل بيانات الموظف
   const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
   const [editEmpCode, setEditEmpCode] = useState('');
   const [editDepartment, setEditDepartment] = useState('المقاولات والمشاريع');
@@ -140,7 +138,6 @@ export default function HRManagementPage() {
   const [editPhone, setEditPhone] = useState('');
   const [editLeaveBalance, setEditLeaveBalance] = useState('');
 
-  // السيرة الذاتية (CV)
   const [cvModalEmp, setCvModalEmp] = useState<any | null>(null);
   const [cvPrintEmp, setCvPrintEmp] = useState<any | null>(null);
   const [cvAvatar, setCvAvatar] = useState('');
@@ -190,7 +187,6 @@ export default function HRManagementPage() {
 
   const [processingPayroll, setProcessingPayroll] = useState(false);
 
-  // التحقق من كون الموظف مقيداً بفرع
   const isRestrictedBranch = useMemo(() => {
     return Boolean(
       currentUser && 
@@ -240,17 +236,9 @@ export default function HRManagementPage() {
     return resolveBranchName(selectedBranchId);
   }, [selectedBranchId, branches, isRestrictedBranch, currentUser]);
 
-  const canAdd = useMemo(() => {
-    return hasPermission(currentUser, 'hr', 'add');
-  }, [currentUser]);
-
-  const canEdit = useMemo(() => {
-    return hasPermission(currentUser, 'hr', 'edit');
-  }, [currentUser]);
-
-  const canDelete = useMemo(() => {
-    return hasPermission(currentUser, 'hr', 'delete');
-  }, [currentUser]);
+  const canAdd = useMemo(() => hasPermission(currentUser, 'hr', 'add'), [currentUser]);
+  const canEdit = useMemo(() => hasPermission(currentUser, 'hr', 'edit'), [currentUser]);
+  const canDelete = useMemo(() => hasPermission(currentUser, 'hr', 'delete'), [currentUser]);
 
   const loadSettings = async () => {
     try {
@@ -300,7 +288,6 @@ export default function HRManagementPage() {
 
   useEffect(() => {
     loadSettings();
-
     const raw = localStorage.getItem('erp_user');
     if (raw) {
       try {
@@ -315,10 +302,7 @@ export default function HRManagementPage() {
 
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canAdd) {
-      alert('ليس لديك صلاحية إضافة موظفين جدد');
-      return;
-    }
+    if (!canAdd) return alert('ليس لديك صلاحية إضافة موظفين جدد');
     setLoading(true);
     try {
       const combinedFullName = lastName.trim() ? `${firstName.trim()} ${lastName.trim()}` : firstName.trim();
@@ -370,10 +354,7 @@ export default function HRManagementPage() {
   };
 
   const openEditEmployeeModal = (emp: any) => {
-    if (!canEdit) {
-      alert('ليس لديك صلاحية تعديل بيانات الموظفين');
-      return;
-    }
+    if (!canEdit) return alert('ليس لديك صلاحية تعديل بيانات الموظفين');
     setEditingEmployee(emp);
     setEditEmpCode(emp.emp_code || '');
     setEditDepartment(emp.department || 'المقاولات والمشاريع');
@@ -399,10 +380,7 @@ export default function HRManagementPage() {
 
   const handleUpdateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canEdit) {
-      alert('ليس لديك صلاحية تعديل بيانات الموظفين');
-      return;
-    }
+    if (!canEdit) return alert('ليس لديك صلاحية تعديل بيانات الموظفين');
     if (!editingEmployee) return;
     setLoading(true);
     try {
@@ -465,10 +443,7 @@ export default function HRManagementPage() {
   };
 
   const handleAddDocToCv = () => {
-    if (!docTitle || !docUrl) {
-      alert('يرجى كتابة عنوان الوثيقة ورابطها (URL)');
-      return;
-    }
+    if (!docTitle || !docUrl) return alert('يرجى كتابة عنوان الوثيقة ورابطها (URL)');
     setDocumentsList([...documentsList, { title: docTitle, url: docUrl, date: new Date().toISOString().substring(0, 10) }]);
     setDocTitle('');
     setDocUrl('');
@@ -479,10 +454,7 @@ export default function HRManagementPage() {
   };
 
   const handleSaveCv = async () => {
-    if (!canEdit) {
-      alert('ليس لديك صلاحية تعديل السيرة الذاتية');
-      return;
-    }
+    if (!canEdit) return alert('ليس لديك صلاحية تعديل السيرة الذاتية');
     if (!cvModalEmp) return;
     setLoading(true);
     try {
@@ -514,10 +486,7 @@ export default function HRManagementPage() {
 
   const handleAddAdjustment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canAdd) {
-      alert('ليس لديك صلاحية قيد الاستقطاعات أو السلف');
-      return;
-    }
+    if (!canAdd) return alert('ليس لديك صلاحية قيد الاستقطاعات أو السلف');
     if (!selectedEmpId) return;
     setLoading(true);
     try {
@@ -554,10 +523,7 @@ export default function HRManagementPage() {
 
   const handleRecordLeave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canAdd) {
-      alert('ليس لديك صلاحية تسجيل الإجازات');
-      return;
-    }
+    if (!canAdd) return alert('ليس لديك صلاحية تسجيل الإجازات');
     if (!leaveEmpId) return;
     setLoading(true);
     try {
@@ -592,10 +558,7 @@ export default function HRManagementPage() {
 
   const handleAddAppraisal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canAdd) {
-      alert('ليس لديك صلاحية إضافة التقييمات أو العقوبات');
-      return;
-    }
+    if (!canAdd) return alert('ليس لديك صلاحية إضافة التقييمات أو العقوبات');
     if (!appraisalEmpId) return;
     setLoading(true);
     try {
@@ -629,10 +592,7 @@ export default function HRManagementPage() {
   };
 
   const handleDeleteLeave = async (leaveId: string) => {
-    if (!canDelete) {
-      alert('ليس لديك صلاحية حذف الإجازات');
-      return;
-    }
+    if (!canDelete) return alert('ليس لديك صلاحية حذف الإجازات');
     if (!confirm('هل أنت متأكد من حذف هذه الإجازة مع استرجاع رصيد الأيام المخصومة؟')) return;
     try {
       const res = await fetch(`/api/hr?leave_id=${leaveId}`, { method: 'DELETE' });
@@ -643,10 +603,7 @@ export default function HRManagementPage() {
   };
 
   const handleDeleteAdjustment = async (adjId: string) => {
-    if (!canDelete) {
-      alert('ليس لديك صلاحية حذف الحركات أو السلف');
-      return;
-    }
+    if (!canDelete) return alert('ليس لديك صلاحية حذف الحركات أو السلف');
     if (!confirm('هل أنت متأكد من حذف حركة الاستقطاع أو السلفة؟')) return;
     try {
       const res = await fetch(`/api/hr?adj_id=${adjId}`, { method: 'DELETE' });
@@ -657,10 +614,7 @@ export default function HRManagementPage() {
   };
 
   const handleDeleteRecord = async (recId: string) => {
-    if (!canDelete) {
-      alert('ليس لديك صلاحية حذف السجلات الإدارية');
-      return;
-    }
+    if (!canDelete) return alert('ليس لديك صلاحية حذف السجلات الإدارية');
     if (!confirm('هل أنت متأكد من حذف هذا السجل الإداري؟')) return;
     try {
       const res = await fetch(`/api/hr?rec_id=${recId}`, { method: 'DELETE' });
@@ -671,10 +625,7 @@ export default function HRManagementPage() {
   };
 
   const handleResetPayroll = async () => {
-    if (!canEdit) {
-      alert('ليس لديك صلاحية تصفير أو تعديل مسير الرواتب');
-      return;
-    }
+    if (!canEdit) return alert('ليس لديك صلاحية تصفير أو تعديل مسير الرواتب');
     if (!confirm(`تأكيد استرجاع وتصفير بودرة شهر (${filterMonth}) لإعادة التعديل من جديد؟`)) return;
     setLoading(true);
     try {
@@ -701,10 +652,7 @@ export default function HRManagementPage() {
   };
 
   const handleProcessPayroll = async () => {
-    if (!canEdit) {
-      alert('ليس لديك صلاحية اعتماد وترحيل مسير الرواتب');
-      return;
-    }
+    if (!canEdit) return alert('ليس لديك صلاحية اعتماد وترحيل مسير الرواتب');
     if (!confirm(`تأكيد احتساب وترحيل مسير رواتب شهر (${filterMonth}) مع تطبيق استقطاعات الإجازات وأقساط السلف وتوليد سندات الصرف؟`)) return;
     setProcessingPayroll(true);
     try {
@@ -735,10 +683,7 @@ export default function HRManagementPage() {
 
   const sendWhatsAppPayslip = (run: any) => {
     const rawPhone = String(run.phone || '').trim().replace(/[^0-9]/g, '');
-    if (!rawPhone) {
-      alert('لم يتم تسجيل رقم هاتف لهذا الموظف!');
-      return;
-    }
+    if (!rawPhone) return alert('لم يتم تسجيل رقم هاتف لهذا الموظف!');
 
     let phoneWithCountry = rawPhone;
     if (phoneWithCountry.startsWith('0')) {
@@ -753,10 +698,7 @@ export default function HRManagementPage() {
   };
 
   const handleDeleteEmployee = async (emp: any) => {
-    if (!canDelete) {
-      alert('ليس لديك صلاحية حذف الموظفين');
-      return;
-    }
+    if (!canDelete) return alert('ليس لديك صلاحية حذف الموظفين');
     if (!confirm(`هل أنت متأكد من حذف الموظف "${emp.full_name}" وسجلاته؟`)) return;
     try {
       const res = await fetch(`/api/hr?id=${emp.employee_id}`, { method: 'DELETE' });
@@ -862,6 +804,79 @@ export default function HRManagementPage() {
     <AuthGuard moduleName="hr" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
+        {/* تنسيقات الطباعة الصارمة لعزل البودرة في وضع العرض Landscape A4 تماماً */}
+        <style jsx global>{`
+          @media screen and (max-width: 768px) {
+            .preview-scroll-container {
+              width: 100% !important;
+              overflow-x: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+            }
+            .print-landscape-sheet,
+            .print-paper-sheet,
+            .print-voucher-sheet {
+              min-width: 1150px !important;
+              margin: 0 auto !important;
+            }
+          }
+          @media print {
+            @page {
+              size: A4 landscape !important;
+              margin: 5mm 6mm !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            body, html {
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            header, nav, aside, .print-hidden-element, div[class*="backdrop-blur"], div[class*="fixed inset-0 bg-black/90"] > div:first-child {
+              display: none !important;
+              visibility: hidden !important;
+            }
+            .print-landscape-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: 2px solid #ea580c !important;
+              border-radius: 6px !important;
+              margin: 0 !important;
+              width: 297mm !important;
+              height: 206mm !important;
+              max-width: none !important;
+              background: #ffffff !important;
+              padding: 6mm 8mm !important;
+              page-break-after: avoid !important;
+              break-after: avoid !important;
+            }
+            .print-paper-sheet,
+            .print-voucher-sheet {
+              box-sizing: border-box !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              padding: 0 !important;
+              margin: 0 auto !important;
+              width: 100% !important;
+              max-width: 200mm !important;
+              height: auto !important;
+              overflow: visible !important;
+              page-break-after: auto !important;
+              break-after: auto !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: flex-start !important;
+            }
+          }
+        `}</style>
+
         {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
@@ -994,7 +1009,7 @@ export default function HRManagementPage() {
                 }`}
                 style={activeTab === 'PAYROLL_SHEET' ? { backgroundColor: primaryCol } : {}}
               >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-amber-300" /> مسير الرواتب والبودرة A4
+                <FileSpreadsheet className="w-3.5 h-3.5 text-amber-300" /> مسير الرواتب والبودرة A4 بالعرض
               </button>
               <button
                 onClick={() => setActiveTab('LEDGER')}
@@ -1179,7 +1194,6 @@ export default function HRManagementPage() {
                                 {emp.emp_code}
                               </span>
 
-                              {/* وسم الفرع التابع له الموظف */}
                               <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 font-sans">
                                 🏢 {emp.branch_name || 'الموارد البشرية والرواتب'}
                               </span>
@@ -1423,16 +1437,16 @@ export default function HRManagementPage() {
           </div>
         )}
 
-        {/* 2. تبويب مسير الرواتب والبودرة A4 مع شريط التوثيق والفرع */}
+        {/* 2. تبويب مسير الرواتب والبودرة A4 بالعرض (Landscape) */}
         {activeTab === 'PAYROLL_SHEET' && (
           <div className="max-w-7xl mx-auto mt-5 space-y-4">
             <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-3 print:hidden shadow-md">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4" style={{ color: primaryCol }} />
-                  مسير رواتب شهر {currentMonthArabic} ({filterMonth})
+                  مسير رواتب شهر {currentMonthArabic} ({filterMonth}) — عرض أفقي (Landscape A4)
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">اعتماد المسير وحساب الخصومات والسلف وترحيل السندات للصندوق</p>
+                <p className="text-xs text-slate-400 mt-0.5">اعتماد المسير وحساب الخصومات والسلف وترحيل السندات للصندوق مع طباعة أفقية متكاملة</p>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end">
@@ -1465,184 +1479,215 @@ export default function HRManagementPage() {
                   }}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer"
                 >
-                  <Printer className="w-3.5 h-3.5" /> طباعة البودرة (A4)
+                  <Printer className="w-3.5 h-3.5" /> طباعة البودرة (Landscape A4)
                 </button>
               </div>
             </div>
 
             <div className="preview-scroll-container print:overflow-visible print:w-full print:max-w-none">
-              <div className="print-official-sheet w-full bg-white text-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xl print:border-none print:shadow-none print:p-0 space-y-4">
+              <div className="print-landscape-sheet w-full bg-white text-slate-900 rounded-3xl p-6 md:p-10 border-2 shadow-2xl print:shadow-none space-y-5 font-sans flex flex-col justify-between" style={{ borderColor: '#ea580c' }}>
                 
-                {/* 1. الترويسة الأصلية للشركة دون المساس بها */}
-                {hasLetterhead ? (
-                  <div className="w-full border-b pb-3 mb-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-32 object-contain" />
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center border-b-2 pb-4" style={{ borderColor: primaryCol }}>
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-xl border border-slate-200 shrink-0">
-                        {hasLogo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                        ) : (
-                          <Image 
-                            src="/logo.png" 
-                            alt="شركة البرج المتألق" 
-                            width={50} 
-                            height={50} 
-                            className="object-contain" 
-                            priority 
-                          />
-                        )}
+                <div className="space-y-4 flex-1">
+                  {/* Teresat / Header */}
+                  {hasLetterhead ? (
+                    <div className="w-full border-b pb-3 mb-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-28 object-contain" />
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center border-b-2 pb-4" style={{ borderColor: primaryCol }}>
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-xl border border-slate-200 shrink-0">
+                          {hasLogo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                          ) : (
+                            <Image 
+                              src="/logo.png" 
+                              alt="شركة البرج المتألق" 
+                              width={50} 
+                              height={50} 
+                              className="object-contain" 
+                              priority 
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h2>
+                          <p className="text-xs text-slate-700 font-bold">{companySettings.tagline}</p>
+                          <p className="text-[11px] text-slate-500 font-mono">{companySettings.address}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h2>
-                        <p className="text-xs text-slate-700 font-bold">{companySettings.tagline}</p>
-                        <p className="text-[11px] text-slate-500 font-mono">{companySettings.address}</p>
+                      <div className="text-left font-mono">
+                        <span 
+                          className="border px-3 py-1 font-bold text-xs text-slate-950 rounded-lg inline-block shadow-sm"
+                          style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
+                        >
+                          مسير رواتب الكوادر (بودرة)
+                        </span>
+                        <p className="text-[11px] text-slate-600 font-bold mt-1 font-sans">شهر: {currentMonthArabic} ({filterMonth})</p>
                       </div>
                     </div>
-                    <div className="text-left font-mono">
-                      <span 
-                        className="border px-3 py-1 font-bold text-xs text-slate-950 rounded-lg inline-block shadow-sm"
-                        style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                      >
-                        مسير رواتب الكوادر
+                  )}
+
+                  {/* شريط التوثيق الرسمي تحت الترويسة */}
+                  <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-5 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800">
+                    <div className="flex items-center gap-1.5" dir="rtl">
+                      <span className="text-slate-500 font-bold">العدد :</span>
+                      <span className="font-mono text-slate-950 text-sm tracking-wide">
+                        ر/ {filterMonth} / 2026
                       </span>
-                      <p className="text-[11px] text-slate-600 font-bold mt-1 font-sans">شهر: {currentMonthArabic} ({filterMonth})</p>
+                    </div>
+
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center px-5 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
+                        {currentActiveBranchName}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5" dir="rtl">
+                      <span className="text-slate-500 font-bold">التاريخ :</span>
+                      <span className="font-mono text-slate-950 text-sm tracking-wider">
+                        {new Date().toISOString().substring(0, 10)}
+                      </span>
                     </div>
                   </div>
-                )}
 
-                {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع مأطر، اليسار التاريخ */}
-                <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800">
-                  {/* اليمين: العدد */}
-                  <div className="flex items-center gap-1.5" dir="rtl">
-                    <span className="text-slate-500 font-bold">العدد :</span>
-                    <span className="font-mono text-slate-950 text-sm tracking-wide">
-                      ر/ {filterMonth} / 2026
-                    </span>
+                  {/* عنوان الوثيقة */}
+                  <div className="text-center py-1">
+                    <h3 className="text-base font-black text-slate-900 inline-block border-b-2 border-amber-600 pb-1 px-6">
+                      كشف مسير الرواتب والأجور الشهرية المعتمد (بودرة)
+                    </h3>
                   </div>
 
-                  {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
-                  <div className="flex items-center justify-center">
-                    <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
-                      {currentActiveBranchName}
-                    </span>
-                  </div>
-
-                  {/* اليسار: التاريخ */}
-                  <div className="flex items-center gap-1.5" dir="rtl">
-                    <span className="text-slate-500 font-bold">التاريخ :</span>
-                    <span className="font-mono text-slate-950 text-sm tracking-wider">
-                      {new Date().toISOString().substring(0, 10)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border border-slate-300 rounded-xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
-                  <table className="w-full min-w-[800px] text-right text-[12px] border-collapse">
-                    <thead className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
-                      <tr>
-                        <th className="p-2.5 text-center w-8 border-l border-slate-200 whitespace-nowrap">ت</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">اسم الموظف</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">المسمى والقسم</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">الراتب الأساسي</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">البدلات والحوافز</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">الإضافي</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">الاستقطاعات والسلف</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">سبب القطع</th>
-                        <th className="p-2.5 border-l border-slate-200 whitespace-nowrap">صافي المستحق</th>
-                        <th className="p-2.5 text-center print:hidden border-l border-slate-200 whitespace-nowrap">إشعار</th>
-                        <th className="p-2.5 text-center w-24 whitespace-nowrap">التوقيع</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 font-sans">
-                      {currentMonthRuns.length === 0 ? (
+                  {/* جدول البودرة العريض مع مسافات مريحة وتنسيق ممتاز */}
+                  <div className="border border-slate-300 rounded-xl overflow-hidden w-full overflow-x-auto pb-2 print:overflow-visible print:pb-0">
+                    <table className="w-full min-w-[950px] text-right text-[12px] border-collapse font-cairo">
+                      <thead className="bg-slate-100 text-slate-900 font-black border-b-2 border-slate-300">
                         <tr>
-                          <td colSpan={11} className="text-center py-8 text-slate-500 text-xs">
-                            البودرة غير مرحلة لشهر {currentMonthArabic} ({filterMonth}) حالياً. اضغط على زر <strong className="text-emerald-700">«اعتماد وترحيل رواتب شهر {currentMonthArabic}»</strong> لتنزيل المسير فوراً.
-                          </td>
+                          <th className="p-3 text-center w-10 border-l border-slate-300 whitespace-nowrap">ت</th>
+                          <th className="p-3 border-l border-slate-300 whitespace-nowrap min-w-[150px]">اسم الموظف الثلاثي</th>
+                          <th className="p-3 border-l border-slate-300 whitespace-nowrap">المسمى الوظيفي والقسم</th>
+                          <th className="p-3 text-center border-l border-slate-300 whitespace-nowrap">الراتب الأساسي</th>
+                          <th className="p-3 text-center border-l border-slate-300 whitespace-nowrap">البدلات والحوافز</th>
+                          <th className="p-3 text-center border-l border-slate-300 whitespace-nowrap">الساعات الإضافية</th>
+                          <th className="p-3 text-center border-l border-slate-300 whitespace-nowrap">الاستقطاعات والسلف</th>
+                          <th className="p-3 border-l border-slate-300 whitespace-nowrap min-w-[160px]">بيان الاستقطاعات والغيابات</th>
+                          <th className="p-3 text-center border-l border-slate-300 whitespace-nowrap">صافي المستحق</th>
+                          <th className="p-3 text-center print:hidden border-l border-slate-300 whitespace-nowrap">إشعار</th>
+                          <th className="p-3 text-center w-28 whitespace-nowrap">التوقيع وبصمة الاستلاستلام</th>
                         </tr>
-                      ) : (
-                        currentMonthRuns.map((run, idx) => (
-                          <tr key={run.run_id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-2.5 text-center font-mono font-bold text-slate-400 border-l border-slate-200 whitespace-nowrap">{idx + 1}</td>
-                            <td className="p-2.5 font-bold text-slate-900 border-l border-slate-200 whitespace-nowrap">
-                              {run.full_name}
-                            </td>
-                            <td className="p-2.5 text-slate-600 border-l border-slate-200 text-[11px] whitespace-nowrap">
-                              {run.job_title} <span className="text-slate-400">({run.department})</span>
-                            </td>
-                            <td className="p-2.5 font-mono text-slate-800 border-l border-slate-200 whitespace-nowrap">{formatNum(run.base_salary)}</td>
-                            <td className="p-2.5 font-mono text-emerald-700 font-bold border-l border-slate-200 whitespace-nowrap">
-                              +{formatNum(Number(run.allowances) + Number(run.bonuses))}
-                            </td>
-                            <td className="p-2.5 font-mono text-emerald-600 font-bold border-l border-slate-200 whitespace-nowrap">
-                              +{formatNum(run.overtime_amount)}
-                            </td>
-                            <td className="p-2.5 font-mono text-rose-700 font-bold border-l border-slate-200 whitespace-nowrap">
-                              -{formatNum(Number(run.loans_deducted) + Number(run.penalties))}
-                            </td>
-                            <td className="p-2.5 text-rose-600 text-[11px] leading-relaxed border-l border-slate-200 min-w-[120px]">
-                              {run.deduction_reasons || '---'}
-                            </td>
-                            <td className="p-2.5 font-mono font-black text-slate-950 text-[13px] border-l border-slate-200 whitespace-nowrap">
-                              {formatNum(run.net_salary)} <span className="text-[10px] font-sans font-normal text-slate-500">د.ع</span>
-                            </td>
-                            <td className="p-1.5 text-center print:hidden border-l border-slate-200 whitespace-nowrap">
-                              <button
-                                onClick={() => sendWhatsAppPayslip(run)}
-                                className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded border border-emerald-300 transition inline-flex items-center gap-1 text-[11px] font-semibold cursor-pointer"
-                                title="إرسال إشعار الراتب عبر واتساب"
-                              >
-                                <Send className="w-3 h-3 text-emerald-600" /> واتساب
-                              </button>
-                            </td>
-                            <td className="p-1.5 text-center whitespace-nowrap">
-                              <div className="border-b border-dashed border-slate-400 w-16 mx-auto mt-2"></div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 font-sans">
+                        {currentMonthRuns.length === 0 ? (
+                          <tr>
+                            <td colSpan={11} className="text-center py-10 text-slate-500 text-xs font-sans">
+                              البودرة غير مرحلة لشهر {currentMonthArabic} ({filterMonth}) حالياً. اضغط على زر <strong className="text-emerald-700">«اعتماد وترحيل رواتب شهر {currentMonthArabic}»</strong> في الأعلى لتنزيل المسير فوراً.
                             </td>
                           </tr>
-                        ))
+                        ) : (
+                          currentMonthRuns.map((run, idx) => (
+                            <tr key={run.run_id} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-2.5 text-center font-mono font-bold text-slate-600 border-l border-slate-200 whitespace-nowrap">{idx + 1}</td>
+                              <td className="p-2.5 font-bold text-slate-950 border-l border-slate-200 whitespace-nowrap text-[13px]">
+                                {run.full_name}
+                              </td>
+                              <td className="p-2.5 text-slate-700 border-l border-slate-200 text-[11px] whitespace-nowrap font-medium">
+                                {run.job_title} <span className="text-slate-400">({run.department})</span>
+                              </td>
+                              <td className="p-2.5 text-center font-mono text-slate-900 border-l border-slate-200 whitespace-nowrap">{formatNum(run.base_salary)}</td>
+                              <td className="p-2.5 text-center font-mono text-emerald-700 font-bold border-l border-slate-200 whitespace-nowrap">
+                                +{formatNum(Number(run.allowances) + Number(run.bonuses))}
+                              </td>
+                              <td className="p-2.5 text-center font-mono text-emerald-600 font-bold border-l border-slate-200 whitespace-nowrap">
+                                +{formatNum(run.overtime_amount)}
+                              </td>
+                              <td className="p-2.5 text-center font-mono text-rose-700 font-bold border-l border-slate-200 whitespace-nowrap">
+                                -{formatNum(Number(run.loans_deducted) + Number(run.penalties))}
+                              </td>
+                              <td className="p-2.5 text-slate-700 text-[11px] leading-relaxed border-l border-slate-200 min-w-[150px]">
+                                {run.deduction_reasons || '---'}
+                              </td>
+                              <td className="p-2.5 text-center font-mono font-black text-slate-950 text-[13.5px] border-l border-slate-200 whitespace-nowrap bg-slate-50/50">
+                                {formatNum(run.net_salary)} <span className="text-[10px] font-sans font-normal text-slate-600">د.ع</span>
+                              </td>
+                              <td className="p-1.5 text-center print:hidden border-l border-slate-200 whitespace-nowrap">
+                                <button
+                                  onClick={() => sendWhatsAppPayslip(run)}
+                                  className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded border border-emerald-300 transition inline-flex items-center gap-1 text-[11px] font-semibold cursor-pointer"
+                                  title="إرسال إشعار الراتب عبر واتساب"
+                                >
+                                  <Send className="w-3 h-3 text-emerald-600" /> واتساب
+                                </button>
+                              </td>
+                              <td className="p-2 text-center whitespace-nowrap">
+                                <div className="border-b border-dashed border-slate-400 w-20 mx-auto mt-3"></div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                      {currentMonthRuns.length > 0 && (
+                        <tfoot className="bg-slate-100 border-t-2 border-slate-300 font-bold text-xs">
+                          <tr>
+                            <td colSpan={3} className="p-3 text-slate-950 font-black border-l border-slate-300 whitespace-nowrap text-sm">
+                              الإجمالي الكلي لمسير شهر {currentMonthArabic}:
+                            </td>
+                            <td className="p-3 text-center font-mono border-l border-slate-300 whitespace-nowrap">{formatNum(sheetTotals.totalBase)}</td>
+                            <td className="p-3 text-center font-mono text-emerald-700 border-l border-slate-300 whitespace-nowrap">+{formatNum(sheetTotals.totalAdditions)}</td>
+                            <td className="p-3 border-l border-slate-300"></td>
+                            <td className="p-3 text-center font-mono text-rose-700 border-l border-slate-300 whitespace-nowrap">-{formatNum(sheetTotals.totalDeductions)}</td>
+                            <td className="p-3 border-l border-slate-300"></td>
+                            <td className="p-3 text-center font-mono font-black text-base border-l border-slate-300 whitespace-nowrap" style={{ color: primaryCol }}>
+                              {formatNum(sheetTotals.totalNet)} <span className="text-[10px] font-sans font-normal text-slate-950">د.ع</span>
+                            </td>
+                            <td className="print:hidden border-l border-slate-300"></td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
                       )}
-                    </tbody>
-                    {currentMonthRuns.length > 0 && (
-                      <tfoot className="bg-slate-100 border-t-2 border-slate-300 font-bold text-xs">
-                        <tr>
-                          <td colSpan={3} className="p-2.5 text-slate-950 font-black border-l border-slate-300 whitespace-nowrap">
-                            إجمالي مسير شهر {currentMonthArabic}:
-                          </td>
-                          <td className="p-2.5 font-mono border-l border-slate-300 whitespace-nowrap">{formatNum(sheetTotals.totalBase)}</td>
-                          <td className="p-2.5 font-mono text-emerald-700 border-l border-slate-300 whitespace-nowrap">+{formatNum(sheetTotals.totalAdditions)}</td>
-                          <td className="p-2.5 border-l border-slate-300"></td>
-                          <td className="p-2.5 font-mono text-rose-700 border-l border-slate-300 whitespace-nowrap">-{formatNum(sheetTotals.totalDeductions)}</td>
-                          <td className="p-2.5 border-l border-slate-300"></td>
-                          <td className="p-2.5 font-mono font-black text-sm border-l border-slate-300 whitespace-nowrap" style={{ color: primaryCol }}>
-                            {formatNum(sheetTotals.totalNet)} <span className="text-[10px] font-sans font-normal">د.ع</span>
-                          </td>
-                          <td className="print:hidden border-l border-slate-300"></td>
-                          <td></td>
-                        </tr>
-                      </tfoot>
-                    )}
-                  </table>
+                    </table>
+                  </div>
+
+                  {/* ملاحظات وتوجيهات مالية إضافية غنية بالمعلومات */}
+                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-[12px] text-slate-700 space-y-1 font-medium">
+                    <p><strong>ملاحظات مالية وإدارية معتمدة:</strong></p>
+                    <p>1. تم احتساب الصافي أعلاه بعد خصم الغياب والإجازات غير الأوبئة وأقساط السلف المبرمجة مع الإدارة المالية وتأمين التغطية النقدية بالكامل[cite: 23].</p>
+                    <p>2. يقرر الموقّعون أدناه بصحة المبالغ المدققة ومطابقتها لحركات الدوام الفعلي والذرعات الميدانية المقرة[cite: 23].</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 pt-5 text-center border-t border-slate-300 text-xs">
-                  <div>
-                    <p className="font-bold text-slate-800">مسؤول الموارد البشرية</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-6"></div>
+                {/* منطقة التواقيع الأفقية الغنية للجنة الاعتماد والمحاسبة والإدارة */}
+                <div className="mt-auto pt-6 border-t border-slate-300">
+                  <div className="grid grid-cols-4 gap-6 pt-4 text-center text-xs">
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">إعداد وتنظيم الرواتب</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-8"></div>
+                      <span className="text-[10px] text-slate-500 mt-1 block">مسؤول الموارد البشرية</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">التدقيق المالي والحسابي</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-8"></div>
+                      <span className="text-[10px] text-slate-500 mt-1 block">رئيس الحسابات</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">اعتماد وتدقيق الإدارة</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-8"></div>
+                      <span className="text-[10px] text-slate-500 mt-1 block">المدير المالي والإداري</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">اعتماد وتوقيع نهائي</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-8"></div>
+                      <span className="text-[10px] text-slate-500 mt-1 block">المدير المفوض للشركة</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-slate-800">مدير الحسابات والمالية</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-6"></div>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-800">المدير المفوض للشركة</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-6"></div>
+
+                  <div className="border-t border-slate-200 pt-2 text-center text-[10px] text-slate-500 font-mono mt-4 flex items-center justify-between">
+                    <span>{companySettings.company_name} - {currentActiveBranchName} • نظام الموارد البشرية والرواتب المركزي</span>
+                    <span>تاريخ التقرير وطباعة البودرة: {new Date().toISOString().substring(0, 10)}</span>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -1876,7 +1921,7 @@ export default function HRManagementPage() {
           </div>
         )}
 
-        {/* مستند السيرة الذاتية والأرشيف للطباعة A4 مع شريط التوثيق والفرع */}
+        {/* مستند السيرة الذاتية والأرشيف للطباعة A4 */}
         {cvPrintEmp && (() => {
           const empBranchDisplay = resolveBranchName(cvPrintEmp.branch_id);
 
@@ -1899,7 +1944,6 @@ export default function HRManagementPage() {
                 <div className="print-official-sheet w-full bg-white text-slate-900 rounded-2xl p-6 sm:p-8 md:p-10 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
                   
                   <div>
-                    {/* 1. الترويسة الأصلية للشركة دون المساس بها */}
                     {hasLetterhead ? (
                       <div className="w-full border-b pb-3 mb-2">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1940,24 +1984,18 @@ export default function HRManagementPage() {
                       </div>
                     )}
 
-                    {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع مأطر، اليسار التاريخ */}
                     <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800 mt-2">
-                      {/* اليمين: العدد */}
                       <div className="flex items-center gap-1.5" dir="rtl">
                         <span className="text-slate-500 font-bold">العدد :</span>
                         <span className="font-mono text-slate-950 text-sm tracking-wide">
                           ذ/ {cvPrintEmp.emp_code} / 2026
                         </span>
                       </div>
-
-                      {/* المنتصف: اسم الفرع فقط مأطر بمفرده بدون أي إضافات */}
                       <div className="flex items-center justify-center">
                         <span className="inline-flex items-center px-4 py-1 rounded-lg bg-white border border-amber-600/60 text-slate-950 font-black text-xs shadow-xs">
                           {empBranchDisplay}
                         </span>
                       </div>
-
-                      {/* اليسار: التاريخ */}
                       <div className="flex items-center gap-1.5" dir="rtl">
                         <span className="text-slate-500 font-bold">التاريخ :</span>
                         <span className="font-mono text-slate-950 text-sm tracking-wider">
@@ -3041,7 +3079,6 @@ export default function HRManagementPage() {
               <div className="print-official-sheet w-full bg-white text-slate-900 rounded-2xl p-6 sm:p-8 md:p-10 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
                 
                 <div className="relative z-10 flex flex-col flex-1">
-                  {/* الترويسة الأصلية */}
                   {hasLetterhead ? (
                     <div className="w-full border-b pb-3 mb-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -3082,7 +3119,6 @@ export default function HRManagementPage() {
                     </div>
                   )}
 
-                  {/* شريط التوثيق */}
                   <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800 mt-2">
                     <div className="flex items-center gap-1.5" dir="rtl">
                       <span className="text-slate-500 font-bold">العدد :</span>
@@ -3146,7 +3182,7 @@ export default function HRManagementPage() {
                     <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-6"></div>
                   </div>
                   <div>
-                    <p className="font-bold text-slate-700">المدير المفوض للشركة</p>
+                    <p className="font-bold text-slate-700">مصادقة إدارة الشركة / الختم</p>
                     <div className="border-b border-dashed border-slate-400 w-28 mx-auto mt-6"></div>
                   </div>
                 </div>

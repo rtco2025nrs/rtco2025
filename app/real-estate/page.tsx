@@ -254,7 +254,6 @@ export default function RealEstatePage() {
   const canEdit = useMemo(() => hasPermission(currentUser, 'realestate', 'edit'), [currentUser]);
   const canDelete = useMemo(() => hasPermission(currentUser, 'realestate', 'delete'), [currentUser]);
 
-  // فتح نافذة تعديل بيانات العقار
   const handleOpenEditUnit = (u: any) => {
     if (!canEdit) return alert('ليس لديك صلاحية لتعديل بيانات العقار');
     setEditingUnitId(u.unit_id);
@@ -275,7 +274,6 @@ export default function RealEstatePage() {
     setShowUnitModal(true);
   };
 
-  // فتح نافذة تعديل عقد البيع والأقساط
   const handleOpenEditContract = (u: any) => {
     if (!canEdit) return alert('ليس لديك صلاحية لتعديل عقود البيع والأقساط');
     setSellingUnit(u);
@@ -293,7 +291,6 @@ export default function RealEstatePage() {
     }
   };
 
-  // إضافة عنصر وسائط جديد في قائمة التعديل
   const handleAddMediaItem = () => {
     if (!newMediaUrl.trim()) return alert('يرجى كتابة أو لصق رابط الصورة أو الفيديو أو المستند');
     const item: MediaItem = {
@@ -310,7 +307,6 @@ export default function RealEstatePage() {
     setMediaItemsList(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // حفظ أو تعديل بيانات العقار
   const handleSaveUnit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -356,7 +352,6 @@ export default function RealEstatePage() {
     }
   };
 
-  // بيع أو تعديل عقد البيع والأقساط
   const handleSaveSaleContract = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellingUnit) return;
@@ -391,7 +386,6 @@ export default function RealEstatePage() {
     }
   };
 
-  // تسديد القسط وتوليد سند القبض الفوري
   const handlePayInstallment = async (inst: any, unit: any) => {
     if (!canEdit && !canAdd) return alert('ليس لديك صلاحية تسجيل وقبض الأقساط');
     if (!confirm(`تأكيد قبض (${inst.installment_title}) بمبلغ (${formatNum(inst.amount)} د.ع) وتوليد سند قبض رسمي؟`)) return;
@@ -432,7 +426,6 @@ export default function RealEstatePage() {
     }
   };
 
-  // التراجع عن سداد القسط
   const handleRollbackInstallment = async (inst: any, unit: any) => {
     if (!canEdit && !canDelete) return alert('ليس لديك صلاحية التراجع عن السداد');
     if (!confirm(`تأكيد الرجوع عن تسديد (${inst.installment_title})؟ سيتم إلغاء سند القبض المالي (${inst.voucher_number || '---'}) وتعديل الذمة تلقائياً.`)) return;
@@ -552,7 +545,7 @@ export default function RealEstatePage() {
     <AuthGuard moduleName="realestate" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* تنسيقات الطباعة الصارمة لعزل الاستمارات وسندات القبض في ورق A4 */}
+        {/* تنسيقات الطباعة لعزل الاستمارات وسندات القبض في ورق A4 */}
         <style jsx global>{`
           @media screen and (max-width: 768px) {
             .preview-scroll-container {
@@ -598,8 +591,6 @@ export default function RealEstatePage() {
               width: 100% !important;
               max-width: 200mm !important;
               height: auto !important;
-              max-height: none !important;
-              min-height: 0 !important;
               overflow: visible !important;
               page-break-after: auto !important;
               break-after: auto !important;
@@ -974,7 +965,7 @@ export default function RealEstatePage() {
                       </div>
                     </div>
 
-                    {/* شريط الأرقام المالية الثلاثي المطابق للنظام */}
+                    {/* شريط الأرقام المالية الثلاثي */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs font-mono">
                       <div className="text-center sm:text-right">
                         <span className="text-slate-500 font-sans block text-[11px]">مجموع القيمة التعاقدية (السعر الكلي)</span>
@@ -990,7 +981,7 @@ export default function RealEstatePage() {
                       </div>
                     </div>
 
-                    {/* تفاصيل العقار والأقساط والأزرار (عند التوسيع) */}
+                    {/* تفاصيل العقار والأقساط عند التوسيع */}
                     {isExpanded && (
                       <div className="space-y-4 pt-2">
                         <div className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-4 space-y-3">
@@ -1048,776 +1039,676 @@ export default function RealEstatePage() {
 
                               {canDelete && (
                                 <button
-                                onClick={() => handleDeleteUnit(u)}
-                                className="p-1 bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition cursor-pointer"
-                                title="حذف هذا العقار وإلغاء سنداته"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                                  onClick={() => handleDeleteUnit(u)}
+                                  className="p-1 bg-slate-800 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition cursor-pointer"
+                                  title="حذف هذا العقار وإلغاء سنداته"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        {/* شبكة كروت الأقساط الـ 5 المعتمدة */}
-                        {isSold && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-1">
-                            {(!u.installments || u.installments.length === 0) ? (
-                              <div className="col-span-full p-4 text-center text-slate-500 font-sans text-xs">
-                                تم سداد كامل قيمة الوحدة نقداً ومباشرة بدون أقساط مجدولة.
-                              </div>
-                            ) : (
-                              u.installments.map((inst: any, idx: number) => {
-                                const isPaid = inst.is_paid;
-                                return (
-                                  <div 
-                                    key={inst.installment_id || idx} 
-                                    className={`p-3 rounded-2xl border transition text-xs space-y-2 flex flex-col justify-between ${
-                                      isPaid ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-300'
-                                    }`}
-                                  >
-                                    <div>
-                                      <div className="flex justify-between items-center text-[11px]">
-                                        <span className="font-bold">قسط #{idx + 1}</span>
-                                        <span className="font-mono text-[10px] text-slate-400">{String(inst.due_date || '').split('T')[0]}</span>
-                                      </div>
-                                      
-                                      <div className="text-sm font-black font-mono mt-1 text-white">
-                                        {formatNum(inst.amount)} د.ع
-                                      </div>
-
-                                      {isPaid && (
-                                        <div className="text-[10px] font-mono text-emerald-400 mt-0.5">
-                                          سدد بتاريخ: {inst.paid_at ? String(inst.paid_at).split('T')[0] : '—'}
+                          {/* شبكة كروت الأقساط */}
+                          {isSold && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-1">
+                              {(!u.installments || u.installments.length === 0) ? (
+                                <div className="col-span-full p-4 text-center text-slate-500 font-sans text-xs">
+                                  تم سداد كامل قيمة الوحدة نقداً ومباشرة بدون أقساط مجدولة.
+                                </div>
+                              ) : (
+                                u.installments.map((inst: any, idx: number) => {
+                                  const isPaid = inst.is_paid;
+                                  return (
+                                    <div 
+                                      key={inst.installment_id || idx} 
+                                      className={`p-3 rounded-2xl border transition text-xs space-y-2 flex flex-col justify-between ${
+                                        isPaid ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-300'
+                                      }`}
+                                    >
+                                      <div>
+                                        <div className="flex justify-between items-center text-[11px]">
+                                          <span className="font-bold">قسط #{idx + 1}</span>
+                                          <span className="font-mono text-[10px] text-slate-400">{String(inst.due_date || '').split('T')[0]}</span>
                                         </div>
-                                      )}
-                                    </div>
+                                        
+                                        <div className="text-sm font-black font-mono mt-1 text-white">
+                                          {formatNum(inst.amount)} د.ع
+                                        </div>
 
-                                    <div className="pt-2 border-t border-slate-800/80">
-                                      {isPaid ? (
-                                        <div className="flex items-center justify-between w-full">
+                                        {isPaid && (
+                                          <div className="text-[10px] font-mono text-emerald-400 mt-0.5">
+                                            سدد بتاريخ: {inst.paid_at ? String(inst.paid_at).split('T')[0] : '—'}
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      <div className="pt-2 border-t border-slate-800/80">
+                                        {isPaid ? (
+                                          <div className="flex items-center justify-between w-full">
+                                            <button
+                                              onClick={() => handleRollbackInstallment(inst, u)}
+                                              className="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                                              title="إلغاء تسديد هذا القسط وإلغاء سنده المالي"
+                                            >
+                                              <RotateCcw className="w-2.5 h-2.5" /> تراجع
+                                            </button>
+
+                                            <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                                              <CheckCircle2 className="w-3 h-3" /> تم السداد
+                                            </span>
+                                          </div>
+                                        ) : (
                                           <button
-                                            onClick={() => handleRollbackInstallment(inst, u)}
-                                            className="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                                            title="إلغاء تسديد هذا القسط وإلغاء سنده المالي"
+                                            onClick={() => handlePayInstallment(inst, u)}
+                                            className="w-full py-1.5 text-slate-950 font-black rounded-xl text-[11px] transition shadow cursor-pointer whitespace-nowrap active:scale-95"
+                                            style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                                           >
-                                            <RotateCcw className="w-2.5 h-2.5" /> تراجع
+                                            تسديد وطباعة الوصل
                                           </button>
-
-                                          <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-                                            <CheckCircle2 className="w-3 h-3" /> تم السداد
-                                          </span>
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={() => handlePayInstallment(inst, u)}
-                                          className="w-full py-1.5 text-slate-950 font-black rounded-xl text-[11px] transition shadow cursor-pointer whitespace-nowrap active:scale-95"
-                                          style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
-                                        >
-                                          تسديد وطباعة الوصل
-                                        </button>
-                                      )}
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                );
-                              })
-                            )}
-                          </div>
-                        )}
+                                  );
+                                })
+                              )}
+                            </div>
+                          )}
 
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                </div>
-
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* 5. معرض الوسائط الكامل (Lightbox Media Gallery Modal) */}
-      {activeGalleryUnit && (
-        <div className="fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-3 sm:p-6 print:hidden animate-in fade-in">
-          
-          {/* الشريط العلوي للمعرض */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold">
-                <Camera className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-white">{activeGalleryUnit.title}</h3>
-                <p className="text-xs text-slate-400 font-mono">
-                  الرمز: {activeGalleryUnit.unit_code} • {activeGalleryUnit.city} - {activeGalleryUnit.location}
-                </p>
-              </div>
-            </div>
-
-            {/* أزرار الفلترة داخل المعرض */}
-            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl">
-              <button
-                onClick={() => { setGalleryFilter('ALL'); setGalleryActiveIndex(0); }}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition ${galleryFilter === 'ALL' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
-              >
-                الكل ({Array.isArray(activeGalleryUnit.images) ? activeGalleryUnit.images.length : 0})
-              </button>
-              <button
-                onClick={() => { setGalleryFilter('image'); setGalleryActiveIndex(0); }}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 ${galleryFilter === 'image' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" /> صور
-              </button>
-              <button
-                onClick={() => { setGalleryFilter('video'); setGalleryActiveIndex(0); }}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 ${galleryFilter === 'video' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
-              >
-                <Video className="w-3.5 h-3.5" /> فيديو
-              </button>
-              <button
-                onClick={() => { setGalleryFilter('doc'); setGalleryActiveIndex(0); }}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 ${galleryFilter === 'doc' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
-              >
-                <FileText className="w-3.5 h-3.5" /> مخططات ومستندات
-              </button>
-            </div>
-
-            <button 
-              onClick={() => setActiveGalleryUnit(null)} 
-              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* منطقة العرض الرئيسية للوسائط (الصورة / الفيديو / المستند) */}
-          <div className="relative flex-1 flex items-center justify-center p-2 sm:p-4 overflow-hidden my-auto">
-            {galleryMedia.length === 0 ? (
-              <div className="text-center text-slate-500 space-y-2">
-                <AlertCircle className="w-12 h-12 mx-auto text-slate-600" />
-                <p>لا توجد وسائط مضافة مطابقة للفلتر المحدد.</p>
-              </div>
-            ) : (() => {
-              const current = galleryMedia[galleryActiveIndex] || galleryMedia[0];
-              const embedUrl = current.type === 'video' ? getEmbedUrl(current.url) : null;
-
-              return (
-                <div className="relative max-w-5xl max-h-[70vh] w-full h-full flex flex-col items-center justify-center">
-                  
-                  {current.type === 'image' && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img 
-                      src={current.url} 
-                      alt={current.title || 'صورة العقار'} 
-                      className="max-h-[68vh] max-w-full w-auto h-auto object-contain rounded-2xl shadow-2xl border border-slate-800"
-                    />
-                  )}
-
-                  {current.type === 'video' && (
-                    <div className="w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 flex items-center justify-center">
-                      {embedUrl ? (
-                        <iframe 
-                          src={embedUrl} 
-                          title={current.title || 'فيديو العقار'} 
-                          className="w-full h-full" 
-                          allowFullScreen 
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        />
-                      ) : (
-                        <video 
-                          src={current.url} 
-                          controls 
-                          autoPlay 
-                          className="w-full h-full object-contain"
-                        >
-                          متصفحك لا يدعم تشغيل هذا الفيديو مباشرة.
-                        </video>
-                      )}
-                    </div>
-                  )}
-
-                  {current.type === 'doc' && (
-                    <div className="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-lg w-full text-center space-y-4 shadow-2xl">
-                      <div className="w-16 h-16 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto">
-                        <FileText className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <h4 className="text-base font-bold text-white">{current.title || 'مستند أو مخطط هندسي'}</h4>
-                        <p className="text-xs text-slate-400 font-mono mt-1 truncate">{current.url}</p>
-                      </div>
-                      <div className="flex items-center justify-center gap-3 pt-2">
-                        <a 
-                          href={current.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition"
-                        >
-                          <ExternalLink className="w-4 h-4" /> فتح المستند بالحجم الكامل
-                        </a>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* زر التالي والسابق */}
-                  {galleryMedia.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setGalleryActiveIndex(prev => (prev === 0 ? galleryMedia.length - 1 : prev - 1))}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-black/70 hover:bg-black text-white rounded-full transition cursor-pointer backdrop-blur-md shadow-lg"
-                      >
-                        <ChevronRight className="w-6 h-6" />
-                      </button>
-                      <button
-                        onClick={() => setGalleryActiveIndex(prev => (prev === galleryMedia.length - 1 ? 0 : prev + 1))}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-3 bg-black/70 hover:bg-black text-white rounded-full transition cursor-pointer backdrop-blur-md shadow-lg"
-                      >
-                        <ChevronLeft className="w-6 h-6" />
-                      </button>
-                    </>
-                  )}
-
-                  {/* عنوان الوسيط المعروض */}
-                  {current.title && (
-                    <div className="mt-3 px-4 py-1.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs font-bold text-slate-200">
-                      {current.title} ({galleryActiveIndex + 1} من {galleryMedia.length})
-                    </div>
-                  )}
+                  </div>
                 </div>
               );
-            })()}
-          </div>
-
-          {/* شريط المصغرات السفلي للتنقل السريع */}
-          {galleryMedia.length > 1 && (
-            <div className="border-t border-slate-800 pt-3 flex items-center justify-center gap-2 overflow-x-auto max-w-5xl mx-auto w-full">
-              {galleryMedia.map((m: any, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={() => setGalleryActiveIndex(idx)}
-                  className={`relative w-16 h-12 rounded-xl overflow-hidden border-2 transition shrink-0 cursor-pointer ${
-                    galleryActiveIndex === idx ? 'border-amber-400 scale-105 shadow-lg shadow-amber-500/20' : 'border-slate-800 opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  {m.type === 'image' ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.url} alt="" className="w-full h-full object-cover" />
-                  ) : m.type === 'video' ? (
-                    <div className="w-full h-full bg-slate-900 flex items-center justify-center text-rose-400">
-                      <Play className="w-4 h-4 fill-current" />
-                    </div>
-                  ) : (
-                    <div className="w-full h-full bg-slate-900 flex items-center justify-center text-sky-400">
-                      <FileText className="w-4 h-4" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
+            })
           )}
-
         </div>
-      )}
 
-      {/* 6. نافذة إضافة أو تعديل بيانات العقار ومكتبة الوسائط */}
-      {showUnitModal && (
-        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 print:hidden">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Building className="w-5 h-5" style={{ color: primaryCol }} /> 
-                <span>{editingUnitId ? 'تعديل بيانات العقار والوسائط' : 'تسجيل أصل أو وحدة استثمارية جديدة'}</span>
-              </h3>
-              <button onClick={() => setShowUnitModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
-                <X className="w-5 h-5" />
-              </button>
+        {/* 5. معرض الوسائط الكامل (Lightbox Media Gallery Modal) */}
+        {activeGalleryUnit && (
+          <div className="fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-3 sm:p-6 print:hidden animate-in fade-in">
+            
+            {/* الشريط العلوي للمعرض */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2.5">
+              
+              <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold shrink-0">
+                    <Camera className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-base font-black text-white truncate">
+                      {activeGalleryUnit.title}
+                    </h3>
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-mono truncate">
+                      الرمز: {activeGalleryUnit.unit_code} • {activeGalleryUnit.city} - {activeGalleryUnit.location}
+                    </p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setActiveGalleryUnit(null)} 
+                  className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center transition border border-slate-700 cursor-pointer shrink-0"
+                  title="إغلاق المعرض"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl overflow-x-auto w-full sm:w-auto justify-start sm:justify-end">
+                <button
+                  onClick={() => { setGalleryFilter('ALL'); setGalleryActiveIndex(0); }}
+                  className={`px-3 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition whitespace-nowrap shrink-0 ${galleryFilter === 'ALL' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                >
+                  الكل ({Array.isArray(activeGalleryUnit.images) ? activeGalleryUnit.images.length : 0})
+                </button>
+                <button
+                  onClick={() => { setGalleryFilter('image'); setGalleryActiveIndex(0); }}
+                  className={`px-3 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center gap-1 whitespace-nowrap shrink-0 ${galleryFilter === 'image' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" /> صور
+                </button>
+                <button
+                  onClick={() => { setGalleryFilter('video'); setGalleryActiveIndex(0); }}
+                  className={`px-3 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center gap-1 whitespace-nowrap shrink-0 ${galleryFilter === 'video' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <Video className="w-3.5 h-3.5" /> فيديو
+                </button>
+                <button
+                  onClick={() => { setGalleryFilter('doc'); setGalleryActiveIndex(0); }}
+                  className={`px-3 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center gap-1 whitespace-nowrap shrink-0 ${galleryFilter === 'doc' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <FileText className="w-3.5 h-3.5" /> مخططات ومستندات
+                </button>
+              </div>
+
             </div>
 
-            <form onSubmit={handleSaveUnit} className="space-y-4 text-xs flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">رمز الأصل / الوحدة *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: APT-101 أو VIL-02"
-                    value={unitCode}
-                    onChange={(e) => setUnitCode(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono uppercase outline-none focus:border-amber-500"
-                  />
+            {/* منطقة العرض الرئيسية للوسائط */}
+            <div className="relative flex-1 flex items-center justify-center p-2 sm:p-4 overflow-hidden my-auto">
+              {galleryMedia.length === 0 ? (
+                <div className="text-center text-slate-500 space-y-2">
+                  <AlertCircle className="w-12 h-12 mx-auto text-slate-600" />
+                  <p>لا توجد وسائط مضافة مطابقة للفلتر المحدد.</p>
                 </div>
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">نوع الاستثمار العقاري</label>
-                  <select
-                    value={propertyType}
-                    onChange={(e) => setPropertyType(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+              ) : (() => {
+                const current = galleryMedia[galleryActiveIndex] || galleryMedia[0];
+                const embedUrl = current.type === 'video' ? getEmbedUrl(current.url) : null;
+
+                return (
+                  <div className="relative max-w-5xl max-h-[70vh] w-full h-full flex flex-col items-center justify-center">
+                    
+                    {current.type === 'image' && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={current.url} 
+                        alt={current.title || 'صورة العقار'} 
+                        className="max-h-[68vh] max-w-full w-auto h-auto object-contain rounded-2xl shadow-2xl border border-slate-800"
+                      />
+                    )}
+
+                    {current.type === 'video' && (
+                      <div className="w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 flex items-center justify-center">
+                        {embedUrl ? (
+                          <iframe 
+                            src={embedUrl} 
+                            title={current.title || 'فيديو العقار'} 
+                            className="w-full h-full" 
+                            allowFullScreen 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          />
+                        ) : (
+                          <video 
+                            src={current.url} 
+                            controls 
+                            autoPlay 
+                            className="w-full h-full object-contain"
+                          >
+                            متصفحك لا يدعم تشغيل هذا الفيديو مباشرة.
+                          </video>
+                        )}
+                      </div>
+                    )}
+
+                    {current.type === 'doc' && (
+                      <div className="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-lg w-full text-center space-y-4 shadow-2xl">
+                        <div className="w-16 h-16 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto">
+                          <FileText className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-white">{current.title || 'مستند أو مخطط هندسي'}</h4>
+                          <p className="text-xs text-slate-400 font-mono mt-1 truncate">{current.url}</p>
+                        </div>
+                        <div className="flex items-center justify-center gap-3 pt-2">
+                          <a 
+                            href={current.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition"
+                          >
+                            <ExternalLink className="w-4 h-4" /> فتح المستند بالحجم الكامل
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {galleryMedia.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setGalleryActiveIndex(prev => (prev === 0 ? galleryMedia.length - 1 : prev - 1))}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-black/70 hover:bg-black text-white rounded-full transition cursor-pointer backdrop-blur-md shadow-lg"
+                        >
+                          <ChevronRight className="w-6 h-6" />
+                        </button>
+                        <button
+                          onClick={() => setGalleryActiveIndex(prev => (prev === galleryMedia.length - 1 ? 0 : prev + 1))}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 p-3 bg-black/70 hover:bg-black text-white rounded-full transition cursor-pointer backdrop-blur-md shadow-lg"
+                        >
+                          <ChevronLeft className="w-6 h-6" />
+                        </button>
+                      </>
+                    )}
+
+                    {current.title && (
+                      <div className="mt-3 px-4 py-1.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs font-bold text-slate-200">
+                        {current.title} ({galleryActiveIndex + 1} من {galleryMedia.length})
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* المصغرات */}
+            {galleryMedia.length > 1 && (
+              <div className="border-t border-slate-800 pt-3 flex items-center justify-center gap-2 overflow-x-auto max-w-5xl mx-auto w-full">
+                {galleryMedia.map((m: any, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => setGalleryActiveIndex(idx)}
+                    className={`relative w-16 h-12 rounded-xl overflow-hidden border-2 transition shrink-0 cursor-pointer ${
+                      galleryActiveIndex === idx ? 'border-amber-400 scale-105 shadow-lg shadow-amber-500/20' : 'border-slate-800 opacity-60 hover:opacity-100'
+                    }`}
                   >
-                    <option value="شقة سكنية فاخرة">شقة سكنية فاخرة</option>
-                    <option value="دار سكن / فيلا مستقلة">دار سكن / فيلا مستقلة</option>
-                    <option value="مجمع تجاري / محلات">مجمع تجاري / محلات</option>
-                    <option value="قطعة أرض استثمارية">قطعة أرض استثمارية</option>
-                    <option value="مستودع / مخزن عقاري">مستودع / مخزن عقاري</option>
-                  </select>
-                </div>
+                    {m.type === 'image' ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={m.url} alt="" className="w-full h-full object-cover" />
+                    ) : m.type === 'video' ? (
+                      <div className="w-full h-full bg-slate-900 flex items-center justify-center text-rose-400">
+                        <Play className="w-4 h-4 fill-current" />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full bg-slate-900 flex items-center justify-center text-sky-400">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* 6. نافذة إضافة أو تعديل بيانات العقار */}
+        {showUnitModal && (
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 print:hidden">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Building className="w-5 h-5" style={{ color: primaryCol }} /> 
+                  <span>{editingUnitId ? 'تعديل بيانات العقار والوسائط' : 'تسجيل أصل أو وحدة استثمارية جديدة'}</span>
+                </h3>
+                <button onClick={() => setShowUnitModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div>
-                <label className="block text-slate-400 mb-1 font-semibold">اسم العقار / العنوان التعريفي *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: فيلا حي الفرات - واجهة 12م إطلالة حدائق"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">المساحة (م²) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={areaSqm}
-                    onChange={(e) => setAreaSqm(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">السعر الكلي (د.ع) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">المحافظة / المدينة</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">الموقع التفصيلي / الحي</label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* قسم إضافة وإدارة معرض الوسائط (صور / فيديو / مستندات) */}
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <span className="text-xs font-bold text-amber-400 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  معرض الصور والفيديوهات والمرفقات الهندسية ({mediaItemsList.length}):
-                </span>
-
-                {/* حقول إضافة وسيط جديد */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
-                  <div className="sm:col-span-3">
-                    <label className="block text-[11px] text-slate-400 mb-1">النوع</label>
+              <form onSubmit={handleSaveUnit} className="space-y-4 text-xs flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">رمز الأصل / الوحدة *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="مثال: APT-101 أو VIL-02"
+                      value={unitCode}
+                      onChange={(e) => setUnitCode(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono uppercase outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">نوع الاستثمار العقاري</label>
                     <select
-                      value={newMediaType}
-                      onChange={(e: any) => setNewMediaType(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white outline-none"
+                      value={propertyType}
+                      onChange={(e) => setPropertyType(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
                     >
-                      <option value="image">صورة</option>
-                      <option value="video">فيديو (MP4 / YouTube)</option>
-                      <option value="doc">مستند / مخطط (PDF)</option>
+                      <option value="شقة سكنية فاخرة">شقة سكنية فاخرة</option>
+                      <option value="دار سكن / فيلا مستقلة">دار سكن / فيلا مستقلة</option>
+                      <option value="مجمع تجاري / محلات">مجمع تجاري / محلات</option>
+                      <option value="قطعة أرض استثمارية">قطعة أرض استثمارية</option>
+                      <option value="مستودع / مخزن عقاري">مستودع / مخزن عقاري</option>
                     </select>
                   </div>
+                </div>
 
-                  <div className="sm:col-span-5">
-                    <label className="block text-[11px] text-slate-400 mb-1">رابط الملف / الرابط المباشر *</label>
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">اسم العقار / العنوان التعريفي *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="مثال: فيلا حي الفرات - واجهة 12م إطلالة حدائق"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">المساحة (م²) *</label>
                     <input
-                      type="text"
-                      placeholder="https://...jpg أو فيديو أو مستند"
-                      value={newMediaUrl}
-                      onChange={(e) => setNewMediaUrl(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white font-mono text-[11px] outline-none"
+                      type="number"
+                      required
+                      value={areaSqm}
+                      onChange={(e) => setAreaSqm(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none focus:border-amber-500"
                     />
                   </div>
-
-                  <div className="sm:col-span-3">
-                    <label className="block text-[11px] text-slate-400 mb-1">الوصف / العنوان</label>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">السعر الكلي (د.ع) *</label>
                     <input
-                      type="text"
-                      placeholder="مثال: الواجهة، المخطط"
-                      value={newMediaTitle}
-                      onChange={(e) => setNewMediaTitle(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white text-[11px] outline-none"
+                      type="number"
+                      required
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
                     />
                   </div>
+                </div>
 
-                  <div className="sm:col-span-1 flex items-end">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">المحافظة / المدينة</label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">الموقع التفصيلي / الحي</label>
+                    <input
+                      type="text"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* قسم إضافة وإدارة معرض الوسائط */}
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                  <span className="text-xs font-bold text-amber-400 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    معرض الصور والفيديوهات والمرفقات الهندسية ({mediaItemsList.length}):
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] text-slate-400 mb-1">النوع</label>
+                      <select
+                        value={newMediaType}
+                        onChange={(e: any) => setNewMediaType(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white outline-none"
+                      >
+                        <option value="image">صورة</option>
+                        <option value="video">فيديو (MP4 / YouTube)</option>
+                        <option value="doc">مستند / مخطط (PDF)</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-5">
+                      <label className="block text-[11px] text-slate-400 mb-1">رابط الملف / الرابط المباشر *</label>
+                      <input
+                        type="text"
+                        placeholder="https://...jpg أو فيديو أو مستند"
+                        value={newMediaUrl}
+                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white font-mono text-[11px] outline-none"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] text-slate-400 mb-1">الوصف / العنوان</label>
+                      <input
+                        type="text"
+                        placeholder="مثال: الواجهة، المخطط"
+                        value={newMediaTitle}
+                        onChange={(e) => setNewMediaTitle(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white text-[11px] outline-none"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-1 flex items-end">
+                      <button
+                        type="button"
+                        onClick={handleAddMediaItem}
+                        className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center cursor-pointer transition shadow"
+                        title="إضافة إلى المعرض"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {mediaItemsList.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 max-h-48 overflow-y-auto">
+                      {mediaItemsList.map((m, idx) => (
+                        <div key={idx} className="relative bg-slate-900 border border-slate-800 rounded-xl p-2 flex flex-col items-center group">
+                          <div className="w-full h-16 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center mb-1">
+                            {m.type === 'image' ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={m.url} alt="" className="w-full h-full object-cover" />
+                            ) : m.type === 'video' ? (
+                              <Video className="w-6 h-6 text-rose-400" />
+                            ) : (
+                              <FileText className="w-6 h-6 text-sky-400" />
+                            )}
+                          </div>
+                          <span className="text-[10px] text-slate-300 truncate w-full text-center font-semibold">
+                            {m.title || (m.type === 'video' ? 'فيديو' : m.type === 'doc' ? 'مستند' : 'صورة')}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMediaItem(idx)}
+                            className="absolute top-1 left-1 bg-rose-600 hover:bg-rose-500 text-white p-1 rounded-full shadow cursor-pointer transition"
+                            title="حذف هذا العنصر"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">ملاحظات ومواصفات إضافية</label>
+                  <textarea
+                    rows={2}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="رقم الطابق، الخدمات، حالة السند أو الطابو..."
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
+                  <button type="button" onClick={() => setShowUnitModal(false)} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
+                  <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="px-6 py-2.5 text-slate-950 font-black rounded-xl cursor-pointer shadow-md whitespace-nowrap active:scale-95"
+                    style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
+                  >
+                    {loading ? 'جاري الحفظ...' : editingUnitId ? 'حفظ التعديلات' : 'حفظ وتسجيل الأصل'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* 7. نافذة بيع أو تعديل عقد الأقساط */}
+        {sellingUnit && (
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 print:hidden">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                  <BadgeDollarSign className="w-5 h-5 text-emerald-400 shrink-0" /> 
+                  <span>{isEditingContract ? 'تعديل عقد البيع والأقساط:' : 'تسجيل بيع عقار:'} <strong className="text-amber-400">{sellingUnit.title}</strong></span>
+                </h3>
+                <button onClick={() => setSellingUnit(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveSaleContract} className="space-y-4 text-xs flex-1">
+                <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">القيمة التعاقدية الكاملة:</span>
+                  <span className="font-mono font-black text-base" style={{ color: primaryCol }}>
+                    {formatNum(sellingUnit.price)} د.ع
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1.5 font-bold">طريقة الاستثمار والبيع *</label>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={handleAddMediaItem}
-                      className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center cursor-pointer transition shadow"
-                      title="إضافة إلى المعرض"
+                      onClick={() => setSaleType('INSTALLMENTS')}
+                      className={`py-2 rounded-xl font-bold border transition cursor-pointer ${
+                        saleType === 'INSTALLMENTS' 
+                          ? 'bg-amber-500/20 text-amber-400 border-amber-500/50 shadow-inner' 
+                          : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}
                     >
-                      +
+                      بيع بالتقسيط المجدول
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSaleType('CASH')}
+                      className={`py-2 rounded-xl font-bold border transition cursor-pointer ${
+                        saleType === 'CASH' 
+                          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-inner' 
+                          : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}
+                    >
+                      بيع مباشر (نقداً كامل)
                     </button>
                   </div>
                 </div>
 
-                {/* قائمة الوسائط المضافة مع خيار الحذف */}
-                {mediaItemsList.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 max-h-48 overflow-y-auto">
-                    {mediaItemsList.map((m, idx) => (
-                      <div key={idx} className="relative bg-slate-900 border border-slate-800 rounded-xl p-2 flex flex-col items-center group">
-                        <div className="w-full h-16 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center mb-1">
-                          {m.type === 'image' ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={m.url} alt="" className="w-full h-full object-cover" />
-                          ) : m.type === 'video' ? (
-                            <Video className="w-6 h-6 text-rose-400" />
-                          ) : (
-                            <FileText className="w-6 h-6 text-sky-400" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-300 truncate w-full text-center font-semibold">
-                          {m.title || (m.type === 'video' ? 'فيديو' : m.type === 'doc' ? 'مستند' : 'صورة')}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMediaItem(idx)}
-                          className="absolute top-1 left-1 bg-rose-600 hover:bg-rose-500 text-white p-1 rounded-full shadow cursor-pointer transition"
-                          title="حذف هذا العنصر"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-slate-400 mb-1 font-semibold">ملاحظات ومواصفات إضافية</label>
-                <textarea
-                  rows={2}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="رقم الطابق، الخدمات، حالة السند أو الطابو..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
-                <button type="button" onClick={() => setShowUnitModal(false)} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
-                <button 
-                  type="submit" 
-                  disabled={loading} 
-                  className="px-6 py-2.5 text-slate-950 font-black rounded-xl cursor-pointer shadow-md whitespace-nowrap active:scale-95"
-                  style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
-                >
-                  {loading ? 'جاري الحفظ...' : editingUnitId ? 'حفظ التعديلات' : 'حفظ وتسجيل الأصل'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* 7. نافذة بيع أو تعديل عقد الأقساط */}
-      {sellingUnit && (
-        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 print:hidden">
-          <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
-                <BadgeDollarSign className="w-5 h-5 text-emerald-400 shrink-0" /> 
-                <span>{isEditingContract ? 'تعديل عقد البيع والأقساط:' : 'تسجيل بيع عقار:'} <strong className="text-amber-400">{sellingUnit.title}</strong></span>
-              </h3>
-              <button onClick={() => setSellingUnit(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveSaleContract} className="space-y-4 text-xs flex-1">
-              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <span className="text-slate-400">القيمة التعاقدية الكاملة:</span>
-                <span className="font-mono font-black text-base" style={{ color: primaryCol }}>
-                  {formatNum(sellingUnit.price)} د.ع
-                </span>
-              </div>
-
-              <div>
-                <label className="block text-slate-400 mb-1.5 font-bold">طريقة الاستثمار والبيع *</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSaleType('INSTALLMENTS')}
-                    className={`py-2 rounded-xl font-bold border transition cursor-pointer ${
-                      saleType === 'INSTALLMENTS' 
-                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/50 shadow-inner' 
-                        : 'bg-slate-800 border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    بيع بالتقسيط المجدول
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSaleType('CASH')}
-                    className={`py-2 rounded-xl font-bold border transition cursor-pointer ${
-                      saleType === 'CASH' 
-                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-inner' 
-                        : 'bg-slate-800 border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    بيع مباشر (نقداً كامل)
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-2xl border border-slate-800">
+                  <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
+                    customerType === 'INDIVIDUAL' ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}>
+                    <input type="radio" name="custType" checked={customerType === 'INDIVIDUAL'} onChange={() => setCustomerType('INDIVIDUAL')} className="accent-emerald-500" />
+                    <span>مواطن / أفراد</span>
+                  </label>
+                  <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
+                    customerType === 'MERCHANT' ? 'bg-purple-500/15 border-purple-500/50 text-purple-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
+                  }`}>
+                    <input type="radio" name="custType" checked={customerType === 'MERCHANT'} onChange={() => setCustomerType('MERCHANT')} className="accent-purple-500" />
+                    <span>تاجر / استثمار عقاري</span>
+                  </label>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-950 p-2.5 rounded-2xl border border-slate-800">
-                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
-                  customerType === 'INDIVIDUAL' ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
-                }`}>
-                  <input type="radio" name="custType" checked={customerType === 'INDIVIDUAL'} onChange={() => setCustomerType('INDIVIDUAL')} className="accent-emerald-500" />
-                  <span>مواطن / أفراد</span>
-                </label>
-                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
-                  customerType === 'MERCHANT' ? 'bg-purple-500/15 border-purple-500/50 text-purple-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
-                }`}>
-                  <input type="radio" name="custType" checked={customerType === 'MERCHANT'} onChange={() => setCustomerType('MERCHANT')} className="accent-purple-500" />
-                  <span>تاجر / استثمار عقاري</span>
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">اسم المشتري / العميل *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="الاسم الكامل"
-                    value={buyerName}
-                    onChange={(e) => setBuyerName(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">رقم هاتف المشتري</label>
-                  <input
-                    type="text"
-                    placeholder="078..."
-                    value={buyerPhone}
-                    onChange={(e) => setBuyerPhone(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
-                  />
-                </div>
-              </div>
-
-              {saleType === 'INSTALLMENTS' && (
-                <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-slate-400 mb-1 font-semibold">الدفعة الأولى (المقدمة) د.ع *</label>
-                      <input
-                        type="number"
-                        required
-                        value={downPayment}
-                        onChange={(e) => setDownPayment(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 mb-1 font-semibold">عدد الأقساط الشهرية</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="60"
-                        value={installmentsCount}
-                        onChange={(e) => setInstallmentsCount(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none"
-                      />
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-slate-400 mb-1 font-semibold">تاريخ استحقاق أول قسط شهري</label>
+                    <label className="block text-slate-400 mb-1 font-semibold">اسم المشتري / العميل *</label>
                     <input
-                      type="date"
-                      value={firstDueDate}
-                      onChange={(e) => setFirstDueDate(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      type="text"
+                      required
+                      placeholder="الاسم الكامل"
+                      value={buyerName}
+                      onChange={(e) => setBuyerName(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-500"
                     />
                   </div>
-
-                  {Number(installmentsCount) > 0 && (
-                    <div className="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800 text-slate-400">
-                      <span>قيمة القسط الشهري المحسوبة:</span>
-                      <strong className="text-amber-300 font-mono text-xs">
-                        {formatNum(Math.round(Math.max(0, Number(sellingUnit.price) - Number(downPayment)) / Number(installmentsCount)))} د.ع / شهر
-                      </strong>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
-                <button type="button" onClick={() => setSellingUnit(null)} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
-                <button 
-                  type="submit" 
-                  disabled={loading} 
-                  className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl cursor-pointer whitespace-nowrap active:scale-95"
-                >
-                  {loading ? 'جاري الحفظ...' : isEditingContract ? 'حفظ تعديلات العقد' : 'اعتماد البيع وتوليد السند'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* 8. سند قبض القسط العقاري A4 الفوري المنفصل */}
-      {receiptVoucherForPrint && (
-        <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
-          <div className="sticky top-0 z-50 w-full max-w-[210mm] flex items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden print-hidden-element shadow-xl">
-            <button
-              onClick={() => window.print()}
-              className="text-slate-950 font-black px-6 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap"
-              style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
-            >
-              <Printer className="w-4 h-4" /> طباعة سند قبض القسط (A4)
-            </button>
-            <button onClick={() => setReceiptVoucherForPrint(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
-            <div 
-              className="print-voucher-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 md:p-12 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
-              style={{ borderColor: primaryCol }}
-            >
-              <div className="space-y-4 flex-1">
-                {hasLetterhead ? (
-                  <div className="w-full border-b pb-3 mb-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-28 object-contain" />
-                    <div className="text-left font-mono text-xs mt-1">
-                      <span className="font-bold text-slate-900 font-sans">الفرع المعتمد: </span>
-                      <strong className="text-amber-800 font-sans">{receiptVoucherForPrint.branchName}</strong>
-                    </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">رقم هاتف المشتري</label>
+                    <input
+                      type="text"
+                      placeholder="078..."
+                      value={buyerPhone}
+                      onChange={(e) => setBuyerPhone(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                    />
                   </div>
-                ) : (
-                  <div className="flex justify-between items-center border-b-2 pb-4" style={{ borderColor: primaryCol }}>
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
-                        {hasLogo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
-                        ) : (
-                          <Image src="/logo.png" alt="شركة البرج المتألق" width={52} height={52} className="object-contain" priority />
-                        )}
+                </div>
+
+                {saleType === 'INSTALLMENTS' && (
+                  <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-400 mb-1 font-semibold">الدفعة الأولى (المقدمة) د.ع *</label>
+                        <input
+                          type="number"
+                          required
+                          value={downPayment}
+                          onChange={(e) => setDownPayment(e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
+                        />
                       </div>
                       <div>
-                        <h1 className="text-xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                        <p className="text-xs text-slate-600 font-bold">{companySettings.tagline}</p>
-                        <p className="text-[11px] text-slate-500 font-mono mt-0.5">{companySettings.address} | {companySettings.phone_primary}</p>
+                        <label className="block text-slate-400 mb-1 font-semibold">عدد الأقساط الشهرية</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="60"
+                          value={installmentsCount}
+                          onChange={(e) => setInstallmentsCount(e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none"
+                        />
                       </div>
                     </div>
-                    <div className="text-left font-mono text-xs">
-                      <div 
-                        className="border-2 px-3 py-1 font-black text-slate-950 rounded-lg inline-block"
-                        style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
-                      >
-                        سند قبض قسط عقاري
-                      </div>
-                      <p className="text-[11px] font-bold text-slate-800 mt-1 font-mono">رقم الوصل: <span style={{ color: primaryCol }}>{receiptVoucherForPrint.voucherNo}</span></p>
-                      <p className="text-[10px] text-slate-500">التاريخ: {receiptVoucherForPrint.date}</p>
-                      <p className="text-[11px] font-black text-amber-900 mt-0.5 font-sans">الفرع: {receiptVoucherForPrint.branchName}</p>
+
+                    <div>
+                      <label className="block text-slate-400 mb-1 font-semibold">تاريخ استحقاق أول قسط شهري</label>
+                      <input
+                        type="date"
+                        value={firstDueDate}
+                        onChange={(e) => setFirstDueDate(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none"
+                      />
                     </div>
+
+                    {Number(installmentsCount) > 0 && (
+                      <div className="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800 text-slate-400">
+                        <span>قيمة القسط الشهري المحسوبة:</span>
+                        <strong className="text-amber-300 font-mono text-xs">
+                          {formatNum(Math.round(Math.max(0, Number(sellingUnit.price) - Number(downPayment)) / Number(installmentsCount)))} د.ع / شهر
+                        </strong>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2 text-xs">
-                  <p>استلمنا من السيد/ة: <strong className="text-slate-950 text-sm">{receiptVoucherForPrint.customerName}</strong></p>
-                  <p>مبلغاً وقدره: <strong className="font-mono text-base font-black" style={{ color: primaryCol }}>{formatNum(receiptVoucherForPrint.amount)} د.ع</strong></p>
-                  <p className="font-bold text-slate-700">{receiptVoucherForPrint.amountWords}</p>
-                  <p className="pt-2 border-t border-slate-200">
-                    وذلك عن: <strong>سداد {receiptVoucherForPrint.installmentNumber} عن {receiptVoucherForPrint.goodsDescription}.</strong>
-                  </p>
-                  <p className="text-[11px] font-mono text-slate-600">
-                    المتبقي بذمة المشتري بعد هذا السداد: <strong className="text-rose-700">{formatNum(receiptVoucherForPrint.remainingAfterPayment)} د.ع</strong>
-                  </p>
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800 mt-auto">
+                  <button type="button" onClick={() => setSellingUnit(null)} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl cursor-pointer">إلغاء</button>
+                  <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl cursor-pointer whitespace-nowrap active:scale-95"
+                  >
+                    {loading ? 'جاري الحفظ...' : isEditingContract ? 'حفظ تعديلات العقد' : 'اعتماد البيع وتوليد السند'}
+                  </button>
                 </div>
-              </div>
-
-              <div className="mt-auto pt-6">
-                <div className="grid grid-cols-3 gap-6 pt-6 text-center text-xs border-t border-slate-200">
-                  <div>
-                    <p className="font-bold text-slate-700">المستلم / المحاسب</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-700">المسدد / المشتري</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-700">ختم فرع الاستثمار العقاري</p>
-                    <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-300 pt-2 text-center text-[10px] text-slate-500 font-mono mt-4">
-                  {companySettings.company_name} - {receiptVoucherForPrint.branchName} • هاتف: {companySettings.phone_primary}
-                </div>
-              </div>
+              </form>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 9. وثيقة جدول الأقساط والعقد العقاري الرسمي (A4) المطابقة للمواصفات الرسمية */}
-      {selectedUnitForPrint && (() => {
-        const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : (companySettings.website || 'https://rtco2025.netlify.app');
-        const verificationUrl = `${origin}/verify?type=real_estate&no=${encodeURIComponent(selectedUnitForPrint.unit_code)}`;
-        const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(verificationUrl)}`;
-
-        return (
-          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 md:p-8 print:p-0 print:bg-white print:static">
-            <div className="w-full max-w-[210mm] flex items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden print-hidden-element shadow-xl">
+        {/* 8. سند قبض القسط العقاري A4 الفوري المنفصل */}
+        {receiptVoucherForPrint && (
+          <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
+            <div className="sticky top-0 z-50 w-full max-w-[210mm] flex items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden print-hidden-element shadow-xl">
               <button
                 onClick={() => window.print()}
                 className="text-slate-950 font-black px-6 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap"
                 style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
               >
-                <Printer className="w-4 h-4" /> طباعة جدول الأقساط والعقد العقاري (A4)
+                <Printer className="w-4 h-4" /> طباعة سند قبض القسط (A4)
               </button>
-              <button onClick={() => setSelectedUnitForPrint(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
+              <button onClick={() => setReceiptVoucherForPrint(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
               <div 
-                className="print-paper-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-3 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
+                className="print-voucher-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 md:p-12 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
                 style={{ borderColor: primaryCol }}
               >
-                <div className="space-y-3 flex-1">
+                <div className="space-y-4 flex-1">
                   {hasLetterhead ? (
-                    <div className="w-full border-b pb-2 mb-1">
+                    <div className="w-full border-b pb-3 mb-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-24 print:max-h-20 object-contain" />
+                      <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-28 object-contain" />
+                      <div className="text-left font-mono text-xs mt-1">
+                        <span className="font-bold text-slate-900 font-sans">الفرع المعتمد: </span>
+                        <strong className="text-amber-800 font-sans">{receiptVoucherForPrint.branchName}</strong>
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-center border-b-2 pb-2.5" style={{ borderColor: primaryCol }}>
-                      <div className="flex items-center gap-3">
+                    <div className="flex justify-between items-center border-b-2 pb-4" style={{ borderColor: primaryCol }}>
+                      <div className="flex items-center gap-3.5">
                         <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
                           {hasLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1827,151 +1718,252 @@ export default function RealEstatePage() {
                           )}
                         </div>
                         <div>
-                          <span 
-                            className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border inline-block mb-0.5"
-                            style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
-                          >
-                            قسم الاستثمار والتطوير العقاري • جدول السداد
-                          </span>
-                          <h1 className="text-lg font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
-                          <p className="text-[10px] text-slate-600 font-bold">{companySettings.tagline}</p>
+                          <h1 className="text-xl font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                          <p className="text-xs text-slate-600 font-bold">{companySettings.tagline}</p>
+                          <p className="text-[11px] text-slate-500 font-mono mt-0.5">{companySettings.address} | {companySettings.phone_primary}</p>
                         </div>
                       </div>
                       <div className="text-left font-mono text-xs">
                         <div 
-                          className="border-2 px-3 py-1 font-black rounded-lg inline-block text-white text-[11px]"
-                          style={{ backgroundColor: primaryCol, borderColor: primaryCol }}
+                          className="border-2 px-3 py-1 font-black text-slate-950 rounded-lg inline-block"
+                          style={{ backgroundColor: `${primaryCol}20`, borderColor: primaryCol }}
                         >
-                          عقد عقار: {selectedUnitForPrint.unit_code}
+                          سند قبض قسط عقاري
                         </div>
-                        <p className="text-[10px] text-slate-600 mt-1">التاريخ: {new Date().toISOString().substring(0, 10)}</p>
+                        <p className="text-[11px] font-bold text-slate-800 mt-1 font-mono">رقم الوصل: <span style={{ color: primaryCol }}>{receiptVoucherForPrint.voucherNo}</span></p>
+                        <p className="text-[10px] text-slate-500">التاريخ: {receiptVoucherForPrint.date}</p>
+                        <p className="text-[11px] font-black text-amber-900 mt-0.5 font-sans">الفرع: {receiptVoucherForPrint.branchName}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* شريط توثيق العقد والفرع */}
-                  <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1.5 font-cairo shadow-xs text-xs font-bold text-slate-800">
-                    <div className="flex items-center gap-1.5" dir="rtl">
-                      <span className="text-slate-500 font-medium text-[11px]">العدد :</span>
-                      <span className="font-mono text-slate-950 text-xs tracking-wide">
-                        ع/ {selectedUnitForPrint.unit_code} / 2026
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-center">
-                      <span className="inline-flex items-center px-3 py-0.5 rounded-lg bg-white border border-slate-300 text-slate-950 font-black text-xs shadow-xs">
-                        {selectedUnitForPrint.branch_name || 'فرع الاستثمارات العقارية (النجف الأشرف)'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5" dir="rtl">
-                      <span className="text-slate-500 font-medium text-[11px]">التاريخ :</span>
-                      <span className="font-mono text-slate-950 text-xs tracking-wider">{new Date().toISOString().substring(0, 10)}</span>
-                    </div>
-                  </div>
-
-                  {/* بيانات المشتري والعقار */}
-                  <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
-                    <div className="space-y-0.5">
-                      <strong className="block border-b border-slate-200 pb-0.5 text-[11px]" style={{ color: primaryCol }}>معلومات المشتري والتعاقد:</strong>
-                      <p>اسم المشتري: <strong className="text-slate-950">{selectedUnitForPrint.buyer_name}</strong></p>
-                      <p>رقم الهاتف: <span className="font-mono">{selectedUnitForPrint.buyer_phone || '---'}</span></p>
-                      <p>العقار: <strong>{selectedUnitForPrint.title}</strong></p>
-                      <p>الموقع: {selectedUnitForPrint.city} - {selectedUnitForPrint.location}</p>
-                    </div>
-                    <div className="space-y-0.5">
-                      <strong className="block border-b border-slate-200 pb-0.5 text-[11px]" style={{ color: primaryCol }}>الملخص المالي للعقار:</strong>
-                      <p>القيمة التعاقدية الكاملة: <strong className="font-mono" style={{ color: primaryCol }}>{formatNum(selectedUnitForPrint.price)} د.ع</strong></p>
-                      <p>إجمالي المسدد الفعلي: <strong className="font-mono text-emerald-700">{formatNum(selectedUnitForPrint.totalPaid)} د.ع</strong></p>
-                      <p>المتبقي بذمة المشتري: <strong className="font-mono text-rose-700">{formatNum(selectedUnitForPrint.totalRemaining)} د.ع</strong></p>
-                      <p>المساحة: <strong className="font-mono">{selectedUnitForPrint.area_sqm} م²</strong> ({selectedUnitForPrint.property_type})</p>
-                    </div>
-                  </div>
-
-                  {/* جدول الأقساط الشهرية الرسمية */}
-                  <div>
-                    <strong className="text-[11px] font-bold block mb-1" style={{ color: primaryCol }}>جدول استحقاق الدفعات والأقساط الشهرية:</strong>
-                    <div className="border border-slate-300 rounded-xl overflow-hidden">
-                      <table className="w-full text-right text-xs font-mono">
-                        <thead className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300 text-[10px]">
-                          <tr>
-                            <th className="p-1.5 text-center">ت</th>
-                            <th className="p-1.5">عنوان الدفعة / القسط</th>
-                            <th className="p-1.5">المبلغ المطلوب</th>
-                            <th className="p-1.5">تاريخ الاستحقاق</th>
-                            <th className="p-1.5 text-center">حالة السداد</th>
-                            <th className="p-1.5 text-center">تاريخ السداد / رقم الوصل</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200 text-[10px]">
-                          {(selectedUnitForPrint.installments || []).map((inst: any, idx: number) => (
-                            <tr key={inst.installment_id || idx}>
-                              <td className="p-1 text-center font-bold">#{idx + 1}</td>
-                              <td className="p-1 font-bold text-slate-900 font-sans">{inst.installment_title}</td>
-                              <td className="p-1 font-black text-slate-900">{formatNum(inst.amount)} د.ع</td>
-                              <td className="p-1 text-slate-600">{String(inst.due_date || '').split('T')[0]}</td>
-                              <td className="p-1 text-center font-sans">
-                                {inst.is_paid ? (
-                                  <span className="text-emerald-700 font-bold">تم السداد ✓</span>
-                                ) : (
-                                  <span className="font-bold" style={{ color: primaryCol }}>مستحق</span>
-                                )}
-                              </td>
-                              <td className="p-1 text-center text-slate-500 text-[9px]">
-                                {inst.voucher_number ? `${inst.voucher_number} (${inst.paid_at ? String(inst.paid_at).split('T')[0] : ''})` : '---'}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2 text-xs">
+                    <p>استلمنا من السيد/ة: <strong className="text-slate-950 text-sm">{receiptVoucherForPrint.customerName}</strong></p>
+                    <p>مبلغاً وقدره: <strong className="font-mono text-base font-black" style={{ color: primaryCol }}>{formatNum(receiptVoucherForPrint.amount)} د.ع</strong></p>
+                    <p className="font-bold text-slate-700">{receiptVoucherForPrint.amountWords}</p>
+                    <p className="pt-2 border-t border-slate-200">
+                      وذلك عن: <strong>سداد {receiptVoucherForPrint.installmentNumber} عن {receiptVoucherForPrint.goodsDescription}.</strong>
+                    </p>
+                    <p className="text-[11px] font-mono text-slate-600">
+                      المتبقي بذمة المشتري بعد هذا السداد: <strong className="text-rose-700">{formatNum(receiptVoucherForPrint.remainingAfterPayment)} د.ع</strong>
+                    </p>
                   </div>
                 </div>
 
-                {/* منطقة التواقيع والباركود الذكي */}
-                <div className="space-y-2 pt-2 mt-auto">
-                  <div className="grid grid-cols-4 gap-3 pt-2 text-center text-xs items-end border-t border-slate-200">
+                <div className="mt-auto pt-6">
+                  <div className="grid grid-cols-3 gap-6 pt-6 text-center text-xs border-t border-slate-200">
                     <div>
-                      <p className="font-bold text-slate-950 text-xs">توقيع المشتري</p>
-                      <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      <p className="font-bold text-slate-700">المستلم / المحاسب</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
                     </div>
-
                     <div>
-                      <p className="font-bold text-slate-950 text-xs">مدير الاستثمار العقاري</p>
-                      <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      <p className="font-bold text-slate-700">المسدد / المشتري</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
                     </div>
-
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="w-13 h-13 border border-slate-300 rounded-xl p-0.5 bg-white shadow-sm flex items-center justify-center overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={qrCodeApiUrl} 
-                          alt="باركود التحقق الإلكتروني وسجل الأقساط" 
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <span className="font-mono text-[7px] font-bold mt-0.5 flex items-center gap-0.5" style={{ color: primaryCol }}>
-                        <Globe className="w-2 h-2" /> امسح للتحقق أونلاين
-                      </span>
-                    </div>
-
                     <div>
-                      <p className="font-bold text-slate-950 text-xs">المدير المفوض / الختم</p>
-                      <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      <p className="font-bold text-slate-700">ختم فرع الاستثمار العقاري</p>
+                      <div className="border-b border-dashed border-slate-400 w-28 sm:w-32 mx-auto mt-6"></div>
                     </div>
                   </div>
 
-                  <div className="text-center text-[8.5px] text-slate-600 font-semibold border-t border-slate-200 pt-1 flex items-center justify-between font-mono">
-                    <span>{companySettings.company_name} - {selectedUnitForPrint.branch_name || 'فرع الاستثمارات العقارية'}</span>
-                    <span>هاتف الإدارة: {companySettings.phone_primary} {companySettings.phone_secondary && `| ${companySettings.phone_secondary}`}</span>
+                  <div className="border-t border-slate-300 pt-2 text-center text-[10px] text-slate-500 font-mono mt-4">
+                    {companySettings.company_name} - {receiptVoucherForPrint.branchName} • هاتف: {companySettings.phone_primary}
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-        );
-      })()}
+        )}
+
+        {/* 9. وثيقة جدول الأقساط والعقد العقاري الرسمي (A4) */}
+        {selectedUnitForPrint && (() => {
+          const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : (companySettings.website || 'https://rtco2025.netlify.app');
+          const verificationUrl = `${origin}/verify?type=real_estate&no=${encodeURIComponent(selectedUnitForPrint.unit_code)}`;
+          const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(verificationUrl)}`;
+
+          return (
+            <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 md:p-8 print:p-0 print:bg-white print:static">
+              <div className="w-full max-w-[210mm] flex items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden print-hidden-element shadow-xl">
+                <button
+                  onClick={() => window.print()}
+                  className="text-slate-950 font-black px-6 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap"
+                  style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
+                >
+                  <Printer className="w-4 h-4" /> طباعة جدول الأقساط والعقد العقاري (A4)
+                </button>
+                <button onClick={() => setSelectedUnitForPrint(null)} className="text-slate-400 hover:text-white p-2 cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none">
+                <div 
+                  className="print-paper-sheet w-full bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-3 font-sans flex flex-col justify-between min-h-[900px] print:min-h-0 print:max-h-none"
+                  style={{ borderColor: primaryCol }}
+                >
+                  <div className="space-y-3 flex-1">
+                    {hasLetterhead ? (
+                      <div className="w-full border-b pb-2 mb-1">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={companySettings.letterhead_url} alt="ترويسة الشركة" className="w-full max-h-24 print:max-h-20 object-contain" />
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center border-b-2 pb-2.5" style={{ borderColor: primaryCol }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-14 h-14 relative flex items-center justify-center p-1 bg-slate-50 rounded-2xl border border-slate-200">
+                            {hasLogo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={companySettings.logo_url} alt={companySettings.company_name} className="w-full h-full object-contain" />
+                            ) : (
+                              <Image src="/logo.png" alt="شركة البرج المتألق" width={52} height={52} className="object-contain" priority />
+                            )}
+                          </div>
+                          <div>
+                            <span 
+                              className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border inline-block mb-0.5"
+                              style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
+                            >
+                              قسم الاستثمار والتطوير العقاري • جدول السداد
+                            </span>
+                            <h1 className="text-lg font-black" style={{ color: primaryCol }}>{companySettings.company_name}</h1>
+                            <p className="text-[10px] text-slate-600 font-bold">{companySettings.tagline}</p>
+                          </div>
+                        </div>
+                        <div className="text-left font-mono text-xs">
+                          <div 
+                            className="border-2 px-3 py-1 font-black rounded-lg inline-block text-white text-[11px]"
+                            style={{ backgroundColor: primaryCol, borderColor: primaryCol }}
+                          >
+                            عقد عقار: {selectedUnitForPrint.unit_code}
+                          </div>
+                          <p className="text-[10px] text-slate-600 mt-1">التاريخ: {new Date().toISOString().substring(0, 10)}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* شريط توثيق العقد والفرع */}
+                    <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1.5 font-cairo shadow-xs text-xs font-bold text-slate-800">
+                      <div className="flex items-center gap-1.5" dir="rtl">
+                        <span className="text-slate-500 font-medium text-[11px]">العدد :</span>
+                        <span className="font-mono text-slate-950 text-xs tracking-wide">
+                          ع/ {selectedUnitForPrint.unit_code} / 2026
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-center">
+                        <span className="inline-flex items-center px-3 py-0.5 rounded-lg bg-white border border-slate-300 text-slate-950 font-black text-xs shadow-xs">
+                          {selectedUnitForPrint.branch_name || 'فرع الاستثمارات العقارية (النجف الأشرف)'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5" dir="rtl">
+                        <span className="text-slate-500 font-medium text-[11px]">التاريخ :</span>
+                        <span className="font-mono text-slate-950 text-xs tracking-wider">{new Date().toISOString().substring(0, 10)}</span>
+                      </div>
+                    </div>
+
+                    {/* بيانات المشتري والعقار */}
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+                      <div className="space-y-0.5">
+                        <strong className="block border-b border-slate-200 pb-0.5 text-[11px]" style={{ color: primaryCol }}>معلومات المشتري والتعاقد:</strong>
+                        <p>اسم المشتري: <strong className="text-slate-950">{selectedUnitForPrint.buyer_name}</strong></p>
+                        <p>رقم الهاتف: <span className="font-mono">{selectedUnitForPrint.buyer_phone || '---'}</span></p>
+                        <p>العقار: <strong>{selectedUnitForPrint.title}</strong></p>
+                        <p>الموقع: {selectedUnitForPrint.city} - {selectedUnitForPrint.location}</p>
+                      </div>
+                      <div className="space-y-0.5">
+                        <strong className="block border-b border-slate-200 pb-0.5 text-[11px]" style={{ color: primaryCol }}>الملخص المالي للعقار:</strong>
+                        <p>القيمة التعاقدية الكاملة: <strong className="font-mono" style={{ color: primaryCol }}>{formatNum(selectedUnitForPrint.price)} د.ع</strong></p>
+                        <p>إجمالي المسدد الفعلي: <strong className="font-mono text-emerald-700">{formatNum(selectedUnitForPrint.totalPaid)} د.ع</strong></p>
+                        <p>المتبقي بذمة المشتري: <strong className="font-mono text-rose-700">{formatNum(selectedUnitForPrint.totalRemaining)} د.ع</strong></p>
+                        <p>المساحة: <strong className="font-mono">{selectedUnitForPrint.area_sqm} م²</strong> ({selectedUnitForPrint.property_type})</p>
+                      </div>
+                    </div>
+
+                    {/* جدول الأقساط الشهرية الرسمية */}
+                    <div>
+                      <strong className="text-[11px] font-bold block mb-1" style={{ color: primaryCol }}>جدول استحقاق الدفعات والأقساط الشهرية:</strong>
+                      <div className="border border-slate-300 rounded-xl overflow-hidden">
+                        <table className="w-full text-right text-xs font-mono">
+                          <thead className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300 text-[10px]">
+                            <tr>
+                              <th className="p-1.5 text-center">ت</th>
+                              <th className="p-1.5">عنوان الدفعة / القسط</th>
+                              <th className="p-1.5">المبلغ المطلوب</th>
+                              <th className="p-1.5">تاريخ الاستحقاق</th>
+                              <th className="p-1.5 text-center">حالة السداد</th>
+                              <th className="p-1.5 text-center">تاريخ السداد / رقم الوصل</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 text-[10px]">
+                            {(selectedUnitForPrint.installments || []).map((inst: any, idx: number) => (
+                              <tr key={inst.installment_id || idx}>
+                                <td className="p-1 text-center font-bold">#{idx + 1}</td>
+                                <td className="p-1 font-bold text-slate-900 font-sans">{inst.installment_title}</td>
+                                <td className="p-1 font-black text-slate-900">{formatNum(inst.amount)} د.ع</td>
+                                <td className="p-1 text-slate-600">{String(inst.due_date || '').split('T')[0]}</td>
+                                <td className="p-1 text-center font-sans">
+                                  {inst.is_paid ? (
+                                    <span className="text-emerald-700 font-bold">تم السداد ✓</span>
+                                  ) : (
+                                    <span className="font-bold" style={{ color: primaryCol }}>مستحق</span>
+                                  )}
+                                </td>
+                                <td className="p-1 text-center text-slate-500 text-[9px]">
+                                  {inst.voucher_number ? `${inst.voucher_number} (${inst.paid_at ? String(inst.paid_at).split('T')[0] : ''})` : '---'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* منطقة التواقيع والباركود الذكي */}
+                  <div className="space-y-2 pt-2 mt-auto">
+                    <div className="grid grid-cols-4 gap-3 pt-2 text-center text-xs items-end border-t border-slate-200">
+                      <div>
+                        <p className="font-bold text-slate-950 text-xs">توقيع المشتري</p>
+                        <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-slate-950 text-xs">مدير الاستثمار العقاري</p>
+                        <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="w-13 h-13 border border-slate-300 rounded-xl p-0.5 bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                            src={qrCodeApiUrl} 
+                            alt="باركود التحقق الإلكتروني وسجل الأقساط" 
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <span className="font-mono text-[7px] font-bold mt-0.5 flex items-center gap-0.5" style={{ color: primaryCol }}>
+                          <Globe className="w-2 h-2" /> امسح للتحقق أونلاين
+                        </span>
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-slate-950 text-xs">المدير المفوض / الختم</p>
+                        <div className="border-b-2 border-dashed border-slate-400 w-20 mx-auto mt-4"></div>
+                      </div>
+                    </div>
+
+                    <div className="text-center text-[8.5px] text-slate-600 font-semibold border-t border-slate-200 pt-1 flex items-center justify-between font-mono">
+                      <span>{companySettings.company_name} - {selectedUnitForPrint.branch_name || 'فرع الاستثمارات العقارية'}</span>
+                      <span>هاتف الإدارة: {companySettings.phone_primary} {companySettings.phone_secondary && `| ${companySettings.phone_secondary}`}</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       </div>
     </AuthGuard>

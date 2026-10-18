@@ -8,15 +8,24 @@ import {
   Plus, 
   Trash2, 
   Calculator, 
-  Globe,
-  MapPin,
-  Phone,
-  Sparkles,
-  TrendingDown,
-  Layers,
-  Award,
-  CheckCircle2,
-  QrCode
+  Globe, 
+  MapPin, 
+  Phone, 
+  Sparkles, 
+  TrendingDown, 
+  Layers, 
+  Award, 
+  CheckCircle2, 
+  QrCode, 
+  ChevronDown, 
+  ChevronUp, 
+  LayoutList, 
+  FileSpreadsheet, 
+  Settings, 
+  RotateCcw, 
+  Search, 
+  Save, 
+  RefreshCw 
 } from 'lucide-react';
 
 function formatNum(val: number | string): string {
@@ -119,6 +128,19 @@ const OFFICIAL_TENDER_TEMPLATES = [
   { id: 41, name: 'التسطيح: تجهيز المعدات والمواد المطلوبة لعمل التسطيح بالشتايكر (80*80) سم ذات نوعية جيدة والمتوفرة في الاسواق مع مراعاة معدل الميل المناسب في العمل مع ارتفاع مرد الماء بالنسبة للبيتونة ويشمل العمل الطلاء بالفلانكوت ثلاث طبقات وفرش القير وطبقة من اللباد والفلين بسمك 2سم ونايلون ومن ثم التهوير بالتراب ويشمل العمل تركيب وتثبيت مرازيب من انابيب بلاستك 4انج ضغط 8بار منشئ مستورد مع العكوس قياس 4انج وربط المرازيب بأحواض التفتيش وتربط مع انابيب المجاري الرئيسية وجميع ملحقات التثبيت مع كل ما يتطلب للوصول الى عمل متكامل وحسب الابعاد المبينة في المخططات وحسب توجيه المهندس الاستشاري المتخصص', unit: 'م2', calcType: 'ROOFING_SHTAIKER', prices: { low: 24000, medium: 32000, high: 45000 } }
 ];
 
+function getInitialMasterTemplates(): any[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('rtco_tender_templates_master') || localStorage.getItem('rtco_master_boq_templates');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+  }
+  return OFFICIAL_TENDER_TEMPLATES;
+}
+
 interface ProjectTenderModalProps {
   project: any;
   companySettings: any;
@@ -144,12 +166,24 @@ export default function ProjectTenderModal({
   const [tenderCustomItems, setTenderCustomItems] = useState<any[]>([]);
   const [savingTender, setSavingTender] = useState(false);
 
+  // القالب المعتمد لتسعيرة السوق
+  const [masterTemplates, setMasterTemplates] = useState<any[]>(getInitialMasterTemplates);
+
+  // نافذة تسعيرة السوق للباقات الثلاث
+  const [showPriceMasterModal, setShowPriceMasterModal] = useState(false);
+  const [editTemplatesList, setEditTemplatesList] = useState<any[]>([]);
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
+
+  // أوضاع العرض للموبايل
+  const [mobileViewMode, setMobileViewMode] = useState<'cards' | 'sheet'>('cards');
+  const [showMeasurementsMobile, setShowMeasurementsMobile] = useState(false);
+
   const completionRate = project?.completion_rate || 0;
   const totalReceived = Number(project?.total_received || 0);
   const contractVal = Number(project?.contract_value || 0);
   const remainingVal = Math.max(0, contractVal - totalReceived);
 
-  const generateDefault41Items = (area: number, walls: number, floors: number, height: number, rooms: number, baths: number, tier: 'low' | 'medium' | 'high') => {
+  const generateDefault41Items = (area: number, walls: number, floors: number, height: number, rooms: number, baths: number, tier: 'low' | 'medium' | 'high', templatesToUse?: any[]) => {
     const qSubbase = Math.round(area * 0.25);
     const qRaftConcrete = Math.round(area * 0.45);
     const qSlabsConcrete = Math.round(area * floors * 0.26);
@@ -187,7 +221,9 @@ export default function ProjectTenderModal({
     const qHandrail = Math.round(floors * 12);
     const qShtaiker = Math.round(area * 1.05);
 
-    const generated = OFFICIAL_TENDER_TEMPLATES.map((tmpl) => {
+    const activeSource = templatesToUse || masterTemplates || OFFICIAL_TENDER_TEMPLATES;
+
+    const generated = activeSource.map((tmpl, idx) => {
       let qty = 1;
       if (tmpl.calcType === 'SUBBASE') qty = qSubbase;
       else if (tmpl.calcType === 'RAFT_CONCRETE') qty = qRaftConcrete;
@@ -227,10 +263,10 @@ export default function ProjectTenderModal({
       else if (tmpl.calcType === 'ROOFING_SHTAIKER') qty = qShtaiker;
       else qty = 1;
 
-      const unitPrice = tmpl.prices[tier] || tmpl.prices.medium;
+      const unitPrice = tmpl.prices ? (Number(tmpl.prices[tier]) || 0) : 0;
 
       return {
-        seq: tmpl.id,
+        seq: tmpl.id || (idx + 1),
         name: tmpl.name,
         unit: tmpl.unit,
         qty: qty,
@@ -243,6 +279,9 @@ export default function ProjectTenderModal({
   };
 
   useEffect(() => {
+    const loadedMaster = getInitialMasterTemplates();
+    setMasterTemplates(loadedMaster);
+
     if (Array.isArray(existing.items) && existing.items.length > 0) {
       setTenderCustomItems(existing.items);
     } else {
@@ -253,22 +292,45 @@ export default function ProjectTenderModal({
         Number(tenderFloorHeight) || 3.0,
         Number(tenderRooms) || 4,
         Number(tenderBaths) || 3,
-        selectedTier
+        selectedTier,
+        loadedMaster
       );
     }
   }, []);
 
+  // دالة التنقل الفوري بين الباقات مع تحديث الأسعار والمجموع بدقة متناهية
   const handleSelectTier = (tier: 'low' | 'medium' | 'high') => {
     setSelectedTier(tier);
+
+    let currentMaster = masterTemplates;
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('rtco_tender_templates_master') || localStorage.getItem('rtco_master_boq_templates');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) currentMaster = parsed;
+        }
+      } catch {}
+    }
+
     setTenderCustomItems(prev => {
-      return prev.map(item => {
-        const template = OFFICIAL_TENDER_TEMPLATES.find(t => t.id === item.seq);
-        if (template && template.prices) {
-          const newPrice = template.prices[tier] || item.unitPrice;
+      return prev.map((item, idx) => {
+        const tmpl = currentMaster.find((t, tIdx) => 
+          String(t.id) === String(item.seq) || 
+          String(t.id) === String(item.id) ||
+          tIdx === idx ||
+          t.name.trim() === String(item.name).trim()
+        );
+
+        if (tmpl && tmpl.prices) {
+          const rawPrice = tmpl.prices[tier];
+          const newPrice = rawPrice !== undefined && rawPrice !== null ? Number(rawPrice) : Number(item.unitPrice || 0);
+          const qty = Number(item.qty) || 0;
           return {
             ...item,
+            seq: item.seq || tmpl.id || (idx + 1),
             unitPrice: newPrice,
-            total: Math.round(item.qty * newPrice)
+            total: Math.round(qty * newPrice)
           };
         }
         return item;
@@ -284,7 +346,8 @@ export default function ProjectTenderModal({
       Number(tenderFloorHeight) || 3.0,
       Number(tenderRooms) || 0,
       Number(tenderBaths) || 0,
-      selectedTier
+      selectedTier,
+      masterTemplates
     );
   };
 
@@ -301,12 +364,10 @@ export default function ProjectTenderModal({
   };
 
   const handleDeleteItem = (index: number) => {
-    if (!confirm('هل تريد حذف هذه الفقرة من جدول الكميات؟')) return;
-    setTenderCustomItems(prev => 
-      prev
-        .filter((_, i) => i !== index)
-        .map((item, idx) => ({ ...item, seq: idx + 1 }))
-    );
+    setTenderCustomItems(prev => {
+      const filtered = prev.filter((_, i) => i !== index);
+      return filtered.map((item, idx) => ({ ...item, seq: idx + 1 }));
+    });
   };
 
   const handleAddItem = () => {
@@ -322,10 +383,128 @@ export default function ProjectTenderModal({
       };
       return [...prev, newItem];
     });
+  };
 
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }, 100);
+  // دوال نافذة إدارة تسعيرة السوق للباقات الثلاث
+  const handleOpenMasterModal = () => {
+    let currentMaster = masterTemplates;
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('rtco_tender_templates_master') || localStorage.getItem('rtco_master_boq_templates');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) currentMaster = parsed;
+        }
+      } catch {}
+    }
+    setEditTemplatesList(JSON.parse(JSON.stringify(currentMaster)));
+    setTemplateSearchQuery('');
+    setShowPriceMasterModal(true);
+  };
+
+  const handleAddMasterItem = () => {
+    setEditTemplatesList(prev => {
+      const nextId = prev.length + 1;
+      const newTmpl = {
+        id: nextId,
+        name: 'فقرة إنشائية جديدة - يرجى كتابة التفاصيل والمواصفات الفنية هنا',
+        unit: 'م2',
+        calcType: 'FIXED_1',
+        prices: { low: 0, medium: 0, high: 0 }
+      };
+      return [...prev, newTmpl];
+    });
+  };
+
+  const handleDeleteMasterItem = (id: number) => {
+    setEditTemplatesList(prev => {
+      const filtered = prev.filter(t => t.id !== id);
+      return filtered.map((t, idx) => ({ ...t, id: idx + 1 }));
+    });
+  };
+
+  const handleUpdateMasterTemplatePrice = (tmplId: number, tierKey: 'low' | 'medium' | 'high', val: string) => {
+    const num = Number(val) || 0;
+    setEditTemplatesList(prev => prev.map(t => {
+      if (t.id === tmplId) {
+        return {
+          ...t,
+          prices: {
+            ...t.prices,
+            [tierKey]: num
+          }
+        };
+      }
+      return t;
+    }));
+  };
+
+  const handleUpdateMasterTemplateField = (tmplId: number, field: string, val: string) => {
+    setEditTemplatesList(prev => prev.map(t => {
+      if (t.id === tmplId) {
+        return { ...t, [field]: val };
+      }
+      return t;
+    }));
+  };
+
+  // حفظ واعتماد تسعيرة السوق وتعميمها لجميع المشاريع فوراً
+  const handleSaveMasterTemplates = async () => {
+    try {
+      localStorage.setItem('rtco_tender_templates_master', JSON.stringify(editTemplatesList));
+      localStorage.setItem('rtco_master_boq_templates', JSON.stringify(editTemplatesList));
+      setMasterTemplates(editTemplatesList);
+
+      // تحديث فوري لكافة فقرات المشروع الحالي لتطابق تسعيرة السوق الجديدة
+      setTenderCustomItems(prev => {
+        return editTemplatesList.map((tmpl, idx) => {
+          const existingItem = prev.find(p => 
+            String(p.seq) === String(tmpl.id) || 
+            String(p.id) === String(tmpl.id) ||
+            p.name.trim() === tmpl.name.trim() ||
+            idx === (Number(p.seq) - 1)
+          );
+
+          const qty = existingItem ? Number(existingItem.qty) || 1 : 1;
+          const unitPrice = tmpl.prices ? (Number(tmpl.prices[selectedTier]) || 0) : 0;
+          return {
+            seq: tmpl.id,
+            name: tmpl.name,
+            unit: tmpl.unit,
+            qty: qty,
+            unitPrice: unitPrice,
+            total: Math.round(qty * unitPrice)
+          };
+        });
+      });
+
+      try {
+        await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'SAVE_MASTER_TEMPLATES',
+            templates: editTemplatesList
+          })
+        });
+      } catch {}
+
+      alert('تم حفظ واعتماد تسعيرة السوق والفقرات المحدثة لجميع المشاريع بنجاح!');
+      setShowPriceMasterModal(false);
+    } catch {
+      alert('حدث خطأ أثناء حفظ تسعيرة السوق');
+    }
+  };
+
+  const handleResetToStandardTemplates = () => {
+    if (!confirm('هل تريد استرجاع قائمة الأسعار والمواصفات القياسية الافتراضية؟')) return;
+    try {
+      localStorage.removeItem('rtco_tender_templates_master');
+      localStorage.removeItem('rtco_master_boq_templates');
+      setMasterTemplates(OFFICIAL_TENDER_TEMPLATES);
+      setEditTemplatesList(JSON.parse(JSON.stringify(OFFICIAL_TENDER_TEMPLATES)));
+      alert('تم استرجاع الأسعار القياسية بنجاح!');
+    } catch {}
   };
 
   const totalTenderCost = useMemo(() => {
@@ -368,7 +547,7 @@ export default function ProjectTenderModal({
   };
 
   const hasLetterhead = Boolean(companySettings?.letterhead_url && companySettings.letterhead_url.trim().length > 10);
-  const displayBranchName = project?.branch_name || 'فرع التجارة العامة';
+  const displayBranchName = project?.branch_name || 'فرع المقاولات والمشاريع';
   const currentDateStr = new Date().toISOString().split('T')[0];
 
   const tierTitleMap = {
@@ -377,36 +556,30 @@ export default function ProjectTenderModal({
     high: 'عالي الكلفة (VIP ديلوكس - تشطيبات ومناشئ فاخرة)'
   };
 
-  // توليد بيانات الباركود الديناميكي للزبون
+  const activeOrigin = typeof window !== 'undefined' && window.location.origin 
+    ? window.location.origin 
+    : (companySettings?.website || 'https://rtcoapp.netlify.app');
+
+  const verifyProjectUrl = `${activeOrigin}/verify?type=project&no=${encodeURIComponent(project?.project_id || '')}`;
+
   const qrVerificationData = useMemo(() => {
-    const pName = project?.project_name || 'مشروع مقاولة';
-    const client = project?.client_name || 'صاحب العمل';
-    const loc = project?.location || 'النجف الأشرف';
-    const rate = `${completionRate}%`;
-    const recStr = `${formatNum(totalReceived)} د.ع`;
-    const remStr = `${formatNum(remainingVal)} د.ع`;
-    const costStr = `${formatNum(totalTenderCost)} د.ع`;
-    const pId = project?.project_id || 'PRJ-2026';
+    return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(verifyProjectUrl)}`;
+  }, [verifyProjectUrl]);
 
-    const textPayload = `وثيقة تندر معتمدة - شركة البرج المتألق\n` +
-      `المشروع: ${pName}\n` +
-      `الرقم التعريفي: ${pId}\n` +
-      `صاحب العمل: ${client}\n` +
-      `الموقع: ${loc}\n` +
-      `نسبة الإنجاز الفعلي: ${rate}\n` +
-      `المقبوض من العميل: ${recStr}\n` +
-      `المتبقي بذمة العميل: ${remStr}\n` +
-      `إجمالي كلفة التندر (41 فقرة): ${costStr}\n` +
-      `تاريخ المصادقة: ${currentDateStr}\n` +
-      `الحالة: وثيقة رسمية مصادق عليها إلكترونياً (DOC VERIFIED)`;
-
-    return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(textPayload)}`;
-  }, [project, completionRate, totalReceived, remainingVal, totalTenderCost, currentDateStr]);
+  const filteredMasterTemplates = useMemo(() => {
+    if (!templateSearchQuery.trim()) return editTemplatesList;
+    const q = templateSearchQuery.toLowerCase().trim();
+    return editTemplatesList.filter(t => 
+      String(t.id).includes(q) || 
+      String(t.name).toLowerCase().includes(q) ||
+      String(t.unit).toLowerCase().includes(q)
+    );
+  }, [editTemplatesList, templateSearchQuery]);
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:block print:w-full font-cairo text-[14px]">
+    <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:block print:w-full font-cairo text-[14px]">
       
-      {/* تنسيقات الطباعة الصارمة المعتمدة بالعرض A4 Landscape مع إزالة شريط التمرير بالكامل */}
+      {/* تنسيقات الطباعة الصارمة المعتمدة بالعرض A4 Landscape */}
       <style jsx global>{`
         textarea {
           overflow: hidden !important;
@@ -424,11 +597,14 @@ export default function ProjectTenderModal({
         @media screen and (max-width: 1024px) {
           .mobile-preview-container {
             width: 100% !important;
+            max-width: 100% !important;
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 2rem !important;
           }
           .tender-inner-sheet {
             min-width: 1050px !important;
+            margin: 0 !important;
           }
         }
         @media print {
@@ -461,6 +637,7 @@ export default function ProjectTenderModal({
             visibility: visible;
           }
           #printable-tender-document {
+            display: block !important;
             position: absolute;
             left: 0;
             top: 0;
@@ -495,174 +672,306 @@ export default function ProjectTenderModal({
         }
       `}</style>
 
-      {/* شريط الإجراءات العلوي التفاعلي */}
-      <div className="sticky top-0 z-50 w-full max-w-6xl flex items-center justify-between bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3 rounded-2xl mb-4 print:hidden shadow-2xl gap-3">
-        <div className="flex items-center gap-2.5 flex-wrap">
+      {/* 1. الشريط العلوي التفاعلي */}
+      <div className="w-full max-w-6xl bg-slate-900 border border-slate-700 p-3 sm:px-5 sm:py-3.5 rounded-2xl mb-3 print:hidden shadow-2xl space-y-2.5">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div className="flex items-center gap-2 truncate">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <Calculator className="w-4 h-4" />
+            </div>
+            <div className="truncate">
+              <h3 className="text-xs sm:text-sm font-black text-white truncate">
+                تندر وجدول كميات: <span className="text-amber-400">{project?.project_name}</span>
+              </h3>
+              <p className="text-[10px] text-slate-400 font-mono">
+                {project?.project_id} • {project?.client_name}
+              </p>
+            </div>
+          </div>
+
           <button 
-            type="button"
-            onClick={() => window.print()} 
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-4 py-2 rounded-xl text-[14px] flex items-center gap-2 cursor-pointer shadow-md whitespace-nowrap active:scale-95"
+            onClick={onClose} 
+            className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center transition border border-slate-700 cursor-pointer shrink-0"
+            title="إغلاق النافذة"
           >
-            <Printer className="w-4 h-4" /> طباعة وثيقة التندر والعقد (A4 بالعرض)
+            <X className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* سطر العمليات */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2.5">
           <button 
             type="button"
             onClick={handleSaveTender} 
             disabled={savingTender}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-2 rounded-xl text-[14px] flex items-center gap-2 cursor-pointer shadow-md whitespace-nowrap active:scale-95"
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition"
           >
-            <CheckSquare className="w-4 h-4" /> {savingTender ? 'جاري الحفظ...' : 'تثبيت وحفظ التندر'}
+            <CheckSquare className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{savingTender ? 'جاري الحفظ...' : 'حفظ التندر'}</span>
           </button>
+
+          <button 
+            type="button"
+            onClick={() => window.print()} 
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition"
+          >
+            <Printer className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">طباعة A4</span>
+          </button>
+
+          <button 
+            type="button"
+            onClick={handleOpenMasterModal} 
+            className="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-2 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-amber-500/40 active:scale-95 transition shadow-sm"
+            title="تعديل وإضافة وحذف أسعار السوق للفقرات للباقات الثلاث (قليل، متوسط، عالي)"
+          >
+            <Settings className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">تسعيرة السوق ⚙️</span>
+          </button>
+
           <button 
             type="button"
             onClick={handleAddItem} 
-            className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-[14px] flex items-center gap-1.5 cursor-pointer border border-slate-700 whitespace-nowrap active:scale-95"
+            className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-2.5 rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer border border-slate-700 active:scale-95 transition"
           >
-            <Plus className="w-4 h-4 text-amber-400" /> إضافة فقرة جديدة +
+            <Plus className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">+ فقرة إضافية</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-[14px] text-slate-300 font-mono hidden md:inline">
-            الكلفة التخمينية الكلية: <strong className="text-amber-400 text-base">{formatNum(totalTenderCost)} د.ع</strong>
-          </span>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer">
-            <X className="w-5 h-5" />
+        <div className="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <span className="text-slate-400 font-bold">الكلفة التخمينية الكلية ({tenderCustomItems.length} فقرة):</span>
+          <strong className="text-amber-400 font-mono text-sm font-black">{formatNum(totalTenderCost)} د.ع</strong>
+        </div>
+
+        <div className="flex sm:hidden items-center justify-between gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <button
+            type="button"
+            onClick={() => setMobileViewMode('cards')}
+            className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition ${
+              mobileViewMode === 'cards' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutList className="w-3.5 h-3.5" /> عرض بطاقات سريعة
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileViewMode('sheet')}
+            className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition ${
+              mobileViewMode === 'sheet' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" /> عرض الورقة الرسمية
           </button>
         </div>
       </div>
 
-      {/* شريط اختيار الباقة الثلاثية المبتكرة */}
-      <div className="w-full max-w-6xl bg-slate-900 border border-slate-800 p-4 rounded-3xl mb-4 print:hidden shadow-xl space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
-          <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            اختر باقة المواصفات والأسعار التخمينية المعتمدة (تحديث فوري لكامل الفقرات الـ 41):
+      {/* 2. باقة الأسعار مع تفعيل التنقل المباشر والسلس */}
+      <div className="w-full max-w-6xl bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl mb-3 print:hidden shadow-xl space-y-2.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-bold text-slate-300 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> باقة الأسعار المعتمدة:
           </span>
-          <span className="text-xs font-bold font-mono text-emerald-400">
-            الباقة المفعلة حالياً: {tierTitleMap[selectedTier]}
+          <span className="text-[11px] font-bold text-emerald-400 hidden sm:inline">
+            {tierTitleMap[selectedTier]}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
           <button
             type="button"
             onClick={() => handleSelectTier('low')}
-            className={`p-3 rounded-2xl border transition-all text-right flex flex-col justify-between cursor-pointer ${
+            className={`p-2 sm:p-3 rounded-xl border transition-all text-center sm:text-right cursor-pointer ${
               selectedTier === 'low'
-                ? 'bg-sky-500/20 border-sky-400 text-white shadow-lg shadow-sky-500/10'
+                ? 'bg-sky-500/25 border-sky-400 text-white shadow-md ring-1 ring-sky-400'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
             }`}
           >
-            <div className="flex justify-between items-center w-full mb-1">
-              <span className="font-black text-sm flex items-center gap-1.5 text-sky-400">
-                <TrendingDown className="w-4 h-4" /> قليل الكلفة (اقتصادي)
-              </span>
-              {selectedTier === 'low' && <CheckCircle2 className="w-4 h-4 text-sky-400" />}
-            </div>
-            <p className="text-[11px] leading-relaxed text-slate-300">
-              مواصفات قياسية تجارية مدروسة الكلفة، مناسبة للمشاريع الاقتصادية والوحدات السكنية المحدودة الميزانية.
+            <span className="font-black text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1 text-sky-400">
+              <TrendingDown className="w-3.5 h-3.5" /> اقتصادي (قليل)
+            </span>
+            <p className="hidden sm:block text-[10px] text-slate-300 mt-1 leading-relaxed">
+              تشطيب تجاري قياسي مدروس الكلفة.
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => handleSelectTier('medium')}
-            className={`p-3 rounded-2xl border transition-all text-right flex flex-col justify-between cursor-pointer ${
+            className={`p-2 sm:p-3 rounded-xl border transition-all text-center sm:text-right cursor-pointer ${
               selectedTier === 'medium'
-                ? 'bg-amber-500/20 border-amber-400 text-white shadow-lg shadow-amber-500/10'
+                ? 'bg-amber-500/25 border-amber-400 text-white shadow-md ring-1 ring-amber-400'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
             }`}
           >
-            <div className="flex justify-between items-center w-full mb-1">
-              <span className="font-black text-sm flex items-center gap-1.5 text-amber-400">
-                <Layers className="w-4 h-4" /> متوسط الكلفة (معياري ممتاز)
-              </span>
-              {selectedTier === 'medium' && <CheckCircle2 className="w-4 h-4 text-amber-400" />}
-            </div>
-            <p className="text-[11px] leading-relaxed text-slate-300">
-              المواصفات الأكثر شيوعاً في السوق العراقي (سمنت مقاوم، طابوق فاحص، أسلاك الرياض، صبغ جوتن، بورسلين ممتاز).
+            <span className="font-black text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1 text-amber-400">
+              <Layers className="w-3.5 h-3.5" /> متوسط (معياري)
+            </span>
+            <p className="hidden sm:block text-[10px] text-slate-300 mt-1 leading-relaxed">
+              المواصفات الشائعة الممتازة في السوق.
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => handleSelectTier('high')}
-            className={`p-3 rounded-2xl border transition-all text-right flex flex-col justify-between cursor-pointer ${
+            className={`p-2 sm:p-3 rounded-xl border transition-all text-center sm:text-right cursor-pointer ${
               selectedTier === 'high'
-                ? 'bg-purple-500/20 border-purple-400 text-white shadow-lg shadow-purple-500/10'
+                ? 'bg-purple-500/25 border-purple-400 text-white shadow-md ring-1 ring-purple-400'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
             }`}
           >
-            <div className="flex justify-between items-center w-full mb-1">
-              <span className="font-black text-sm flex items-center gap-1.5 text-purple-400">
-                <Award className="w-4 h-4" /> عالي الكلفة (VIP ديلوكس)
-              </span>
-              {selectedTier === 'high' && <CheckCircle2 className="w-4 h-4 text-purple-400" />}
-            </div>
-            <p className="text-[11px] leading-relaxed text-slate-300">
-              مواصفات معمارية فاخرة (مرمر طبيعي للواجهات، بورسلين إسباني، أبواب صاج ثقيلة، تأسيسات سمارت وخلاطات جروهي).
+            <span className="font-black text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1 text-purple-400">
+              <Award className="w-3.5 h-3.5" /> عالي (VIP)
+            </span>
+            <p className="hidden sm:block text-[10px] text-slate-300 mt-1 leading-relaxed">
+              تشطيبات ومناشئ معمارية فاخرة ديلوكس.
             </p>
           </button>
         </div>
       </div>
 
-      {/* مدخلات القياسات الأساسية للمشروع */}
-      <div className="w-full max-w-6xl bg-slate-900 border border-slate-800 p-5 rounded-3xl mb-5 print:hidden shadow-xl space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
-          <h4 className="text-[14px] font-bold text-white flex items-center gap-2">
+      {/* 3. مدخلات القياسات */}
+      <div className="w-full max-w-6xl bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl mb-3 print:hidden shadow-xl space-y-2.5">
+        <div 
+          onClick={() => setShowMeasurementsMobile(!showMeasurementsMobile)}
+          className="flex items-center justify-between cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-2 text-xs font-bold text-white">
             <Calculator className="w-4 h-4 text-amber-400" />
-            مدخلات القياسات الأساسية للمشروع (حصر كميات الـ 41 فقرة تلقائياً):
-          </h4>
+            <span>قياسات المشروع الأساسية:</span>
+            <span className="text-[11px] text-amber-300 font-mono hidden sm:inline">
+              ({tenderArea} م² • {tenderFloors} طوابق • {tenderRooms} غرف • {tenderBaths} حمام)
+            </span>
+          </div>
+
           <div className="flex items-center gap-2">
             <button 
               type="button"
-              onClick={handleRecalculateAll}
-              className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 rounded-lg text-[13px] font-bold border border-amber-500/40 transition cursor-pointer"
+              onClick={(e) => { e.stopPropagation(); handleRecalculateAll(); }}
+              className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 rounded-lg text-[11px] font-bold border border-amber-500/40 transition"
             >
-              إعادة احتساب وتوليد الكميات ↻
+              إعادة الحصر ↻
             </button>
-            <span className="text-[13px] text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
-              المواصفات القياسية العراقية المعتمدة
-            </span>
+            <div className="sm:hidden text-slate-400">
+              {showMeasurementsMobile ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-[14px]">
+        <div className={`grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs pt-1 ${showMeasurementsMobile ? 'grid' : 'hidden sm:grid'}`}>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">مساحة الأرض/البناء (م²)</label>
-            <input type="number" value={tenderArea} onChange={(e) => setTenderArea(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">المساحة (م²)</label>
+            <input type="number" value={tenderArea} onChange={(e) => setTenderArea(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">طول الجدران الكلي (م.ط)</label>
-            <input type="number" value={tenderWallLength} onChange={(e) => setTenderWallLength(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">طول الجدران (م)</label>
+            <input type="number" value={tenderWallLength} onChange={(e) => setTenderWallLength(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">عدد الطوابق</label>
-            <input type="number" min="1" value={tenderFloors} onChange={(e) => setTenderFloors(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">الطوابق</label>
+            <input type="number" min="1" value={tenderFloors} onChange={(e) => setTenderFloors(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">ارتفاع الطابق (م)</label>
-            <input type="number" step="0.1" value={tenderFloorHeight} onChange={(e) => setTenderFloorHeight(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">الارتفاع (م)</label>
+            <input type="number" step="0.1" value={tenderFloorHeight} onChange={(e) => setTenderFloorHeight(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">عدد الغرف</label>
-            <input type="number" value={tenderRooms} onChange={(e) => setTenderRooms(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">الغرف</label>
+            <input type="number" value={tenderRooms} onChange={(e) => setTenderRooms(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
           <div>
-            <label className="block text-slate-400 mb-1 font-semibold text-[13px]">عدد الحمامات والصحيات</label>
-            <input type="number" value={tenderBaths} onChange={(e) => setTenderBaths(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500 text-[14px]" />
+            <label className="block text-slate-400 mb-1 font-semibold text-[11px]">الصحيات</label>
+            <input type="number" value={tenderBaths} onChange={(e) => setTenderBaths(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono font-bold outline-none text-center" />
           </div>
         </div>
       </div>
 
-      {/* حاوية المعاينة المتجاوبة مع الموبايل وكافة الشاشات */}
-      <div className="mobile-preview-container w-full max-w-6xl pb-8 print:pb-0 print:overflow-visible">
+      {/* 4. عرض البطاقات السهلة للموبايل */}
+      <div className={`w-full max-w-6xl space-y-2.5 print:hidden ${mobileViewMode === 'cards' ? 'block sm:hidden' : 'hidden'}`}>
+        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+          <span>قائمة فقرات التندر ({tenderCustomItems.length} فقرة):</span>
+          <span>المجموع الكلي: <strong className="text-amber-400 font-mono">{formatNum(totalTenderCost)} د.ع</strong></span>
+        </div>
+
+        {tenderCustomItems.map((item, idx) => (
+          <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2.5 text-xs shadow-md">
+            <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center font-mono text-[11px] shrink-0">
+                  #{item.seq || (idx + 1)}
+                </span>
+                <span className="text-[11px] font-bold text-slate-300 font-sans">
+                  فقرة إنشائية
+                </span>
+              </div>
+
+              <button 
+                type="button" 
+                onClick={() => handleDeleteItem(idx)}
+                className="text-slate-500 hover:text-rose-400 p-1 cursor-pointer"
+                title="حذف الفقرة"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <textarea
+              rows={calculateRows(item.name)}
+              value={item.name}
+              onChange={(e) => handleUpdateItem(idx, 'name', e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 text-xs leading-relaxed outline-none focus:border-amber-500"
+            />
+
+            <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-0.5">الوحدة</label>
+                <input
+                  type="text"
+                  value={item.unit}
+                  onChange={(e) => handleUpdateItem(idx, 'unit', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-bold outline-none text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-0.5">الكمية</label>
+                <input
+                  type="number"
+                  value={item.qty}
+                  onChange={(e) => handleUpdateItem(idx, 'qty', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-white font-mono font-bold outline-none text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-0.5">سعر الوحدة (د.ع)</label>
+                <input
+                  type="number"
+                  value={item.unitPrice}
+                  onChange={(e) => handleUpdateItem(idx, 'unitPrice', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center text-amber-300 font-mono font-bold outline-none text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs pt-1 px-1">
+              <span className="text-slate-400">إجمالي كلفة الفقرة:</span>
+              <strong className="text-white font-mono font-bold">{formatNum(item.total)} د.ع</strong>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 5. حاوية المعاينة والورقة الرسمية A4 */}
+      <div className={`mobile-preview-container w-full max-w-6xl pb-8 print:pb-0 print:overflow-visible ${mobileViewMode === 'sheet' ? 'block' : 'hidden sm:block'}`}>
         
-        {/* الورقة المعتمدة ذات الإطار الهندسي الكامل والمطابق للنموذج المعتمد في التطبيق بالصورة */}
+        <div className="sm:hidden text-center py-1 text-[11px] text-amber-400 font-bold mb-2 bg-slate-900 border border-slate-800 rounded-xl">
+          ⇄ اسحب الورقة أفقياً لمعاينة كامل الأعمدة وجدول الـ 41 فقرة
+        </div>
+
         <div id="printable-tender-document" className="tender-inner-sheet relative w-full bg-white text-slate-950 p-6 sm:p-10 rounded-2xl shadow-2xl border-2 border-[#ea580c] font-cairo text-[14px] overflow-hidden">
           
-          {/* العلامة المائية للشركة في المنتصف (Watermark) */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04] z-0 select-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
@@ -673,7 +982,7 @@ export default function ProjectTenderModal({
           </div>
 
           <div className="relative z-10">
-            {/* 1. الترويسة المعتمدة المطابقة تماماً لكتب الشركة الرسمية (الصورة المرفقة) */}
+            {/* الترويسة */}
             {hasLetterhead ? (
               <div className="w-full border-b pb-3 mb-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -681,8 +990,6 @@ export default function ProjectTenderModal({
               </div>
             ) : (
               <div className="flex justify-between items-center pb-3 mb-2">
-                
-                {/* الطرف الأيسر: الإنجليزية */}
                 <div className="text-left font-sans" dir="ltr">
                   <h2 className="text-lg font-black text-slate-800 leading-tight">Resplendently Tower Co</h2>
                   <p className="text-[11.5px] font-bold text-[#ea580c] leading-snug">General Contracting</p>
@@ -691,7 +998,6 @@ export default function ProjectTenderModal({
                   <p className="text-[11.5px] font-bold text-[#ea580c] leading-snug">Real Estate Investments</p>
                 </div>
 
-                {/* الطرف الأوسط والأيمن: شعار الشركة والاسم العربي الرسمي */}
                 <div className="flex items-center gap-3">
                   <div className="w-20 h-20 relative flex items-center justify-center shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -710,11 +1016,10 @@ export default function ProjectTenderModal({
                     </p>
                   </div>
                 </div>
-
               </div>
             )}
 
-            {/* 2. شريط توثيق العقد والفرع والرقم والتاريخ (مطابق تماماً لنموذج الكتب الرسمية بالصورة الثانية) */}
+            {/* شريط العدد والفرع والتاريخ */}
             <div className="flex items-center justify-between bg-[#f4f4f5] border border-slate-300 rounded-lg px-5 py-2 font-cairo text-[13px] font-bold text-slate-800 mb-3.5 shadow-2xs">
               <div className="flex items-center gap-1.5" dir="rtl">
                 <span className="text-slate-700 font-black">العدد :</span>
@@ -735,14 +1040,14 @@ export default function ProjectTenderModal({
               </div>
             </div>
 
-            {/* 3. عنوان الوثيقة الرسمي مع خط تحتي أنيق */}
+            {/* عنوان الوثيقة */}
             <div className="text-center my-3">
               <h2 className="text-base sm:text-lg font-black text-slate-900 inline-block border-b-2 border-[#ea580c] pb-1 px-8">
                 وثيقة مناقصة وجدول كميات تعاقدي رسمي (BOQ)
               </h2>
             </div>
 
-            {/* 4. بطاقة بيانات المشروع الأساسية - تتسع للنصوص الطويلة بدون اقتطاع */}
+            {/* بطاقة بيانات المشروع الأساسية */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-3 rounded-xl text-[14px] font-semibold mb-3">
               <div className="p-2.5 bg-white rounded-lg border border-slate-200 flex flex-col justify-between min-h-[70px]">
                 <span className="text-slate-500 block text-[11px] mb-0.5">اسم المشروع</span>
@@ -767,7 +1072,7 @@ export default function ProjectTenderModal({
               </div>
             </div>
 
-            {/* 5. جدول الكميات والفقرات الـ 41 ملتصق بانسيابية وبدون أي فراغ أو فاصل سفلي زائد */}
+            {/* جدول الكميات */}
             <div className="border border-slate-300 rounded-xl overflow-hidden mb-4">
               <table className="w-full text-right text-[14px] border-collapse font-cairo">
                 <thead className="bg-[#f4f4f5] text-slate-900 font-black border-b-2 border-slate-300 text-[14px]">
@@ -849,7 +1154,7 @@ export default function ProjectTenderModal({
               </table>
             </div>
 
-            {/* 6. المجموع النهائي والتفقيط */}
+            {/* المجموع والتفقيط */}
             <div className="avoid-break-inside border-2 border-slate-900 rounded-xl overflow-hidden mb-4 bg-slate-50 font-cairo">
               <div className="flex justify-between items-center p-3 bg-slate-100 border-b border-slate-300 text-[14px] font-black">
                 <span className="text-slate-900">
@@ -864,21 +1169,15 @@ export default function ProjectTenderModal({
               </div>
             </div>
 
-            {/* 7. المساحة السفلى المعتمدة (تعهد العطاء + التواقيع الرسمية + ختم الشركة + رمز التحقق QR) */}
+            {/* التعهد والتواقيع والباركود */}
             <div className="avoid-break-inside space-y-3 pt-1 text-[14px] font-cairo">
-              
               <div className="p-3 bg-slate-50 border border-slate-300 rounded-xl text-[13px] text-slate-800 leading-relaxed font-semibold">
                 <strong>تعهد العقد والالتزام الفني:</strong> يقر الطرفان بصحة وجدية الأسعار والكميات المحددة أعلاه، وتتعهد شركة ({companySettings?.company_name || 'شركة البرج المتألق للمقاولات العامة'}) بتنفيذ وإنجاز كافة الفقرات الموضحة وفق المخططات المعمارية والإنشائية المعتمدة والمواصفات القياسية لأعمال الهندسة المدنية وتعليمات المهندس المشرف، وبكلفة تعاقدية إجمالية قدرها ({formatNum(totalTenderCost)} د.ع) فقط لا غير.
               </div>
 
-              {/* قسم التواقيع والختم ورمز التحقق QR النشط */}
               <div className="flex items-center justify-between pt-4 px-2">
-                
-                {/* الطرف الأيمن: توقيع المدير المفوض (المسمى الوظيفي فقط بدون اسم شخصي) والختم الرسمي الدائري */}
                 <div className="text-center space-y-1">
                   <p className="font-black text-base text-slate-900">المدير المفوض</p>
-                  
-                  {/* الختم الدائري المعتمد */}
                   <div className="w-24 h-24 mx-auto rounded-full border-2 border-dashed border-[#ea580c] flex flex-col items-center justify-center text-[#ea580c] font-black text-[10px] leading-tight rotate-[-8deg] shadow-2xs bg-[#ea580c]/5 mt-1">
                     <span>★ شركة البرج المتألق ★</span>
                     <span className="text-[11px] font-extrabold my-0.5">مصادق رسمياً</span>
@@ -886,47 +1185,82 @@ export default function ProjectTenderModal({
                   </div>
                 </div>
 
-                {/* المنتصف: توقيع مهندس التخمين والتدقيق */}
                 <div className="text-center">
                   <p className="font-bold text-[14px] text-slate-800">المهندس المقيم / مدقق التخمين</p>
                   <div className="border-b border-dashed border-slate-400 w-40 mx-auto mt-10"></div>
                 </div>
 
-                {/* الطرف الأيسر: توقيع الزبون / صاحب العمل ورمز التحقق QR الفعّال */}
                 <div className="flex flex-col items-center gap-2">
                   <div className="text-center">
                     <p className="font-bold text-[14px] text-slate-800">الطرف الأول (صاحب العمل / المستفيد)</p>
                     <div className="border-b border-dashed border-slate-400 w-44 mx-auto mt-6"></div>
                   </div>
 
-                  {/* رمز التحقق QR الفعّال والديناميكي المرتبط بتفاصيل المشروع */}
-                  <div className="flex flex-col items-center mt-1">
-                    <div className="w-20 h-20 border-2 border-slate-800 p-1 rounded-lg flex items-center justify-center bg-white shadow-2xs">
+                  {/* رمز التحقق QR مع بطاقة العرض الفورية */}
+                  <div className="relative group flex flex-col items-center mt-1">
+                    <a 
+                      href={verifyProjectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-20 h-20 border-2 border-slate-800 p-1 rounded-lg flex items-center justify-center bg-white shadow-2xs hover:border-[#ea580c] transition cursor-pointer"
+                      title="انقر أو مرر الفأرة لعرض تفاصيل التحقق والتندر"
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={qrVerificationData} 
                         alt="وثيقة التحقق الرقمية للمشروع" 
                         className="w-full h-full object-contain"
                       />
-                    </div>
+                    </a>
                     <span className="text-[9.5px] font-mono font-black text-slate-800 tracking-wider mt-0.5">DOC VERIFIED</span>
                     <span className="text-[9px] text-slate-500 font-mono">مسح الباركود للتحقق</span>
+
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-80 bg-slate-950 text-white p-3.5 rounded-2xl shadow-2xl border border-amber-500/60 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-50 text-right print:hidden">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-2">
+                        <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" /> بيانات التحقق المباشرة
+                        </span>
+                        <span className="text-[10px] font-mono text-emerald-400 font-bold">DOC VERIFIED</span>
+                      </div>
+                      <div className="space-y-1.5 text-[11px]">
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">المشروع:</span>
+                          <strong className="text-white truncate max-w-[150px]">{project?.project_name}</strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">نسبة الإنجاز:</span>
+                          <strong className="text-sky-400 font-mono font-black">{completionRate}%</strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">الواصل من صاحب العمل:</span>
+                          <strong className="text-emerald-400 font-mono font-black">{formatNum(totalReceived)} د.ع</strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400">المتبقي بذمته:</span>
+                          <strong className="text-rose-400 font-mono font-black">{formatNum(remainingVal)} د.ع</strong>
+                        </div>
+                        <div className="flex justify-between items-center border-t border-slate-800 pt-1">
+                          <span className="text-slate-400">كلفة التندر (41 فقرة):</span>
+                          <strong className="text-amber-300 font-mono font-black">{formatNum(totalTenderCost)} د.ع</strong>
+                        </div>
+                      </div>
+                      <p className="text-[9px] text-slate-500 text-center mt-2 border-t border-slate-800/80 pt-1">
+                        امسح الباركود بالكاميرا لعرض التندر كاملاً
+                      </p>
+                    </div>
                   </div>
                 </div>
 
               </div>
 
-              {/* 8. تذييل الكتب الرسمية المعتمد بالكامل (المرفقات + الأرشفة + شريط الهواتف والموقع والعنوان) */}
+              {/* التذييل */}
               <div className="pt-3 border-t border-slate-200 mt-2 text-xs">
-                
                 <div className="flex justify-between items-center text-[11px] text-slate-600 mb-2 px-1">
                   <span>المرفقات: جدول الكميات والمواصفات الفنية المعتمدة (41 فقرة)</span>
                   <span>نسخة منه إلى: مكتب المدير المفوض / المتابعة / الأرشيف</span>
                 </div>
 
                 <div className="border-t-2 border-slate-300 pt-2 text-[12px] text-slate-800 font-bold flex items-center justify-between px-2">
-                  
-                  {/* أرقام الهواتف */}
                   <div className="flex items-center gap-1.5" dir="ltr">
                     <Phone className="w-4 h-4 text-slate-700" />
                     <span className="font-mono text-[13px]">
@@ -934,23 +1268,18 @@ export default function ProjectTenderModal({
                     </span>
                   </div>
 
-                  {/* العنوان الجغرافي */}
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-slate-700" />
                     <span>{companySettings?.address || 'العراق - النجف الأشرف - حي الفرات'}</span>
                   </div>
 
-                  {/* الموقع الإلكتروني */}
                   <div className="flex items-center gap-1.5" dir="ltr">
                     <Globe className="w-4 h-4 text-slate-700" />
                     <span className="font-mono text-[12px]">{companySettings?.website || 'www.rtcompany.netlify.app'}</span>
                   </div>
-
                 </div>
 
-                {/* الشريط البرتقالي السفلي الجمالي للكتب الرسمية */}
                 <div className="w-full h-2 bg-[#ea580c] rounded-full mt-2.5"></div>
-
               </div>
 
             </div>
@@ -960,6 +1289,181 @@ export default function ProjectTenderModal({
         </div>
 
       </div>
+
+      {/* 6. نافذة تعديل تسعيرة السوق للباقات الثلاث مع دعم الإضافة والحذف والحفظ العام */}
+      {showPriceMasterModal && (
+        <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-3 sm:p-6 print:hidden animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-right">
+            
+            {/* ترويسة نافذة تسعيرة السوق */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold shrink-0">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-white">
+                    تعديل تسعيرة وباقات السوق للفقرات الإنشائية الـ 41
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    يمكن للمهندس إضافة فقرات، حذف فقرات، وتحديث أسعار الباقات الثلاث (اقتصادي، متوسط، VIP) وتعميمها لجميع المشاريع.
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowPriceMasterModal(false)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* أدوات البحث والإضافة السريعة والاسترجاع */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 mb-3">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-slate-400 absolute right-3 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="ابحث برقم أو اسم الفقرة..."
+                  value={templateSearchQuery}
+                  onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pr-9 pl-3 py-2 text-xs text-white outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleAddMasterItem}
+                  className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow active:scale-95"
+                >
+                  <Plus className="w-4 h-4" /> إضافة فقرة رئيسية جديدة للقالب +
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetToStandardTemplates}
+                  className="px-3 py-2 bg-slate-800 hover:bg-rose-950/40 text-slate-300 hover:text-rose-400 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                  title="استرجاع الأسعار القياسية الافتراضية للشركة"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> استرجاع الافتراضي
+                </button>
+              </div>
+            </div>
+
+            {/* جدول تعديل الأسعار الثلاثية مع عمود الحذف المباشر */}
+            <div className="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950/80 p-2">
+              <table className="w-full text-right text-xs">
+                <thead className="bg-slate-900 text-slate-300 border-b border-slate-800 sticky top-0 z-10 text-[11px]">
+                  <tr>
+                    <th className="p-2.5 text-center w-10 border-l border-slate-800">ت</th>
+                    <th className="p-2.5 border-l border-slate-800 min-w-[280px]">اسم ووصف الفقرة الإنشائية</th>
+                    <th className="p-2.5 text-center w-16 border-l border-slate-800">الوحدة</th>
+                    <th className="p-2.5 text-center w-28 border-l border-slate-800 text-sky-400 font-bold">
+                      اقتصادي (قليل)
+                    </th>
+                    <th className="p-2.5 text-center w-28 border-l border-slate-800 text-amber-400 font-bold">
+                      معياري (متوسط)
+                    </th>
+                    <th className="p-2.5 text-center w-28 border-l border-slate-800 text-purple-400 font-bold">
+                      ديلوكس (عالي VIP)
+                    </th>
+                    <th className="p-2.5 text-center w-12 text-rose-400 font-bold">
+                      حذف
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-mono">
+                  {filteredMasterTemplates.map((t) => (
+                    <tr key={t.id} className="hover:bg-slate-900/60">
+                      <td className="p-2 text-center text-slate-400 font-bold border-l border-slate-800/80">
+                        #{t.id}
+                      </td>
+
+                      <td className="p-2 border-l border-slate-800/80 font-sans text-xs">
+                        <textarea
+                          rows={2}
+                          value={t.name}
+                          onChange={(e) => handleUpdateMasterTemplateField(t.id, 'name', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 text-slate-200 text-xs leading-relaxed outline-none focus:border-amber-500"
+                        />
+                      </td>
+
+                      <td className="p-2 text-center border-l border-slate-800/80 font-sans">
+                        <input
+                          type="text"
+                          value={t.unit}
+                          onChange={(e) => handleUpdateMasterTemplateField(t.id, 'unit', e.target.value)}
+                          className="w-14 bg-slate-900 border border-slate-800 rounded-lg p-1 text-center text-white font-bold text-xs outline-none"
+                        />
+                      </td>
+
+                      <td className="p-2 text-center border-l border-slate-800/80">
+                        <input
+                          type="number"
+                          value={t.prices?.low || 0}
+                          onChange={(e) => handleUpdateMasterTemplatePrice(t.id, 'low', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 focus:border-sky-500 rounded-lg p-1.5 text-center text-sky-300 font-bold text-xs outline-none"
+                        />
+                      </td>
+
+                      <td className="p-2 text-center border-l border-slate-800/80">
+                        <input
+                          type="number"
+                          value={t.prices?.medium || 0}
+                          onChange={(e) => handleUpdateMasterTemplatePrice(t.id, 'medium', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 rounded-lg p-1.5 text-center text-amber-300 font-bold text-xs outline-none"
+                        />
+                      </td>
+
+                      <td className="p-2 text-center border-l border-slate-800/80">
+                        <input
+                          type="number"
+                          value={t.prices?.high || 0}
+                          onChange={(e) => handleUpdateMasterTemplatePrice(t.id, 'high', e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 focus:border-purple-500 rounded-lg p-1.5 text-center text-purple-300 font-bold text-xs outline-none"
+                        />
+                      </td>
+
+                      <td className="p-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMasterItem(t.id)}
+                          className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
+                          title="حذف هذه الفقرة من القالب العام"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* أزرار الحفظ والاعتماد العام لجميع المشاريع */}
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800 mt-3">
+              <button
+                type="button"
+                onClick={() => setShowPriceMasterModal(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer"
+              >
+                إلغاء
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveMasterTemplates}
+                className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer active:scale-95"
+              >
+                <Save className="w-4 h-4" /> حفظ واعتماد تسعيرة السوق الجديدة
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

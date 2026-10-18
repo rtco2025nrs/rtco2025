@@ -1222,11 +1222,10 @@ export default function ProjectsPage() {
     <AuthGuard moduleName="contracting" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل */}
+        {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
             
-            {/* الطرف الأيمن: الشعار والعنوان والشارة */}
             <div className="flex items-center gap-4">
               <div 
                 className="w-14 h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl"
@@ -1269,7 +1268,6 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            {/* الطرف الأيسر: شارة المستخدم وأزرار التنقل السريع */}
             <div className="flex items-center gap-2.5 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
               <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shrink-0">
                 <div className="w-8 h-8 rounded-full overflow-hidden border bg-slate-800 flex items-center justify-center shrink-0" style={{ borderColor: primaryCol }}>
@@ -1315,7 +1313,7 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* بطاقات المؤشرات المالية العامة الأربعة للمشاريع الجارية فقط */}
+        {/* بطاقات المؤشرات المالية العامة */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">إجمالي قيم العقود (الجارية)</p>
@@ -1437,7 +1435,6 @@ export default function ProjectsPage() {
                     
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
                       <div>
-                        {/* توثيق هوية المستخدم الذي أضاف المشروع */}
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-950 border border-slate-800 text-slate-300">
                             <User className="w-3 h-3 text-amber-400" />
@@ -1481,7 +1478,6 @@ export default function ProjectsPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5 self-start lg:self-auto w-full lg:w-auto mt-2 lg:mt-0">
-                        {/* زر التندر وجدول الكميات الحكومي المعتمد */}
                         <button 
                           onClick={() => setTenderProject(project)} 
                           className="bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer shadow-sm flex-1 sm:flex-none active:scale-95"
@@ -1586,7 +1582,6 @@ export default function ProjectsPage() {
               <div className="print-official-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-6 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
                 
                 <div className="relative z-10 flex flex-col flex-1">
-                  {/* 1. الترويسة الأصلية */}
                   {hasLetterhead ? (
                     <div className="w-full border-b pb-3 mb-4">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1621,7 +1616,6 @@ export default function ProjectsPage() {
                     </div>
                   )}
 
-                  {/* 2. شريط بيانات المشروع الأساسية */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-2xl text-[13px] font-semibold mt-2">
                     <div className="p-2.5 bg-white rounded-xl border border-slate-100">
                       <span className="text-slate-400 block text-[10px]">اسم المشروع</span>
@@ -1641,7 +1635,6 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* 3. حركة السندات المقيدة (جدول متجاوب) */}
                   <div className="space-y-2 mt-6">
                     <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryCol }}></span> 1. حركة السندات والتحويلات المالية المقيدة
@@ -1686,7 +1679,6 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* 4. مقاولو الباطن (جدول متجاوب) */}
                   <div className="space-y-2 mt-6">
                     <h3 className="font-black text-sm text-slate-900 flex items-center gap-2">
                       <span className="w-2.5 h-2.5 bg-sky-500 rounded-full"></span> 2. الموقف المالي لمقاولي الباطن
@@ -1721,7 +1713,6 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="mt-auto pt-6">
-                  {/* الملخص الختامي الدفتري */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-4 border-2 border-slate-900 p-3 sm:p-5 rounded-2xl bg-slate-50 text-center">
                     <div>
                       <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold">إجمالي المقبوضات</p>
@@ -1739,7 +1730,6 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* تواقيع الاعتماد */}
                   <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 text-center border-t border-slate-200 mt-6">
                     <div><p className="font-bold text-[10px] sm:text-xs text-slate-700">المهندس المقيم</p><div className="border-b border-dashed border-slate-400 w-16 sm:w-28 mx-auto mt-6 sm:mt-8"></div></div>
                     <div><p className="font-bold text-[10px] sm:text-xs text-slate-700">مدير الحسابات</p><div className="border-b border-dashed border-slate-400 w-16 sm:w-28 mx-auto mt-6 sm:mt-8"></div></div>
@@ -1752,126 +1742,126 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* النافذة الشاملة للمشروع */}
+        {/* النافذة الشاملة للمشروع مع شريط تبويبات متجاوب بالكامل لشاشات الموبايل */}
         {activeTabProject && (
-          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl shadow-2xl p-4 sm:p-6 flex flex-col max-h-[90vh] overflow-y-auto">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
-                <div>
+          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-2.5 sm:p-4">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl shadow-2xl p-4 sm:p-6 flex flex-col max-h-[92vh] overflow-y-auto">
+              
+              {/* ترويسة النافذة المنظمة مع زر الإغلاق المباشر */}
+              <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                <div className="min-w-0 flex-1">
                   <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <Hammer className="w-5 h-5 text-amber-400 shrink-0" /> إدارة تفاصيل مشروع: <span className="text-amber-400">{activeTabProject.project_name}</span>
+                    <Hammer className="w-5 h-5 text-amber-400 shrink-0" />
+                    <span className="truncate">إدارة تفاصيل مشروع: <strong className="text-amber-400">{activeTabProject.project_name}</strong></span>
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-1">التحليلات المالية، المواد، اليوميات، والمراحل التنفيذية</p>
                 </div>
-                <button onClick={() => setActiveProjectId(null)} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition shrink-0 self-end sm:self-auto cursor-pointer">
-                  <X className="w-5 h-5" />
+                <button 
+                  onClick={() => setActiveProjectId(null)} 
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center transition border border-slate-700 cursor-pointer shrink-0"
+                  title="إغلاق النافذة"
+                >
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* شريط التبويبات المتجاوب */}
-              <div className="flex flex-col items-center justify-center gap-2 border-b border-slate-800 pb-4 mb-4 text-xs font-semibold overflow-x-auto w-full">
-                
-                {/* السطر الأول */}
-                <div className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 w-full min-w-max sm:min-w-0 pb-1 sm:pb-0">
-                  <button 
-                    onClick={() => setActiveTab('ANALYTICS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'ANALYTICS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                    <span>التحليلات والهوامش</span>
-                  </button>
+              {/* شريط الفقرات والتبويبات المحدث ليظهر بدقة في الموبايل والكمبيوتر */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap lg:items-center lg:justify-center gap-1.5 sm:gap-2 border-b border-slate-800 pb-3.5 mb-4 text-xs font-semibold w-full">
+                <button 
+                  onClick={() => setActiveTab('ANALYTICS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'ANALYTICS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">التحليلات المالية</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('MATERIALS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'MATERIALS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <Package className="w-3.5 h-3.5 shrink-0 text-sky-400" />
-                    <span>المواد والتوريدات</span>
-                  </button>
+                <button 
+                  onClick={() => setActiveTab('MATERIALS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'MATERIALS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <Package className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+                  <span className="truncate">المواد والتوريدات</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('SUBS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'SUBS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <User className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
-                    <span>مقاولي الباطن</span>
-                  </button>
+                <button 
+                  onClick={() => setActiveTab('SUBS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'SUBS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                  <span className="truncate">مقاولو الباطن</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('EXPENSES')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'EXPENSES' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <Coins className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                    <span>التشغيلية</span>
-                  </button>
-                </div>
+                <button 
+                  onClick={() => setActiveTab('EXPENSES')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'EXPENSES' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <Coins className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                  <span className="truncate">المصاريف التشغيلية</span>
+                </button>
 
-                {/* السطر الثاني */}
-                <div className="flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-2 w-full min-w-max sm:min-w-0 pb-1 sm:pb-0">
-                  <button 
-                    onClick={() => setActiveTab('TERMS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'TERMS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <Receipt className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
-                    <span>دفعات العقد المستحقة</span>
-                  </button>
+                <button 
+                  onClick={() => setActiveTab('TERMS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'TERMS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <Receipt className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                  <span className="truncate">دفعات العقد</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('MILESTONES')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'MILESTONES' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <TrendingUp className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                    <span>مراحل التنفيذ</span>
-                  </button>
+                <button 
+                  onClick={() => setActiveTab('MILESTONES')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'MILESTONES' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                  <span className="truncate">مراحل التنفيذ</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('LOGS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'LOGS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <ClipboardList className="w-3.5 h-3.5 shrink-0 text-sky-400" />
-                    <span>سجل الموقع</span>
-                  </button>
+                <button 
+                  onClick={() => setActiveTab('LOGS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'LOGS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <ClipboardList className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+                  <span className="truncate">يوميات الموقع</span>
+                </button>
 
-                  <button 
-                    onClick={() => setActiveTab('DOCS')} 
-                    className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap flex-1 sm:flex-none ${
-                      activeTab === 'DOCS' 
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-amber-500/20' 
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    <Paperclip className="w-3.5 h-3.5 shrink-0 text-purple-400" />
-                    <span>مخططات ووثائق</span>
-                  </button>
-                </div>
+                <button 
+                  onClick={() => setActiveTab('DOCS')} 
+                  className={`px-3 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+                    activeTab === 'DOCS' 
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-amber-500/20' 
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  <Paperclip className="w-3.5 h-3.5 shrink-0 text-purple-400" />
+                  <span className="truncate">مخططات ووثائق</span>
+                </button>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 pb-4">
@@ -1908,7 +1898,6 @@ export default function ProjectsPage() {
                   return (
                     <div className="space-y-4 text-right">
                       
-                      {/* البطاقات الرئيسية */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
                           <span className="text-[11px] text-slate-400 font-semibold block">قيمة العقد الإجمالية</span>
@@ -1955,7 +1944,6 @@ export default function ProjectsPage() {
                         </div>
                       </div>
 
-                      {/* تقرير الموقف الدفتري */}
                       <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
                           <h4 className="text-xs font-bold text-white flex items-center gap-2">
@@ -2039,7 +2027,6 @@ export default function ProjectsPage() {
                         </div>
                       </div>
 
-                      {/* شريط التحليل التوازني */}
                       <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
                           <div>
@@ -2084,7 +2071,6 @@ export default function ProjectsPage() {
                         </div>
                       </div>
 
-                      {/* الرسم البياني للمواد والتوزيع التفصيلي */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
                           <div className="flex justify-between items-center text-slate-400">
@@ -3149,12 +3135,6 @@ export default function ProjectsPage() {
                           return (
                             <tr key={vIdx} className="hover:bg-slate-800/60 transition">
                               <td className="p-3 font-bold text-amber-400 whitespace-nowrap">{v.voucher_number}</td>
-                              <td className="p-3 font-sans whitespace-nowrap">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${isRec ? 'bg-emerald-50/20 text-emerald-300' : 'bg-rose-50/20 text-rose-300'}`}>
-                                  {isRec ? 'قبض' : 'صرف'}
-                                </span>
-                              </td>
-                              <td className="p-3 text-slate-400 whitespace-nowrap">{String(v.issue_date || '').split('T')[0]}</td>
                               <td className="p-3 font-sans text-slate-200 font-medium truncate max-w-[150px]" title={parsed.party || v.party_name}>{parsed.party || v.party_name}</td>
                               <td className="p-3 text-left font-bold text-white whitespace-nowrap">{formatNum(v.total_amount || v.amount)} د.ع</td>
                             </tr>

@@ -554,7 +554,7 @@ export default function FinancialReportsPage() {
 
   return (
     <AuthGuard moduleName="vouchers" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
         {/* تنسيقات الطباعة النموذجية لورقة A4 المعزولة والمحكمة */}
         <style jsx global>{`
@@ -596,7 +596,7 @@ export default function FinancialReportsPage() {
               border: none !important;
               border-radius: 0 !important;
               margin: 0 auto !important;
-              width: 100% !important;
+              width: 210mm !important;
               max-width: 210mm !important;
               height: 280mm !important;
               max-height: 280mm !important;
@@ -614,14 +614,14 @@ export default function FinancialReportsPage() {
           }
         `}</style>
 
-        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المنظمة والمتجاوبة مع الموبايل */}
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
             {/* الطرف الأيمن: الشعار والعنوان والشارة */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl"
+                className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl mt-0.5 sm:mt-0"
                 style={{ borderColor: `${primaryCol}50`, boxShadow: `0 10px 25px -5px ${primaryCol}30` }}
               >
                 {hasLogo ? (
@@ -642,120 +642,122 @@ export default function FinancialReportsPage() {
                   />
                 )}
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
                     التقرير المالي التنفيذي وتحليل الاستثمار الموحد
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
                     RTCO Executive Analytics 2026
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                   {companySettings.company_name} • نطاق العرض: <strong className="text-amber-400">{currentBranchLabel}</strong>
                 </p>
               </div>
             </div>
 
             {/* الطرف الأيسر: شريط الإجراءات وأزرار التنقل السريع */}
-            <div className="flex items-center gap-2.5 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto overflow-x-auto pb-1 sm:pb-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
               <button 
                 onClick={() => loadAllData(selectedBranchId)} 
-                className="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-amber-400 transition cursor-pointer active:scale-95 shadow-sm"
+                className="p-2 sm:p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-amber-400 transition cursor-pointer active:scale-95 shadow-sm shrink-0"
                 title="تحديث ومزامنة البيانات اللحظية"
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
               </button>
 
-              <button 
-                onClick={async () => {
-                  await loadSettings();
-                  window.print();
-                }} 
-                className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition shadow-lg cursor-pointer whitespace-nowrap active:scale-95"
-                style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
-              >
-                <Printer className="w-4 h-4" /> طباعة الميزانية والقوائم (A4)
-              </button>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button 
+                  onClick={async () => {
+                    await loadSettings();
+                    window.print();
+                  }} 
+                  className="px-3 sm:px-4 py-2 sm:py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer whitespace-nowrap active:scale-95"
+                  style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
+                >
+                  <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> طباعة الميزانية (A4)
+                </button>
 
-              <Link 
-                href="/" 
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
-              >
-                <Home className="w-4 h-4" /> الرئيسية
-              </Link>
+                <Link 
+                  href="/" 
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> الرئيسية
+                </Link>
+              </div>
             </div>
 
           </div>
         </div>
 
         {/* شريط فلترة النطاق الزمني والتنقل الشهري */}
-        <div className="max-w-7xl mx-auto mt-6 bg-slate-900/90 border border-slate-800 p-4 rounded-3xl print:hidden flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-3 flex-wrap w-full md:w-auto">
-            <div className="flex items-center gap-2 font-bold text-xs" style={{ color: primaryCol }}>
-              <Calendar className="w-4 h-4" />
+        <div className="max-w-7xl mx-auto mt-5 sm:mt-6 bg-slate-900/90 border border-slate-800 p-3 sm:p-4 rounded-2xl sm:rounded-3xl print:hidden flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 shadow-xl">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
+            <div className="flex items-center gap-1.5 font-bold text-xs" style={{ color: primaryCol }}>
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>نطاق التحليل الزمني:</span>
             </div>
 
             <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-xl p-1">
               <button 
                 onClick={() => handleShiftMonth('PREV')} 
-                className="p-1.5 hover:bg-slate-800 text-slate-300 rounded-lg transition cursor-pointer"
+                className="p-1 hover:bg-slate-800 text-slate-300 rounded-lg transition cursor-pointer"
                 title="الشهر السابق"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
-              <span className="px-2 text-xs font-mono font-bold whitespace-nowrap" style={{ color: primaryCol }}>تنقل شهري</span>
+              <span className="px-1.5 text-[11px] font-mono font-bold whitespace-nowrap" style={{ color: primaryCol }}>تنقل شهري</span>
               <button 
                 onClick={() => handleShiftMonth('NEXT')} 
-                className="p-1.5 hover:bg-slate-800 text-slate-300 rounded-lg transition cursor-pointer"
+                className="p-1 hover:bg-slate-800 text-slate-300 rounded-lg transition cursor-pointer"
                 title="الشهر التالي"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400">من:</span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-slate-400 text-xs">من:</span>
               <input 
                 type="date" 
                 value={startDate} 
                 onChange={(e) => { setIsAllTime(false); setStartDate(e.target.value); }}
-                className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono outline-none text-xs"
+                className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-white font-mono outline-none text-xs"
               />
             </div>
 
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400">إلى:</span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-slate-400 text-xs">إلى:</span>
               <input 
                 type="date" 
                 value={endDate} 
                 onChange={(e) => { setIsAllTime(false); setEndDate(e.target.value); }}
-                className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono outline-none text-xs"
+                className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-white font-mono outline-none text-xs"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
+          <div className="flex items-center gap-1.5 self-end md:self-auto flex-wrap">
             <button
               onClick={() => setQuickRange('THIS_MONTH')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا الشهر
             </button>
             <button
               onClick={() => setQuickRange('THIS_YEAR')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا العام
             </button>
             <button
               onClick={() => setQuickRange('ALL')}
-              className="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
               style={isAllTime ? { backgroundColor: primaryCol, color: '#020617', fontWeight: 'bold' } : { backgroundColor: '#1e293b', color: primaryCol }}
             >
               <RotateCcw className="w-3.5 h-3.5" /> الكل
@@ -764,85 +766,85 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* المؤشرات المالية الإجمالية العامة للشركة */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-5 sm:mt-6 print:hidden">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <ArrowDownLeft className="w-4 h-4 text-emerald-400" /> إجمالي إيرادات الشركة المجمعة
+                  <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /> إجمالي إيرادات الشركة المجمعة
                 </span>
-                <div className="text-2xl font-black font-mono text-emerald-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-emerald-400 mt-1.5">
                   {formatNum(summary.grandTotalRevenue)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20">
-                <Wallet className="w-5 h-5" />
+              <div className="p-2 sm:p-3 bg-emerald-500/10 text-emerald-400 rounded-xl sm:rounded-2xl border border-emerald-500/20">
+                <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">المقاولات + النقل + التجارة + مبيعات العقارات</p>
+            <p className="text-[11px] text-slate-500 mt-1.5">المقاولات + النقل + التجارة + مبيعات العقارات</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <ArrowUpRight className="w-4 h-4 text-rose-400" /> إجمالي المصروفات والتشغيل
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" /> إجمالي المصروفات والتشغيل
                 </span>
-                <div className="text-2xl font-black font-mono text-rose-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-rose-400 mt-1.5">
                   {formatNum(summary.grandTotalExpenses)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20">
-                <TrendingDown className="w-5 h-5" />
+              <div className="p-2 sm:p-3 bg-rose-500/10 text-rose-400 rounded-xl sm:rounded-2xl border border-rose-500/20">
+                <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">المشاريع + صيانة الأسطول + المشتريات + الرواتب</p>
+            <p className="text-[11px] text-slate-500 mt-1.5">المشاريع + صيانة الأسطول + المشتريات + الرواتب</p>
           </div>
 
-          <div className={`bg-slate-900 border p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center ${summary.grandNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-500/40 bg-rose-500/5'}`}>
+          <div className={`bg-slate-900 border p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center ${summary.grandNetProfit >= 0 ? 'border-sky-500/40 bg-sky-500/5' : 'border-rose-500/40 bg-rose-500/5'}`}>
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-300 font-semibold block flex items-center gap-1.5">
-                  <Coins className="w-4 h-4 text-sky-400" /> صافي الأرباح التشغيلية
+                  <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" /> صافي الأرباح التشغيلية
                 </span>
-                <div className={`text-2xl font-black font-mono mt-2 ${summary.grandNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
+                <div className={`text-xl sm:text-2xl font-black font-mono mt-1.5 ${summary.grandNetProfit >= 0 ? 'text-sky-400' : 'text-rose-400'}`}>
                   {formatNum(summary.grandNetProfit)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-xl text-xs font-bold font-mono whitespace-nowrap">
+              <div className="px-2 py-0.5 bg-sky-500/20 text-sky-300 rounded-lg sm:rounded-xl text-xs font-bold font-mono whitespace-nowrap">
                 {summary.overallMargin}% هامش
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 font-sans">صافي التدفق بعد حسم كافة النفقات والالتزامات</p>
+            <p className="text-[11px] text-slate-400 mt-1.5 font-sans">صافي التدفق بعد حسم كافة النفقات والالتزامات</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-xl flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-purple-400" /> كتلة الرواتب والأجور
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" /> كتلة الرواتب والأجور
                 </span>
-                <div className="text-2xl font-black font-mono text-purple-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-purple-400 mt-1.5">
                   {formatNum(hrFinance.totalSalaries)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-3 bg-purple-500/10 text-purple-400 rounded-2xl border border-purple-500/20">
-                <Users className="w-5 h-5" />
+              <div className="p-2 sm:p-3 bg-purple-500/10 text-purple-400 rounded-xl sm:rounded-2xl border border-purple-500/20">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">إجمالي الرواتب والبدلات لعدد {hrFinance.count} موظفين</p>
+            <p className="text-[11px] text-slate-500 mt-1.5">إجمالي الرواتب والبدلات لعدد {hrFinance.count} موظفين</p>
           </div>
         </div>
 
         {/* قسم المخططات الدائرية المقارنة */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-2xl">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 print:hidden">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-2xl">
             <div className="border-b border-slate-800/80 pb-3 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                   <PieChartIcon className="w-4 h-4 text-emerald-400" /> مساهمة القطاعات في إيرادات الشركة المجمعة
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">الحصة المالية لكل نشاط تجاري واستثماري</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">الحصة المالية لكل نشاط تجاري واستثماري</p>
               </div>
             </div>
 
@@ -865,13 +867,13 @@ export default function FinancialReportsPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-2xl">
             <div className="border-b border-slate-800/80 pb-3 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                   <PieChartIcon className="w-4 h-4 text-rose-400" /> هيكل توزيع التكاليف والمصروفات
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">مقارنة أوزان الإنفاق التشغيلي والإداري</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">مقارنة أوزان الإنفاق التشغيلي والإداري</p>
               </div>
             </div>
 
@@ -896,45 +898,45 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* 1. قطاع المقاولات والمشاريع */}
-        <div className="max-w-7xl mx-auto mt-10 space-y-5 print:hidden">
+        <div className="max-w-7xl mx-auto mt-8 sm:mt-10 space-y-4 sm:space-y-5 print:hidden">
           <div className="border-b-2 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2" style={{ borderColor: `${primaryCol}40` }}>
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2.5">
-                <HardHat className="w-6 h-6" style={{ color: primaryCol }} /> 1. قطاع المقاولات والمشاريع الهندسية
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <HardHat className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: primaryCol }} /> 1. قطاع المقاولات والمشاريع الهندسية
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">المستخلصات، الإنفاق الميداني، والتحليل الزمني للمشاريع عبر شهور العام</p>
             </div>
             <span 
-              className="text-xs font-mono font-bold px-3 py-1 rounded-xl border whitespace-nowrap"
+              className="text-xs font-mono font-bold px-3 py-1 rounded-xl border whitespace-nowrap self-start sm:self-auto"
               style={{ backgroundColor: `${primaryCol}10`, color: primaryCol, borderColor: `${primaryCol}30` }}
             >
               عقود المشاريع: {formatNum(summary.totalProjectsContract)} د.ع
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs text-slate-400 font-bold block mb-3">ملخص الحسابات الإجمالية للمقاولات:</span>
-                <div className="space-y-3 font-mono">
+                <div className="space-y-2.5 sm:space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المقبوض الفعلي:</span>
-                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(summary.totalProjectsReceived)} د.ع</strong>
+                    <strong className="text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(summary.totalProjectsReceived)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">التكاليف المنصرفة:</span>
-                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(summary.totalProjectsCosts)} د.ع</strong>
+                    <strong className="text-rose-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(summary.totalProjectsCosts)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border" style={{ borderColor: `${primaryCol}30` }}>
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي السيولة النقدية:</span>
-                    <strong className="text-base whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</strong>
+                    <strong className="text-sm sm:text-base whitespace-nowrap" style={{ color: primaryCol }}>{formatNum(summary.totalProjectsReceived - summary.totalProjectsCosts)} د.ع</strong>
                   </div>
                 </div>
               </div>
               <p className="text-[11px] text-slate-500">يشمل مشتريات المواد الموقعية، ومقاولي الباطن، والمصروفات الميدانية.</p>
             </div>
 
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 shadow-xl">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4" style={{ color: primaryCol }} /> المسار الزمني لتدفقات المقاولات (المبالغ عبر الوقت)
@@ -969,42 +971,42 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* 2. قطاع التجارة العامة والمخزن المركزي */}
-        <div className="max-w-7xl mx-auto mt-10 space-y-5 print:hidden">
+        <div className="max-w-7xl mx-auto mt-8 sm:mt-10 space-y-4 sm:space-y-5 print:hidden">
           <div className="border-b-2 border-sky-500/40 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2.5">
-                <Boxes className="w-6 h-6 text-sky-400" /> 2. قطاع التجارة العامة والمخزن المركزي
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <Boxes className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400" /> 2. قطاع التجارة العامة والمخزن المركزي
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">المبيعات، التوريدات، وهوامش الربح التجاري للمواد والبضائع عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
+            <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-3 py-1 rounded-xl whitespace-nowrap self-start sm:self-auto">
               هامش الربح: {tradeFinance.margin}%
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs text-slate-400 font-bold block mb-3">حسابات التجارة والمبيعات:</span>
-                <div className="space-y-3 font-mono">
+                <div className="space-y-2.5 sm:space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المبيعات المحققة:</span>
-                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(tradeFinance.salesRevenue)} د.ع</strong>
+                    <strong className="text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(tradeFinance.salesRevenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">المشتريات والتوريد:</span>
-                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(tradeFinance.purchasesExpenses)} د.ع</strong>
+                    <strong className="text-rose-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(tradeFinance.purchasesExpenses)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-sky-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي الربح التجاري:</span>
-                    <strong className="text-sky-400 text-base whitespace-nowrap">{formatNum(tradeFinance.netProfit)} د.ع</strong>
+                    <strong className="text-sky-400 text-sm sm:text-base whitespace-nowrap">{formatNum(tradeFinance.netProfit)} د.ع</strong>
                   </div>
                 </div>
               </div>
               <p className="text-[11px] text-slate-500">تم احتساب صافي الأرباح بعد طرح تكلفة المواد المباعة من إجمالي المبيعات.</p>
             </div>
 
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 shadow-xl">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-sky-400" /> المخطط الخطي للمبيعات والمشتريات عبر الوقت
@@ -1030,42 +1032,42 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* 3. قطاع أسطول النقل العام واللوجستيات */}
-        <div className="max-w-7xl mx-auto mt-10 space-y-5 print:hidden">
+        <div className="max-w-7xl mx-auto mt-8 sm:mt-10 space-y-4 sm:space-y-5 print:hidden">
           <div className="border-b-2 border-emerald-500/40 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2.5">
-                <Truck className="w-6 h-6 text-emerald-400" /> 3. قطاع أسطول النقل العام واللوجستيات
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" /> 3. قطاع أسطول النقل العام واللوجستيات
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">عوائد رحلات الشحن، تكاليف الصيانة والوقود، والربحية الصافية للآليات</p>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
+            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-xl whitespace-nowrap self-start sm:self-auto">
               الرحلات المكتملة: {fleetFinance.tripsCount} رحلة
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs text-slate-400 font-bold block mb-3">حسابات تشغيل الأسطول:</span>
-                <div className="space-y-3 font-mono">
+                <div className="space-y-2.5 sm:space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">إيراد النقل المحصل:</span>
-                    <strong className="text-emerald-400 text-sm whitespace-nowrap">{formatNum(fleetFinance.revenue)} د.ع</strong>
+                    <strong className="text-emerald-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(fleetFinance.revenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الصيانة والوقود:</span>
-                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(fleetFinance.expenses)} د.ع</strong>
+                    <strong className="text-rose-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(fleetFinance.expenses)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-emerald-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">صافي دخل الأسطول:</span>
-                    <strong className="text-emerald-400 text-base whitespace-nowrap">{formatNum(fleetFinance.net)} د.ع</strong>
+                    <strong className="text-emerald-400 text-sm sm:text-base whitespace-nowrap">{formatNum(fleetFinance.net)} د.ع</strong>
                   </div>
                 </div>
               </div>
               <p className="text-[11px] text-slate-500">معدل كفاءة استهلاك الوقود والصيانة مسجل بالكامل في وحدة الأسطول.</p>
             </div>
 
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 shadow-xl">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-emerald-400" /> المخطط الزمني لأداء الأسطول (الإيراد vs الصيانة)
@@ -1100,35 +1102,35 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* 4. قطاع العقارات والاستثمار */}
-        <div className="max-w-7xl mx-auto mt-10 space-y-5 print:hidden">
+        <div className="max-w-7xl mx-auto mt-8 sm:mt-10 space-y-4 sm:space-y-5 print:hidden">
           <div className="border-b-2 border-purple-500/40 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2.5">
-                <Building className="w-6 h-6 text-purple-400" /> 4. قطاع العقارات والوحدات الاستثمارية
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <Building className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" /> 4. قطاع العقارات والوحدات الاستثمارية
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">عقود البيع، المتحصلات المالية، ونسب إشغال الوحدات عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
+            <span className="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-xl whitespace-nowrap self-start sm:self-auto">
               المباع: {realEstateFinance.soldCount} من أصل {realEstateFinance.unitsCount} وحدة
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs text-slate-400 font-bold block mb-3">مؤشرات القطاع العقاري:</span>
-                <div className="space-y-3 font-mono">
+                <div className="space-y-2.5 sm:space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">إجمالي مبيعات العقارات:</span>
-                    <strong className="text-purple-400 text-sm whitespace-nowrap">{formatNum(realEstateFinance.revenue)} د.ع</strong>
+                    <strong className="text-purple-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(realEstateFinance.revenue)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">عدد الوحدات الاستثمارية:</span>
-                    <strong className="text-white text-sm whitespace-nowrap">{realEstateFinance.unitsCount} وحدة</strong>
+                    <strong className="text-white text-xs sm:text-sm whitespace-nowrap">{realEstateFinance.unitsCount} وحدة</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-purple-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">نسبة التحقيق والإشغال:</span>
-                    <strong className="text-purple-300 text-base whitespace-nowrap">
+                    <strong className="text-purple-300 text-sm sm:text-base whitespace-nowrap">
                       {realEstateFinance.unitsCount > 0 ? ((realEstateFinance.soldCount / realEstateFinance.unitsCount) * 100).toFixed(0) : 0}%
                     </strong>
                   </div>
@@ -1137,7 +1139,7 @@ export default function FinancialReportsPage() {
               <p className="text-[11px] text-slate-500">يشمل الأراضي والدور السكنية والمشاريع الاستثمارية المعتمدة.</p>
             </div>
 
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 shadow-xl">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-purple-400" /> المسار الزمني لتحصيل مبيعات العقارات
@@ -1167,42 +1169,42 @@ export default function FinancialReportsPage() {
         </div>
 
         {/* 5. قطاع الموارد البشرية والرواتب */}
-        <div className="max-w-7xl mx-auto mt-10 space-y-5 print:hidden">
+        <div className="max-w-7xl mx-auto mt-8 sm:mt-10 space-y-4 sm:space-y-5 print:hidden">
           <div className="border-b-2 border-rose-500/40 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2.5">
-                <Users className="w-6 h-6 text-rose-400" /> 5. قطاع الموارد البشرية والرواتب والأجور
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400" /> 5. قطاع الموارد البشرية والرواتب والأجور
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">مسير الرواتب المعتمد، البدلات، وتطور الإنفاق على الكوادر عبر شهور العام</p>
             </div>
-            <span className="text-xs font-mono font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-xl whitespace-nowrap">
+            <span className="text-xs font-mono font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-3 py-1 rounded-xl whitespace-nowrap self-start sm:self-auto">
               إجمالي الكوادر: {hrFinance.count} موظف
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs text-slate-400 font-bold block mb-3">كتلة الرواتب والالتزامات:</span>
-                <div className="space-y-3 font-mono">
+                <div className="space-y-2.5 sm:space-y-3 font-mono">
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الرواتب المنصرفة بالفترة:</span>
-                    <strong className="text-rose-400 text-sm whitespace-nowrap">{formatNum(hrFinance.totalSalaries)} د.ع</strong>
+                    <strong className="text-rose-400 text-xs sm:text-sm whitespace-nowrap">{formatNum(hrFinance.totalSalaries)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-slate-800">
                     <span className="text-slate-400 text-xs font-sans">الكتلة الشهرية الثابتة:</span>
-                    <strong className="text-white text-sm whitespace-nowrap">{formatNum(hrFinance.monthlyPayroll)} د.ع</strong>
+                    <strong className="text-white text-xs sm:text-sm whitespace-nowrap">{formatNum(hrFinance.monthlyPayroll)} د.ع</strong>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-slate-950 rounded-2xl border border-rose-500/30">
                     <span className="text-slate-300 text-xs font-sans font-bold">عدد الكوادر النشطة:</span>
-                    <strong className="text-rose-400 text-base whitespace-nowrap">{hrFinance.count} موظف نشط</strong>
+                    <strong className="text-rose-400 text-sm sm:text-base whitespace-nowrap">{hrFinance.count} موظف نشط</strong>
                   </div>
                 </div>
               </div>
               <p className="text-[11px] text-slate-500">يشمل المهندسين، الإداريين، المشرفين، وكباتن أسطول النقل.</p>
             </div>
 
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 shadow-xl">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-rose-400" /> التطور الزمني لمنصرفات الرواتب والأجور
@@ -1234,8 +1236,8 @@ export default function FinancialReportsPage() {
         {/* ------------------------------------------------------------- */}
         {/* التقرير المالي الرسمي للطباعة A4 المخصص للإدارة العليا */}
         {/* ------------------------------------------------------------- */}
-        <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none mt-14">
-          <div className="print-official-sheet w-full max-w-5xl mx-auto bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
+        <div className="preview-scroll-container pb-6 print:pb-0 print:overflow-visible print:w-full print:max-w-none mt-10 sm:mt-14">
+          <div className="print-official-sheet w-full max-w-5xl mx-auto bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
             
             <div className="relative z-10 flex flex-col flex-1 space-y-4">
               {/* 1. الترويسة الرسمية للشركة دون المساس بها */}

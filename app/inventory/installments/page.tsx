@@ -126,7 +126,6 @@ async function syncInstallmentToCloud(plan: any) {
   }
 }
 
-// دالة ترحيل سند القبض تلقائياً إلى السندات والصناديق
 async function postInstallmentVoucher(branchId: string, voucherNumber: string, amount: number, customerName: string, purpose: string, planId: string, installmentNo?: number) {
   try {
     const notes = JSON.stringify({
@@ -158,7 +157,6 @@ async function postInstallmentVoucher(branchId: string, voucherNumber: string, a
   }
 }
 
-// دالة إلغاء السند المالي تلقائياً
 async function cancelVoucherRecord(params: { voucher_id?: string; voucher_number?: string; plan_id?: string; cancel_reason?: string }) {
   try {
     await fetch('/api/vouchers', {
@@ -198,7 +196,6 @@ export default function InstallmentsPage() {
   const [clientTypeFilter, setClientTypeFilter] = useState('ALL');
   const [siteOrigin, setSiteOrigin] = useState('');
 
-  // حالات فتح النوافذ والتحرير
   const [showNewPlanModal, setShowNewPlanModal] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [planBranchId, setPlanBranchId] = useState<string>('TRD-01');
@@ -454,7 +451,6 @@ export default function InstallmentsPage() {
     }
 
     const { sumCashPrice, totalInstallmentPrice, remainingToPay, monthlyInstallment } = calculationPreview;
-
     const baseDate = new Date(startDate);
     const existingPlan = editingPlanId ? plans.find(p => p.id === editingPlanId) : null;
 
@@ -495,7 +491,6 @@ export default function InstallmentsPage() {
     const targetPlanId = editingPlanId || `INST-${Date.now().toString().slice(-6)}`;
     const initialDown = Number(downPayment) || 0;
 
-    // إذا كانت هناك دفعة مقدمة يتم ترحيل سند قبض رسمي في الصندوق فوراً
     let dpVoucherId = existingPlan?.downPaymentVoucherId || null;
     let dpVoucherNo = existingPlan?.downPaymentVoucherNo || null;
     if (!editingPlanId && initialDown > 0) {
@@ -565,7 +560,6 @@ export default function InstallmentsPage() {
     setSelectedPlanForPrint(planPayload);
   };
 
-  // تسديد القسط وتوليد سند قبض رسمي في الصندوق ودفتر السندات
   const handlePayInstallment = async (planId: string, instIndex: number) => {
     if (!canEdit && !canAdd) {
       alert('ليس لديك صلاحية تسجيل وقبض الأقساط');
@@ -581,7 +575,6 @@ export default function InstallmentsPage() {
     const currentPlanBranchName = currentPlan.branch_name || resolveBranchName(currentPlan.branch_id);
     const vNo = `V-INST-${Date.now().toString().slice(-6)}`;
 
-    // 1. ترحيل سند القبض في جدول السندات المركزي
     const createdVoucherId = await postInstallmentVoucher(
       currentPlan.branch_id,
       vNo,
@@ -657,7 +650,6 @@ export default function InstallmentsPage() {
     }
   };
 
-  // التراجع عن السداد وإلغاء سند القبض تلقائياً
   const handleRollbackInstallment = async (planId: string, instIndex: number) => {
     if (!canEdit && !canDelete) {
       alert('ليس لديك صلاحية التراجع عن السداد');
@@ -675,7 +667,6 @@ export default function InstallmentsPage() {
     const targetVoucherId = targetInst.voucherId;
     const targetVoucherNo = targetInst.voucherNo;
 
-    // 1. إلغاء السند المالي المقترن بالقسط فوراً في جدول السندات
     await cancelVoucherRecord({
       voucher_id: targetVoucherId,
       voucher_number: targetVoucherNo,
@@ -729,7 +720,6 @@ export default function InstallmentsPage() {
     );
   };
 
-  // حذف عقد التقسيط وإلغاء كافة السندات المقترنة به
   const handleDeletePlan = async (id: string) => {
     if (!canDelete) {
       alert('ليس لديك صلاحية حذف سجلات التقسيط');
@@ -741,13 +731,11 @@ export default function InstallmentsPage() {
 
     if (!confirm(`تحذير: هل أنت متأكد من حذف عقد التقسيط (${planToDelete.id}) للعميل (${planToDelete.customerName})؟\nسيتم إلغاء كافة سندات القبض الخاصة بالأقساط المسددة والدفعة المقدمة تلقائياً.`)) return;
 
-    // 1. إلغاء كافة سندات العقد دفعة واحدة عبر معرّف العقد
     await cancelVoucherRecord({
       plan_id: planToDelete.id,
       cancel_reason: `إلغاء تلقائي بسبب حذف عقد التقسيط رقم (${planToDelete.id}) للعميل (${planToDelete.customerName})`
     });
 
-    // 2. إلغاء فردي إضافي لسند الدفعة المقدمة وأي قسط مسدد للتأكيد المطلق
     if (planToDelete.downPaymentVoucherNo || planToDelete.downPaymentVoucherId) {
       await cancelVoucherRecord({
         voucher_id: planToDelete.downPaymentVoucherId,
@@ -948,7 +936,7 @@ export default function InstallmentsPage() {
 
   return (
     <AuthGuard moduleName="installments" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
         <style jsx global>{`
           @media screen and (max-width: 768px) {
@@ -1029,40 +1017,40 @@ export default function InstallmentsPage() {
           }
         `}</style>
 
-        {/* الترويسة الرئيسية */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المنظمة والمتجاوبة مع الموبايل */}
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 p-2 sm:p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryCol}, ${secondaryCol})`,
                   boxShadow: `0 10px 25px -5px ${primaryCol}40`
                 }}
               >
-                <CreditCard className="w-8 h-8" />
+                <CreditCard className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
                     منظومة المبيعات بالأقساط والمواد المدمجة
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2 sm:px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
-                    مزامنة سحابية • باركود تحقق A4
+                    مزامنة سحابية • باركود A4
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                   {companySettings.company_name} • نطاق العرض: <strong className="text-amber-400">{currentActiveBranchName}</strong>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap self-end sm:self-auto">
+            <div className="flex items-center justify-end gap-2 flex-wrap sm:flex-nowrap shrink-0 self-end sm:self-auto w-full sm:w-auto">
               {canAdd && (
                 <button
                   onClick={() => {
@@ -1070,7 +1058,7 @@ export default function InstallmentsPage() {
                     setItemLines([{ itemName: '', qty: 1, unit: 'قطعة', price: 0, total: 0 }]);
                     setShowNewPlanModal(true);
                   }}
-                  className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition shadow-lg cursor-pointer active:scale-95 whitespace-nowrap"
+                  className="px-3.5 py-2 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer active:scale-95 whitespace-nowrap"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
                   <PlusCircle className="w-4 h-4" /> فتح عقد تقسيط جديد +
@@ -1079,14 +1067,14 @@ export default function InstallmentsPage() {
 
               <Link
                 href="/inventory"
-                className="px-4 py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
+                className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
               >
                 <ArrowLeft className="w-4 h-4" /> المخزن
               </Link>
 
               <Link
                 href="/"
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 cursor-pointer active:scale-95 whitespace-nowrap"
+                className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 cursor-pointer active:scale-95 whitespace-nowrap"
               >
                 <Home className="w-4 h-4" /> الرئيسية
               </Link>
@@ -1096,26 +1084,26 @@ export default function InstallmentsPage() {
         </div>
 
         {/* المؤشرات المالية */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 print:hidden print-hidden-element">
-          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 mt-5 sm:mt-6 print:hidden print-hidden-element">
+          <div className="bg-slate-900/90 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col justify-center">
             <span className="text-xs text-slate-400 font-semibold block">إجمالي مبيعات الأقساط الكلية</span>
-            <div className="text-2xl font-black font-mono mt-2" style={{ color: primaryCol }}>
+            <div className="text-xl sm:text-2xl font-black font-mono mt-1.5" style={{ color: primaryCol }}>
               {formatNum(totals.totalVolume)} <span className="text-xs font-sans text-slate-500">د.ع</span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">القيمة الكلية مع نسب الأرباح المحتسبة</p>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center" style={{ borderColor: `${primaryCol}40` }}>
+          <div className="bg-slate-900/90 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col justify-center" style={{ borderColor: `${primaryCol}40` }}>
             <span className="text-xs font-semibold block" style={{ color: primaryCol }}>المقبوض الفعلي (مقدمات + أقساط مسددة)</span>
-            <div className="text-2xl font-black font-mono text-emerald-400 mt-2">
+            <div className="text-xl sm:text-2xl font-black font-mono text-emerald-400 mt-1.5">
               {formatNum(totals.totalCollected)} <span className="text-xs font-sans text-slate-500">د.ع</span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">محصل رسمياً في حسابات الصندوق</p>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center" style={{ borderColor: `${secondaryCol}40` }}>
+          <div className="bg-slate-900/90 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col justify-center" style={{ borderColor: `${secondaryCol}40` }}>
             <span className="text-xs font-semibold block" style={{ color: secondaryCol }}>الأرصدة الآجلة المتبقية بذمة العملاء</span>
-            <div className="text-2xl font-black font-mono text-rose-400 mt-2">
+            <div className="text-xl sm:text-2xl font-black font-mono text-rose-400 mt-1.5">
               {formatNum(totals.totalPending)} <span className="text-xs font-sans text-slate-500">د.ع</span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">مستحقة وفق الجدولة والتواريخ</p>
@@ -1123,7 +1111,7 @@ export default function InstallmentsPage() {
         </div>
 
         {/* أدوات البحث والفلترة */}
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 print:hidden print-hidden-element">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 sm:mt-6 print:hidden print-hidden-element">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />

@@ -24,8 +24,7 @@ import {
   Settings, 
   RotateCcw, 
   Search, 
-  Save, 
-  RefreshCw 
+  Save 
 } from 'lucide-react';
 
 function formatNum(val: number | string): string {
@@ -166,15 +165,11 @@ export default function ProjectTenderModal({
   const [tenderCustomItems, setTenderCustomItems] = useState<any[]>([]);
   const [savingTender, setSavingTender] = useState(false);
 
-  // القالب المعتمد لتسعيرة السوق
   const [masterTemplates, setMasterTemplates] = useState<any[]>(getInitialMasterTemplates);
-
-  // نافذة تسعيرة السوق للباقات الثلاث
   const [showPriceMasterModal, setShowPriceMasterModal] = useState(false);
   const [editTemplatesList, setEditTemplatesList] = useState<any[]>([]);
   const [templateSearchQuery, setTemplateSearchQuery] = useState('');
 
-  // أوضاع العرض للموبايل
   const [mobileViewMode, setMobileViewMode] = useState<'cards' | 'sheet'>('cards');
   const [showMeasurementsMobile, setShowMeasurementsMobile] = useState(false);
 
@@ -298,7 +293,6 @@ export default function ProjectTenderModal({
     }
   }, []);
 
-  // دالة التنقل الفوري بين الباقات مع تحديث الأسعار والمجموع بدقة متناهية
   const handleSelectTier = (tier: 'low' | 'medium' | 'high') => {
     setSelectedTier(tier);
 
@@ -385,7 +379,6 @@ export default function ProjectTenderModal({
     });
   };
 
-  // دوال نافذة إدارة تسعيرة السوق للباقات الثلاث
   const handleOpenMasterModal = () => {
     let currentMaster = masterTemplates;
     if (typeof window !== 'undefined') {
@@ -448,14 +441,12 @@ export default function ProjectTenderModal({
     }));
   };
 
-  // حفظ واعتماد تسعيرة السوق وتعميمها لجميع المشاريع فوراً
   const handleSaveMasterTemplates = async () => {
     try {
       localStorage.setItem('rtco_tender_templates_master', JSON.stringify(editTemplatesList));
       localStorage.setItem('rtco_master_boq_templates', JSON.stringify(editTemplatesList));
       setMasterTemplates(editTemplatesList);
 
-      // تحديث فوري لكافة فقرات المشروع الحالي لتطابق تسعيرة السوق الجديدة
       setTenderCustomItems(prev => {
         return editTemplatesList.map((tmpl, idx) => {
           const existingItem = prev.find(p => 
@@ -579,7 +570,7 @@ export default function ProjectTenderModal({
   return (
     <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:block print:w-full font-cairo text-[14px]">
       
-      {/* تنسيقات الطباعة الصارمة المعتمدة بالعرض A4 Landscape */}
+      {/* تنسيقات الطباعة الصارمة المعتمدة بالعرض A4 Landscape مع دعم الطباعة من الموبايل دون شاشة بيضاء */}
       <style jsx global>{`
         textarea {
           overflow: hidden !important;
@@ -607,10 +598,11 @@ export default function ProjectTenderModal({
             margin: 0 !important;
           }
         }
+
         @media print {
           @page {
-            size: landscape;
-            margin: 6mm 8mm;
+            size: landscape !important;
+            margin: 5mm 6mm !important;
           }
           * {
             -webkit-print-color-adjust: exact !important;
@@ -623,33 +615,33 @@ export default function ProjectTenderModal({
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: auto !important;
             font-size: 14px !important;
+            visibility: visible !important;
           }
           header, nav, aside, .print-hidden-element, button {
             display: none !important;
             visibility: hidden !important;
           }
-          body * {
-            visibility: hidden;
-          }
-          #printable-tender-document, #printable-tender-document * {
-            visibility: visible;
-          }
           #printable-tender-document {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
+            visibility: visible !important;
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
             width: 100% !important;
+            min-width: 100% !important;
             max-width: 100% !important;
-            min-width: 0 !important;
             margin: 0 !important;
-            padding: 8mm 10mm 10mm 10mm !important;
+            padding: 6mm 8mm !important;
             background: #ffffff !important;
             border: 2px solid #ea580c !important;
             border-radius: 6px !important;
             box-shadow: none !important;
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+          #printable-tender-document * {
+            visibility: visible !important;
           }
           table {
             page-break-inside: auto !important;
@@ -1290,12 +1282,11 @@ export default function ProjectTenderModal({
 
       </div>
 
-      {/* 6. نافذة تعديل تسعيرة السوق للباقات الثلاث مع دعم الإضافة والحذف والحفظ العام */}
+      {/* 6. نافذة تعديل تسعيرة السوق للباقات الثلاث */}
       {showPriceMasterModal && (
         <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-3 sm:p-6 print:hidden animate-in fade-in">
           <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-right">
             
-            {/* ترويسة نافذة تسعيرة السوق */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold shrink-0">
@@ -1319,7 +1310,6 @@ export default function ProjectTenderModal({
               </button>
             </div>
 
-            {/* أدوات البحث والإضافة السريعة والاسترجاع */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 mb-3">
               <div className="relative w-full sm:w-80">
                 <Search className="w-4 h-4 text-slate-400 absolute right-3 top-2.5" />
@@ -1352,7 +1342,6 @@ export default function ProjectTenderModal({
               </div>
             </div>
 
-            {/* جدول تعديل الأسعار الثلاثية مع عمود الحذف المباشر */}
             <div className="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950/80 p-2">
               <table className="w-full text-right text-xs">
                 <thead className="bg-slate-900 text-slate-300 border-b border-slate-800 sticky top-0 z-10 text-[11px]">
@@ -1417,7 +1406,7 @@ export default function ProjectTenderModal({
                         />
                       </td>
 
-                      <td className="p-2 text-center border-l border-slate-800/80">
+                      <td className="p-2 text-center">
                         <input
                           type="number"
                           value={t.prices?.high || 0}
@@ -1442,7 +1431,6 @@ export default function ProjectTenderModal({
               </table>
             </div>
 
-            {/* أزرار الحفظ والاعتماد العام لجميع المشاريع */}
             <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800 mt-3">
               <button
                 type="button"

@@ -526,7 +526,6 @@ export default function RealEstatePage() {
     return { totalCount, soldUnits, availableUnits, totalPortfolioValue, totalCollected, totalPending };
   }, [units]);
 
-  // تجهيز وسائط المعرض المفتوح حالياً
   const galleryMedia = useMemo(() => {
     if (!activeGalleryUnit || !Array.isArray(activeGalleryUnit.images)) return [];
     const normalized = activeGalleryUnit.images.map(normalizeMediaItem);
@@ -543,9 +542,9 @@ export default function RealEstatePage() {
 
   return (
     <AuthGuard moduleName="realestate" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* تنسيقات الطباعة لعزل الاستمارات وسندات القبض في ورق A4 */}
+        {/* تنسيقات الطباعة */}
         <style jsx global>{`
           @media screen and (max-width: 768px) {
             .preview-scroll-container {
@@ -604,44 +603,44 @@ export default function RealEstatePage() {
         `}</style>
 
         {/* 1. الترويسة الرئيسية */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 p-2.5 sm:p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryCol}, ${secondaryCol})`,
                   boxShadow: `0 10px 25px -5px ${primaryCol}40`
                 }}
               >
-                <Building className="w-8 h-8 text-white" />
+                <Building className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide">
                     منظومة الاستثمار والتطوير العقاري والأقساط
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2 sm:px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
-                    معرض وسائط 360° • عقود استثمار • باركود A4
+                    معرض وسائط 360° • عقود استثمار
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
-                  {companySettings.company_name} • إدارة المحفظة العقارية، البيع المباشر وبالتقسيط، وجدولة وتوثيق الأقساط والسندات
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
+                  {companySettings.company_name} • إدارة المحفظة العقارية والبيع بالأقساط وجدولتها
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap self-end sm:self-auto">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 self-end sm:self-auto">
               <button
                 onClick={exportExcel}
-                className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
               >
-                <FileSpreadsheet className="w-4 h-4" /> تصدير Excel
+                <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
               </button>
 
               {canAdd && (
@@ -655,18 +654,18 @@ export default function RealEstatePage() {
                     setNewMediaTitle('');
                     setShowUnitModal(true);
                   }}
-                  className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-2 transition shadow-lg cursor-pointer whitespace-nowrap active:scale-95"
+                  className="px-3.5 py-2 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg cursor-pointer whitespace-nowrap active:scale-95"
                   style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
                 >
-                  <PlusCircle className="w-4 h-4" /> إضافة عقار جديد +
+                  <PlusCircle className="w-3.5 h-3.5" /> إضافة عقار +
                 </button>
               )}
 
               <Link 
                 href="/" 
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
               >
-                <Home className="w-4 h-4" /> الرئيسية
+                <Home className="w-3.5 h-3.5" /> الرئيسية
               </Link>
             </div>
 
@@ -674,44 +673,44 @@ export default function RealEstatePage() {
         </div>
 
         {/* 2. كروت المؤشرات الكلية */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6 print:hidden print-hidden-element">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col justify-center shadow-xl">
-            <span className="text-xs text-slate-400 font-semibold block">إجمالي القيمة السوقية للمحفظة</span>
-            <div className="text-xl font-black font-mono mt-2" style={{ color: primaryCol }}>
-              {formatNum(stats.totalPortfolioValue)} <span className="text-xs font-sans text-slate-500">د.ع</span>
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mt-5 print:hidden print-hidden-element">
+          <div className="bg-slate-900 border border-slate-800 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-center shadow-xl">
+            <span className="text-[11px] sm:text-xs text-slate-400 font-semibold block">إجمالي قيمة المحفظة</span>
+            <div className="text-base sm:text-xl font-black font-mono mt-1.5" style={{ color: primaryCol }}>
+              {formatNum(stats.totalPortfolioValue)} <span className="text-[10px] font-sans text-slate-500">د.ع</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">لعدد {stats.totalCount} عقارات مسجلة</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">{stats.totalCount} عقار مسجل</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col justify-center shadow-xl">
-            <span className="text-xs text-slate-400 font-semibold block">المقبوض والمحصل الفعلي</span>
-            <div className="text-xl font-black font-mono text-emerald-400 mt-2">
-              {formatNum(stats.totalCollected)} <span className="text-xs font-sans text-slate-500">د.ع</span>
+          <div className="bg-slate-900 border border-slate-800 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-center shadow-xl">
+            <span className="text-[11px] sm:text-xs text-slate-400 font-semibold block">المقبوض والمحصل</span>
+            <div className="text-base sm:text-xl font-black font-mono text-emerald-400 mt-1.5">
+              {formatNum(stats.totalCollected)} <span className="text-[10px] font-sans text-slate-500">د.ع</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">مرحّلة بالكامل لسندات القبض في الصندوق</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">مرحّلة لسندات الصندوق</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col justify-center shadow-xl">
-            <span className="text-xs text-slate-400 font-semibold block">المتبقي قيد التحصيل (أقساط جارية)</span>
-            <div className="text-xl font-black font-mono text-rose-400 mt-2">
-              {formatNum(stats.totalPending)} <span className="text-xs font-sans text-slate-500">د.ع</span>
+          <div className="bg-slate-900 border border-slate-800 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-center shadow-xl">
+            <span className="text-[11px] sm:text-xs text-slate-400 font-semibold block">المتبقي قيد التحصيل</span>
+            <div className="text-base sm:text-xl font-black font-mono text-rose-400 mt-1.5">
+              {formatNum(stats.totalPending)} <span className="text-[10px] font-sans text-slate-500">د.ع</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">ذمة مجدولة للمشترين والمستثمرين</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">أقساط جارية بذمة المشترين</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col justify-center shadow-xl">
-            <span className="text-xs text-slate-400 font-semibold block">جاهزية العقارات</span>
-            <div className="flex items-center gap-3 mt-2 font-mono">
-              <span className="text-lg font-bold text-sky-400">{stats.soldUnits} مباع</span>
+          <div className="bg-slate-900 border border-slate-800 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col justify-center shadow-xl">
+            <span className="text-[11px] sm:text-xs text-slate-400 font-semibold block">جاهزية العقارات</span>
+            <div className="flex items-center gap-2 mt-1.5 font-mono">
+              <span className="text-sm sm:text-lg font-bold text-sky-400">{stats.soldUnits} مباع</span>
               <span className="text-slate-600">/</span>
-              <span className="text-lg font-bold text-amber-400">{stats.availableUnits} متاح</span>
+              <span className="text-sm sm:text-lg font-bold text-amber-400">{stats.availableUnits} متاح</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">نسبة الاستثمار والإشغال: {stats.totalCount > 0 ? Math.round((stats.soldUnits / stats.totalCount) * 100) : 0}%</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">نسبة الإشغال: {stats.totalCount > 0 ? Math.round((stats.soldUnits / stats.totalCount) * 100) : 0}%</p>
           </div>
         </div>
 
         {/* 3. شريط الأدوات والبحث والتصفية */}
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 print:hidden print-hidden-element">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 print:hidden print-hidden-element">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
@@ -741,8 +740,8 @@ export default function RealEstatePage() {
           </span>
         </div>
 
-        {/* 4. كروت العقارات المعروضة بصورة كبيرة ومعرض وسائط تفاعلي كامل */}
-        <div className="max-w-7xl mx-auto space-y-7 mt-5 print:hidden print-hidden-element">
+        {/* 4. كروت العقارات المعروضة - معالجة الترتيب بدقة على الموبايل والكمبيوتر بدون أي تداخل */}
+        <div className="max-w-7xl mx-auto space-y-6 mt-5 print:hidden print-hidden-element">
           {filteredUnits.length === 0 ? (
             <div className="bg-slate-900 border border-slate-800 p-12 text-center rounded-3xl text-slate-500 text-xs space-y-2">
               <Building2 className="w-10 h-10 mx-auto text-slate-600" />
@@ -770,8 +769,74 @@ export default function RealEstatePage() {
                   className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl space-y-0 transition hover:border-slate-700"
                 >
                   
-                  {/* قسم الصورة الكبيرة للواجهة (Hero Showcase) مع شريط المعرض السريع */}
-                  <div className="relative w-full h-64 sm:h-80 md:h-96 bg-slate-950 overflow-hidden group">
+                  {/* الرأس التوضيحي للعقار قبل الصورة لضمان عدم تداخل النصوص إطلاقاً على الموبايل */}
+                  <div className="p-4 sm:p-5 border-b border-slate-800/80 bg-slate-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span 
+                          className="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg border shadow-xs"
+                          style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}40` }}
+                        >
+                          {u.unit_code}
+                        </span>
+
+                        <h2 className="text-sm sm:text-lg font-black text-white truncate">
+                          {u.title}
+                        </h2>
+
+                        <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-slate-800 border border-slate-700 text-slate-300">
+                          {u.property_type}
+                        </span>
+
+                        <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-slate-800 border border-slate-700 text-amber-300">
+                          {u.area_sqm} م²
+                        </span>
+
+                        <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border ${
+                          !isSold 
+                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                            : isAllPaid 
+                              ? 'bg-sky-500/15 text-sky-400 border-sky-500/30' 
+                              : 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                        }`}>
+                          {!isSold ? 'متاح للبيع' : isAllPaid ? 'مكتمل السداد ✓' : 'أقساط جارية'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-slate-400 pt-0.5">
+                        <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>{u.city} - {u.location}</span>
+                        <span className="text-slate-600">•</span>
+                        <span>{u.branch_name || 'فرع الاستثمارات العقارية'}</span>
+                      </div>
+                    </div>
+
+                    {/* زر المعرض السريع */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {mediaList.length > 0 && (
+                        <button
+                          onClick={() => { setActiveGalleryUnit(u); setGalleryActiveIndex(0); setGalleryFilter('ALL'); }}
+                          className="w-full sm:w-auto px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-amber-500/50 hover:border-amber-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-95"
+                        >
+                          <Camera className="w-4 h-4 text-amber-400" />
+                          <span>معرض الوسائط ({mediaList.length})</span>
+                          {videosOnly.length > 0 && (
+                            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-md font-mono flex items-center gap-0.5">
+                              <Play className="w-2.5 h-2.5 fill-current" /> {videosOnly.length}
+                            </span>
+                          )}
+                          {docsOnly.length > 0 && (
+                            <span className="bg-sky-500 text-white text-[10px] px-1.5 py-0.2 rounded-md font-mono flex items-center gap-0.5">
+                              <FileText className="w-2.5 h-2.5" /> {docsOnly.length}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* قسم الصورة الكبيرة للواجهة (Hero Showcase) بدون نصوص متراكمة فوقها */}
+                  <div className="relative w-full h-56 sm:h-72 md:h-80 bg-slate-950 overflow-hidden group">
                     {coverMedia && coverMedia.type === 'image' ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img 
@@ -786,83 +851,11 @@ export default function RealEstatePage() {
                         <span className="text-xs font-semibold text-slate-500">لا توجد صورة رئيسية محددة</span>
                       </div>
                     )}
-
-                    {/* التدرج اللوني فوق الصورة لضمان وضوح النصوص */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-black/30 pointer-events-none" />
-
-                    {/* الشارات العلوية فوق الصورة */}
-                    <div className="absolute top-4 right-4 flex items-center gap-2 flex-wrap">
-                      <span 
-                        className="font-mono text-xs font-black px-3 py-1 rounded-xl backdrop-blur-md border shadow-lg"
-                        style={{ backgroundColor: `${primaryCol}30`, color: '#ffffff', borderColor: primaryCol }}
-                      >
-                        {u.unit_code}
-                      </span>
-
-                      <span className="px-3 py-1 rounded-xl text-xs font-bold backdrop-blur-md bg-black/60 border border-white/20 text-white shadow-lg">
-                        {u.property_type}
-                      </span>
-
-                      <span className="px-3 py-1 rounded-xl text-xs font-mono font-bold backdrop-blur-md bg-black/60 border border-white/20 text-amber-300 shadow-lg">
-                        {u.area_sqm} م²
-                      </span>
-                    </div>
-
-                    {/* حالة البيع والاستثمار في الزاوية اليسرى */}
-                    <div className="absolute top-4 left-4 flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-xl text-xs font-bold backdrop-blur-md shadow-lg border ${
-                        !isSold 
-                          ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400'
-                          : isAllPaid 
-                            ? 'bg-sky-500/30 text-sky-300 border-sky-400' 
-                            : 'bg-amber-500/30 text-amber-300 border-amber-400'
-                      }`}>
-                        {!isSold ? 'متاح للبيع والشراء' : isAllPaid ? 'مباع ومكتمل السداد بالكامل ✓' : 'مباع (أقساط جارية)'}
-                      </span>
-                    </div>
-
-                    {/* المعلومات والعناوين فوق أسفل الصورة الكبيرة */}
-                    <div className="absolute bottom-4 right-4 left-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-                      <div className="space-y-1">
-                        <h2 className="text-xl sm:text-2xl font-black text-white drop-shadow-md">
-                          {u.title}
-                        </h2>
-                        <div className="flex items-center gap-2 text-xs text-slate-300">
-                          <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                          <span>{u.city} - {u.location}</span>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-slate-400 font-sans">{u.branch_name || 'فرع الاستثمارات العقارية'}</span>
-                        </div>
-                      </div>
-
-                      {/* زر فتح المعرض الكامل مع عداد الوسائط */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {mediaList.length > 0 && (
-                          <button
-                            onClick={() => { setActiveGalleryUnit(u); setGalleryActiveIndex(0); setGalleryFilter('ALL'); }}
-                            className="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 border border-amber-500/60 hover:border-amber-400 text-white font-bold rounded-2xl text-xs flex items-center gap-2 backdrop-blur-md transition shadow-xl cursor-pointer active:scale-95"
-                          >
-                            <Camera className="w-4 h-4 text-amber-400" />
-                            <span>معرض الصور والفيديوهات ({mediaList.length})</span>
-                            {videosOnly.length > 0 && (
-                              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-md font-mono flex items-center gap-0.5">
-                                <Play className="w-2.5 h-2.5 fill-current" /> {videosOnly.length}
-                              </span>
-                            )}
-                            {docsOnly.length > 0 && (
-                              <span className="bg-sky-500 text-white text-[10px] px-1.5 py-0.2 rounded-md font-mono flex items-center gap-0.5">
-                                <FileText className="w-2.5 h-2.5" /> {docsOnly.length}
-                              </span>
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
                   </div>
 
                   {/* شريط مصغرات الصور المرفقة السريع أسفل الغلاف */}
                   {mediaList.length > 1 && (
-                    <div className="px-5 py-2.5 bg-slate-950/80 border-b border-slate-800 flex items-center gap-2.5 overflow-x-auto">
+                    <div className="px-4 sm:px-5 py-2.5 bg-slate-950/80 border-b border-slate-800 flex items-center gap-2.5 overflow-x-auto">
                       <span className="text-[11px] font-bold text-slate-400 shrink-0">معاينة سريعة:</span>
                       {mediaList.slice(0, 8).map((m, mIdx) => (
                         <div
@@ -897,13 +890,13 @@ export default function RealEstatePage() {
                   )}
 
                   {/* تفاصيل العقار والبيانات المالية والأقساط */}
-                  <div className="p-5 sm:p-6 space-y-4">
+                  <div className="p-4 sm:p-6 space-y-4">
                     
-                    {/* الرأس العلوي لمعلومات المشتري والمالك والإجراءات */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+                    {/* معلومات المشتري والإجراءات */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
                       <div>
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <h3 className="text-base sm:text-lg font-black text-white">
+                          <h3 className="text-sm sm:text-base font-black text-white">
                             {isSold ? `المشتري: ${u.buyer_name || 'عميل غير مسجل'}` : 'العقار متاح للبيع والاستثمار الفوري'}
                           </h3>
 
@@ -928,23 +921,23 @@ export default function RealEstatePage() {
                       </div>
 
                       {/* أزرار الإجراءات السريعة */}
-                      <div className="flex items-center gap-2.5 self-end lg:self-auto flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap self-end lg:self-auto">
                         {isSold ? (
                           <>
                             <button
                               onClick={() => handleSendWhatsApp(u)}
-                              className="px-3.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-emerald-500/30 cursor-pointer shadow-sm whitespace-nowrap"
+                              className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-emerald-500/30 cursor-pointer shadow-sm whitespace-nowrap"
                               title="إرسال تفاصيل الحساب الكاملة للمشتري بالواتساب"
                             >
-                              <MessageSquareShare className="w-3.5 h-3.5" /> إرسال تنبيه بالواتساب
+                              <MessageSquareShare className="w-3.5 h-3.5" /> تنبيه بالواتساب
                             </button>
 
                             <button
                               onClick={() => setExpandedUnitId(expandedUnitId === u.unit_id ? null : u.unit_id)}
-                              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-slate-700 cursor-pointer whitespace-nowrap"
+                              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-slate-700 cursor-pointer whitespace-nowrap"
                             >
-                              <span>{expandedUnitId === u.unit_id ? 'طي جدول الأقساط' : 'عرض جدول الأقساط'}</span>
-                              {expandedUnitId === u.unit_id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              <span>{expandedUnitId === u.unit_id ? 'طي الأقساط' : 'جدول الأقساط'}</span>
+                              {expandedUnitId === u.unit_id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                             </button>
                           </>
                         ) : (
@@ -966,25 +959,25 @@ export default function RealEstatePage() {
                     </div>
 
                     {/* شريط الأرقام المالية الثلاثي */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs font-mono">
-                      <div className="text-center sm:text-right">
-                        <span className="text-slate-500 font-sans block text-[11px]">مجموع القيمة التعاقدية (السعر الكلي)</span>
-                        <strong className="text-base font-black" style={{ color: primaryCol }}>{formatNum(u.price)} د.ع</strong>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs font-mono">
+                      <div className="text-right">
+                        <span className="text-slate-500 font-sans block text-[11px]">مجموع القيمة التعاقدية</span>
+                        <strong className="text-sm sm:text-base font-black" style={{ color: primaryCol }}>{formatNum(u.price)} د.ع</strong>
                       </div>
-                      <div className="text-center sm:text-right border-y sm:border-y-0 sm:border-x border-slate-800 py-2 sm:py-0 sm:px-4">
-                        <span className="text-slate-500 font-sans block text-[11px]">المسدد الكلي (مقدمات + أقساط مقبوضة)</span>
-                        <strong className="text-sky-400 text-base font-black">{formatNum(u.totalPaid)} د.ع</strong>
+                      <div className="text-right border-y sm:border-y-0 sm:border-x border-slate-800 py-1.5 sm:py-0 sm:px-3">
+                        <span className="text-slate-500 font-sans block text-[11px]">المسدد الكلي</span>
+                        <strong className="text-sky-400 text-sm sm:text-base font-black">{formatNum(u.totalPaid)} د.ع</strong>
                       </div>
-                      <div className="text-center sm:text-right">
-                        <span className="text-slate-500 font-sans block text-[11px]">المتبقي بذمته حالياً</span>
-                        <strong className="text-rose-400 text-base font-black">{formatNum(u.totalRemaining)} د.ع</strong>
+                      <div className="text-right">
+                        <span className="text-slate-500 font-sans block text-[11px]">المتبقي بذمته</span>
+                        <strong className="text-rose-400 text-sm sm:text-base font-black">{formatNum(u.totalRemaining)} د.ع</strong>
                       </div>
                     </div>
 
                     {/* تفاصيل العقار والأقساط عند التوسيع */}
                     {isExpanded && (
-                      <div className="space-y-4 pt-2">
-                        <div className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-4 space-y-3">
+                      <div className="space-y-4 pt-1">
+                        <div className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 space-y-3">
                           
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -1013,7 +1006,7 @@ export default function RealEstatePage() {
                                   className="px-3 py-1 bg-slate-800 hover:bg-slate-700 font-bold rounded-lg text-xs flex items-center gap-1 border border-slate-700 cursor-pointer whitespace-nowrap"
                                   style={{ color: primaryCol }}
                                 >
-                                  <Printer className="w-3.5 h-3.5" /> طباعة هذا العقد A4
+                                  <Printer className="w-3.5 h-3.5" /> طباعة العقد A4
                                 </button>
                               )}
 
@@ -1126,7 +1119,7 @@ export default function RealEstatePage() {
           )}
         </div>
 
-        {/* 5. معرض الوسائط الكامل (Lightbox Media Gallery Modal) */}
+        {/* 5. معرض الوسائط الكامل (Lightbox Media Gallery Modal) المتجاوب بدقة مع الموبايل */}
         {activeGalleryUnit && (
           <div className="fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-3 sm:p-6 print:hidden animate-in fade-in">
             

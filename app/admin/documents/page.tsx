@@ -1719,7 +1719,7 @@ export default function AdministrativeDocumentsPage() {
 
   return (
     <AuthGuard moduleName="admin_docs" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
         <style jsx global>{`
           @media screen and (max-width: 768px) {
@@ -1824,39 +1824,39 @@ export default function AdministrativeDocumentsPage() {
           }
         `}</style>
 
-        {/* الترويسة الرئيسية */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المنظمة والمتجاوبة مع الموبايل */}
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 p-2.5 sm:p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all mt-0.5 sm:mt-0"
                 style={{ 
                   background: `linear-gradient(135deg, ${companySettings.primary_color || '#d97706'}, ${companySettings.secondary_color || '#ea580c'})`,
                   boxShadow: `0 10px 25px -5px ${companySettings.primary_color || '#d97706'}40`
                 }}
               >
-                <Building2 className="w-8 h-8" />
+                <Building2 className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
                     إدارة الوثائق والكتب الرسمية
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[11px] font-bold px-3 py-1 rounded-full shadow-inner">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-inner whitespace-nowrap">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
                     مكتبة النماذج التخصصية ({documentTemplates[activeTab].length} نموذجاً)
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                   {companySettings.company_name} • نطاق العرض: <strong className="text-amber-400">{currentActiveBranchName}</strong>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto overflow-x-auto pb-1 sm:pb-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
               {canAdd && (
-                <>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   <button
                     onClick={() => {
                       setEditingDocId(null);
@@ -1871,12 +1871,12 @@ export default function AdministrativeDocumentsPage() {
                       });
                       setShowOutgoingModal(true);
                     }}
-                    className="px-4 py-2.5 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg whitespace-nowrap active:scale-95 cursor-pointer"
+                    className="px-3 sm:px-3.5 py-2 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1 transition shadow-lg whitespace-nowrap active:scale-95 cursor-pointer"
                     style={{ 
                       background: `linear-gradient(90deg, ${companySettings.primary_color || '#d97706'}, ${companySettings.secondary_color || '#ea580c'})` 
                     }}
                   >
-                    <Send className="w-4 h-4" /> صادر جديد +
+                    <Send className="w-3.5 h-3.5" /> صادر +
                   </button>
 
                   <button
@@ -1887,9 +1887,9 @@ export default function AdministrativeDocumentsPage() {
                       setInScannedUrls([]);
                       setShowIncomingModal(true);
                     }}
-                    className="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 hover:to-sky-300 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-sky-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                    className="px-3 sm:px-3.5 py-2 bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1 transition shadow-lg shadow-sky-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
                   >
-                    <Inbox className="w-4 h-4" /> وارد جديد +
+                    <Inbox className="w-3.5 h-3.5" /> وارد +
                   </button>
 
                   <button
@@ -1906,34 +1906,36 @@ export default function AdministrativeDocumentsPage() {
                       });
                       setShowOrderModal(true);
                     }}
-                    className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                    className="px-3 sm:px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1 transition shadow-lg shadow-emerald-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
                   >
-                    <Bookmark className="w-4 h-4" /> أمر إداري +
+                    <Bookmark className="w-3.5 h-3.5" /> أمر إداري +
                   </button>
-                </>
+                </div>
               )}
 
-              <button
-                onClick={exportActiveTabExcel}
-                className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm"
-                title="تصدير السجل المفتوح حالياً إلى Excel"
-              >
-                <FileSpreadsheet className="w-4 h-4" /> تصدير Excel
-              </button>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button
+                  onClick={exportActiveTabExcel}
+                  className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm"
+                  title="تصدير السجل المفتوح حالياً إلى Excel"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+                </button>
 
-              <Link
-                href="/"
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
-              >
-                <Home className="w-4 h-4" /> الرئيسية
-              </Link>
+                <Link
+                  href="/"
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> الرئيسية
+                </Link>
+              </div>
             </div>
 
           </div>
         </div>
 
         {/* شريط النماذج التخصصية الجاهزة */}
-        <div className="max-w-7xl mx-auto mt-6 print:hidden print-hidden-element bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-4 rounded-3xl space-y-3 shadow-xl">
+        <div className="max-w-7xl mx-auto mt-5 sm:mt-6 print:hidden print-hidden-element bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-3 sm:p-4 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <span className="text-xs font-bold text-amber-400 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
@@ -1982,40 +1984,40 @@ export default function AdministrativeDocumentsPage() {
         )}
 
         {/* تبويبات السجلات */}
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 print:hidden print-hidden-element bg-slate-900/80 border border-slate-800 p-2.5 rounded-3xl">
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto py-1">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 sm:mt-6 print:hidden print-hidden-element bg-slate-900/80 border border-slate-800 p-2.5 rounded-2xl sm:rounded-3xl">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto py-1">
             <button
               onClick={() => setActiveTab('OUTGOING')}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ${
                 activeTab === 'OUTGOING'
                   ? 'text-slate-950 font-black shadow-lg'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
               style={activeTab === 'OUTGOING' ? { backgroundColor: companySettings.primary_color || '#d97706' } : {}}
             >
-              <Send className="w-4 h-4" /> سجل الكتب الصادرة ({counts.outgoing})
+              <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> سجل الكتب الصادرة ({counts.outgoing})
             </button>
 
             <button
               onClick={() => setActiveTab('INCOMING')}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ${
                 activeTab === 'INCOMING'
                   ? 'bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/20 font-black'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
-              <Inbox className="w-4 h-4" /> سجل الكتب الواردة والسكنر ({counts.incoming})
+              <Inbox className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> سجل الكتب الواردة ({counts.incoming})
             </button>
 
             <button
               onClick={() => setActiveTab('INTERNAL_ORDER')}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 ${
                 activeTab === 'INTERNAL_ORDER'
                   ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 font-black'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
-              <Bookmark className="w-4 h-4" /> سجل الأوامر الإدارية ({counts.internal})
+              <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> سجل الأوامر الإدارية ({counts.internal})
             </button>
           </div>
 
@@ -2032,7 +2034,7 @@ export default function AdministrativeDocumentsPage() {
         </div>
 
         {/* جدول السجل النشط */}
-        <div className="max-w-7xl mx-auto mt-4 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl print:hidden print-hidden-element">
+        <div className="max-w-7xl mx-auto mt-4 bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl print:hidden print-hidden-element">
           <div className="w-full overflow-x-auto pb-2">
             <table className="w-full min-w-[800px] text-right text-xs">
               <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[11px]">
@@ -3087,10 +3089,10 @@ export default function AdministrativeDocumentsPage() {
                         </>
                       )}
 
-                      {/* شريط العدد والتاريخ واسم الفرع في السند الرسمي الأنيق (مطابق للصورة الثانية) */}
+                      {/* شريط العدد والتاريخ واسم الفرع في السند الرسمي الأنيق */}
                       <div className="mx-10 mt-2 bg-[#e4e4e7] px-5 py-2 rounded-sm flex items-center justify-between font-black text-[13px] text-slate-900 border border-slate-300">
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-900 font-bold">{isIncoming ? 'تاريخ استلام الوارد :' : 'التاريخ :'}</span>
+                          <span className="text-slate-900 font-bold">{isIncoming ? 'تاريخ استلاستلام الوارد :' : 'التاريخ :'}</span>
                           <span className="font-mono text-sm tracking-widest">{doc.docDate}</span>
                         </div>
 

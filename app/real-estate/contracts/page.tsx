@@ -184,7 +184,6 @@ function ContractPreviewModal({
           <div className="relative z-10 space-y-3 print:space-y-1.5">
             <div className="h-1.5 w-full rounded-full" style={{ background: `linear-gradient(90deg, #0f172a, ${primaryCol}, #0f172a)` }}></div>
 
-            {/* الهيدر الأصلي المعتمد دون المساس به */}
             {hasLetterhead ? (
               <div className="w-full border-b pb-2 mb-1 print:pb-1 print:mb-0.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -231,7 +230,6 @@ function ContractPreviewModal({
               </div>
             )}
 
-            {/* شريط التوثيق والفرع تحت الهيدر مباشرة */}
             <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-1 print:py-0.5 font-cairo shadow-xs text-xs print:text-[11px] font-bold text-slate-800">
               <div className="flex items-center gap-1.5" dir="rtl">
                 <span className="text-slate-500 font-bold">العدد :</span>
@@ -364,9 +362,10 @@ function ContractPreviewModal({
               </div>
             </div>
 
-            <div className="border border-slate-200 p-2 print:p-1.5 rounded-2xl bg-slate-50/50 space-y-0.5 text-[10px] print:text-[9px] text-slate-600 leading-relaxed font-sans">
-              <strong className="text-slate-950 block text-[10px] print:text-[9px] mb-0.5 font-bold">الشروط والأحكام والالتزامات القانونية:</strong>
-              <p className="whitespace-pre-line text-justify">{contract.extraConditions}</p>
+            {/* تم ضبط حجم خط الشروط والأحكام ليكون 14px بوضوح في الطباعة والمعاينة */}
+            <div className="border border-slate-200 p-3 print:p-2 rounded-2xl bg-slate-50/50 space-y-1 text-[14px] text-slate-700 leading-relaxed font-sans">
+              <strong className="text-slate-950 block text-[14px] mb-1 font-bold">الشروط والأحكام والالتزامات القانونية:</strong>
+              <p className="whitespace-pre-line text-justify text-[14px] leading-relaxed text-slate-800">{contract.extraConditions}</p>
             </div>
           </div>
 
@@ -874,7 +873,7 @@ export default function ElectronicContractsPage() {
 
   return (
     <AuthGuard moduleName="contracts" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-sans print:bg-white print:p-0">
         
         <style jsx global>{`
           @media screen and (max-width: 768px) {
@@ -933,50 +932,50 @@ export default function ElectronicContractsPage() {
           }
         `}</style>
 
-        {/* الترويسة الرئيسية */}
-        <div className="max-w-5xl mx-auto pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المنظمة والمتجاوبة مع الموبايل */}
+        <div className="max-w-5xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden print-hidden-element">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 p-2 sm:p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryCol}, ${secondaryCol})`,
                   boxShadow: `0 10px 25px -5px ${primaryCol}40`
                 }}
               >
-                <Image src="/logo.png" alt={companySettings.company_name} width={48} height={48} className="object-contain" priority />
+                <Image src="/logo.png" alt={companySettings.company_name} width={42} height={42} className="object-contain" priority />
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
                     منظومة العقود الإلكترونية الرسمية
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2 sm:px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
-                    <Sparkles className="w-3 3-3" />
-                    أرشيف العقود • باركود تحقق مباشر
+                    <Sparkles className="w-3 h-3" />
+                    أرشيف العقود • باركود تحقق
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                   {companySettings.company_name} • نطاق العرض: <strong className="text-amber-400">{currentActiveBranchName}</strong>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap self-end sm:self-auto">
+            <div className="flex items-center justify-end gap-2 shrink-0 self-end sm:self-auto w-full sm:w-auto">
               <Link
                 href="/real-estate"
-                className="px-4 py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
               >
                 <ArrowLeft className="w-4 h-4" /> العقارات
               </Link>
 
               <Link
                 href="/"
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 cursor-pointer active:scale-95"
+                className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 cursor-pointer active:scale-95"
               >
                 <Home className="w-4 h-4" /> الرئيسية
               </Link>
@@ -1155,7 +1154,6 @@ export default function ElectronicContractsPage() {
           </div>
 
           <form onSubmit={handleSaveAndPrintContract} className="space-y-4 text-xs">
-            {/* اختيار وتثبيت الفرع صراحة */}
             <div className="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/30">
               <label className="block text-amber-400 mb-1 font-bold">الفرع الصادر منه العقد رسمياً *</label>
               {isRestrictedBranch ? (

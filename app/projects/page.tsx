@@ -101,7 +101,6 @@ export default function ProjectsPage() {
     vouchers: any[];
   } | null>(null);
 
-  // حالة فتح نافذة التندر وجدول الكميات
   const [tenderProject, setTenderProject] = useState<any | null>(null);
 
   const permissions = useMemo(() => {
@@ -361,7 +360,6 @@ export default function ProjectsPage() {
         };
       });
 
-      // 1. مقاولو الباطن
       const rawSubs = p.subcontractors || [];
       const mergedSubsMap = new Map<string, any>();
       let totalSubsContract = 0;
@@ -439,7 +437,6 @@ export default function ProjectsPage() {
       const enrichedSubs = Array.from(mergedSubsMap.values());
       const totalSubsRemainingNoVouchers = Math.max(0, totalSubsContract - totalSubsPaidVouchers);
 
-      // 2. المصاريف التشغيلية
       const rawOperatingExp = p.operating_expenses || [];
       const mergedExpMap = new Map<string, any>();
       let totalOperatingExpCost = 0;
@@ -503,7 +500,6 @@ export default function ProjectsPage() {
       const projectOperatingExpenses = Array.from(mergedExpMap.values());
       const totalOperatingExpRemaining = Math.max(0, totalOperatingExpCost - totalOperatingExpPaid);
 
-      // 3. المواد والتوريدات
       const rawMaterials = p.materials || [];
       const mergedMaterialsMap = new Map<string, any>();
       let actualMaterialsCost = 0;
@@ -591,7 +587,6 @@ export default function ProjectsPage() {
       const materialsList = Array.from(mergedMaterialsMap.values());
       const remainingMaterialsPending = Math.max(0, actualMaterialsCost - paidMaterialsVouchers);
 
-      // 4. الدفعات التعاقدية
       const currentRate = Number(p.completion_rate || 0);
       const calculatedTerms = (p.payment_terms || []).map((term: any) => {
         const tTitle = clean(term.term_title);
@@ -1222,13 +1217,14 @@ export default function ProjectsPage() {
     <AuthGuard moduleName="contracting" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل لجميع الشاشات والموبايل */}
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            {/* الطرف الأيمن: الشعار والعنوان والشارة */}
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl"
+                className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl mt-0.5 sm:mt-0"
                 style={{ borderColor: `${primaryCol}50`, boxShadow: `0 10px 25px -5px ${primaryCol}30` }}
               >
                 {hasLogo ? (
@@ -1249,38 +1245,39 @@ export default function ProjectsPage() {
                   />
                 )}
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
                     إدارة مشاريع المقاولات والإعمار (ERP المتكامل)
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
                     General Contracting
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
                   {companySettings.company_name} • للمقاولات العامة والاستثمارات العقارية
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
-              <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shrink-0">
-                <div className="w-8 h-8 rounded-full overflow-hidden border bg-slate-800 flex items-center justify-center shrink-0" style={{ borderColor: primaryCol }}>
+            {/* الطرف الأيسر: شارة المستخدم وأزرار التنقل السريع - متناسقة وكاملة على الموبايل بدون أي قص */}
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto overflow-x-auto pb-1 sm:pb-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950 border border-slate-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border bg-slate-800 flex items-center justify-center shrink-0" style={{ borderColor: primaryCol }}>
                   {currentUser.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={currentUser.avatar_url} alt={currentUser.full_name} className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-4 h-4" style={{ color: primaryCol }} />
+                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: primaryCol }} />
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold text-white leading-tight truncate max-w-[120px]">{currentUser.full_name}</p>
-                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border inline-block mt-0.5 whitespace-nowrap ${roleColor}`}>
+                  <p className="text-[11px] sm:text-xs font-bold text-white leading-tight truncate max-w-[80px] sm:max-w-[120px]">{currentUser.full_name}</p>
+                  <span className={`px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-bold border inline-block mt-0.5 whitespace-nowrap ${roleColor}`}>
                     {roleTitle}
                   </span>
                 </div>
@@ -1293,27 +1290,31 @@ export default function ProjectsPage() {
                 </button>
               </div>
 
-              {permissions.canManageVouchers && (
-                <Link 
-                  href="/vouchers" 
-                  className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 text-purple-400 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm shrink-0"
-                >
-                  <Receipt className="w-4 h-4" /> شاشة السندات
-                </Link>
-              )}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {permissions.canManageVouchers && (
+                  <Link 
+                    href="/vouchers" 
+                    className="px-3 sm:px-3.5 py-2 sm:py-2.5 bg-slate-950 hover:bg-slate-800 text-purple-400 border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer shadow-sm"
+                  >
+                    <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+                    <span className="hidden sm:inline">شاشة السندات</span>
+                    <span className="sm:hidden">السندات</span>
+                  </Link>
+                )}
 
-              <Link 
-                href="/" 
-                className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer shrink-0"
-              >
-                <Home className="w-4 h-4" /> الرئيسية
-              </Link>
+                <Link 
+                  href="/" 
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20 whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> الرئيسية
+                </Link>
+              </div>
             </div>
 
           </div>
         </div>
 
-        {/* بطاقات المؤشرات المالية العامة */}
+        {/* بطاقات المؤشرات المالية العامة الأربعة للمشاريع الجارية فقط */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-xl flex flex-col justify-center">
             <p className="text-xs text-slate-400 font-semibold mb-1">إجمالي قيم العقود (الجارية)</p>
@@ -1747,7 +1748,6 @@ export default function ProjectsPage() {
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-2.5 sm:p-4">
             <div className="bg-slate-900 border border-slate-700 w-full max-w-5xl rounded-3xl shadow-2xl p-4 sm:p-6 flex flex-col max-h-[92vh] overflow-y-auto">
               
-              {/* ترويسة النافذة المنظمة مع زر الإغلاق المباشر */}
               <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                 <div className="min-w-0 flex-1">
                   <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
@@ -1765,7 +1765,7 @@ export default function ProjectsPage() {
                 </button>
               </div>
 
-              {/* شريط الفقرات والتبويبات المحدث ليظهر بدقة في الموبايل والكمبيوتر */}
+              {/* شريط الفقرات والتبويبات المحدث ليظهر بوضوح في الموبايل والكمبيوتر */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap lg:items-center lg:justify-center gap-1.5 sm:gap-2 border-b border-slate-800 pb-3.5 mb-4 text-xs font-semibold w-full">
                 <button 
                   onClick={() => setActiveTab('ANALYTICS')} 
@@ -3229,7 +3229,7 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* استدعاء نافذة التندر وجدول الكميات الـ 41 فقرة في مكوّنها المنفصل */}
+        {/* استدعاء نافذة التندر وجدول الكميات */}
         {tenderProject && (
           <ProjectTenderModal
             project={tenderProject}

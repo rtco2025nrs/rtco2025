@@ -435,63 +435,65 @@ export default function InventoryPage() {
 
   return (
     <AuthGuard moduleName="inventory" requiredAction="view">
-      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
+      <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية */}
-        <div className="max-w-7xl mx-auto pb-6 border-b border-slate-800/80 print:hidden">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 bg-slate-900/60 border border-slate-800/80 p-5 rounded-3xl backdrop-blur-md shadow-2xl">
+        {/* الترويسة الرئيسية المتجاوبة مع الموبايل بالكامل */}
+        <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div 
-                className="w-14 h-14 p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all"
+                className="w-12 h-12 sm:w-14 sm:h-14 p-2 sm:p-3 rounded-2xl text-slate-950 font-black shadow-xl shrink-0 flex items-center justify-center transition-all mt-0.5 sm:mt-0"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryCol}, ${secondaryCol})`,
                   boxShadow: `0 10px 25px -5px ${primaryCol}40`
                 }}
               >
-                <Boxes className="w-8 h-8" />
+                <Boxes className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl md:text-2xl font-black text-white tracking-wide">
-                    قطاع التجارة العامة والمخزن المركزي وإدارة التوريدات
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-sm sm:text-lg md:text-2xl font-black text-white tracking-wide leading-tight">
+                    قطاع التجارة العامة والمخزن المركزي
                   </h1>
                   <span 
-                    className="inline-flex items-center gap-1.5 border text-[11px] font-bold px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
+                    className="inline-flex items-center gap-1 border text-[10px] sm:text-[11px] font-bold px-2 sm:px-3 py-0.5 rounded-full shadow-inner font-mono whitespace-nowrap"
                     style={{ backgroundColor: `${primaryCol}15`, color: primaryCol, borderColor: `${primaryCol}30` }}
                   >
                     <Sparkles className="w-3 h-3" />
-                    Enterprise Inventory & Smart Orders
+                    Enterprise Inventory
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">
-                  {companySettings.company_name} • أذونات الاستلام، الصرف الموقعي، والنواقص، والتحليل المالي
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
+                  {companySettings.company_name} • أذونات الاستلام، الصرف الموقعي، والنواقص
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-nowrap shrink-0 self-end xl:self-auto overflow-x-auto">
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto overflow-x-auto pb-1 sm:pb-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
               <Link 
                 href="/inventory/installments" 
-                className="px-3.5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow-md whitespace-nowrap active:scale-95 cursor-pointer"
+                className="px-3 sm:px-3.5 py-2 sm:py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow-md whitespace-nowrap active:scale-95 cursor-pointer shrink-0"
               >
-                <CreditCard className="w-4 h-4" /> نظام بيع الأقساط والتجارة الآجلة
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> نظام بيع الأقساط
               </Link>
 
-              <button 
-                onClick={() => loadData(selectedBranchId)} 
-                className="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-amber-400 transition cursor-pointer active:scale-95 shadow-sm" 
-                title="تحديث البيانات"
-              >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              </button>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button 
+                  onClick={() => loadData(selectedBranchId)} 
+                  className="p-2 sm:p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-amber-400 transition cursor-pointer active:scale-95 shadow-sm" 
+                  title="تحديث البيانات"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
+                </button>
 
-              <Link 
-                href="/" 
-                className="px-3.5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md whitespace-nowrap active:scale-95 cursor-pointer"
-              >
-                <Home className="w-4 h-4" /> الرئيسية
-              </Link>
+                <Link 
+                  href="/" 
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-md whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> الرئيسية
+                </Link>
+              </div>
             </div>
 
           </div>
@@ -499,65 +501,65 @@ export default function InventoryPage() {
 
         {/* تنبيه النواقص وحد الطلب التلقائي */}
         {lowStockItemsList.length > 0 && (
-          <div className="max-w-7xl mx-auto mt-6 bg-gradient-to-r from-rose-500/15 via-slate-900 to-transparent border-r-4 border-rose-500 border border-slate-800/80 p-4 rounded-3xl flex items-center justify-between print:hidden shadow-lg">
-            <div className="flex items-center gap-2.5 text-rose-400 font-bold text-[14px]">
-              <AlertTriangle className="w-5 h-5 animate-bounce" />
-              <span>تنبيه النواقص: لديك ({lowStockItemsList.length}) أصناف وصلت لحد الأمان وإعادة الطلب!</span>
+          <div className="max-w-7xl mx-auto mt-5 sm:mt-6 bg-gradient-to-r from-rose-500/15 via-slate-900 to-transparent border-r-4 border-rose-500 border border-slate-800/80 p-3 sm:p-4 rounded-2xl sm:rounded-3xl flex items-center justify-between print:hidden shadow-lg gap-2">
+            <div className="flex items-center gap-2 text-rose-400 font-bold text-xs sm:text-[14px]">
+              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 animate-bounce" />
+              <span>تنبيه النواقص: لديك ({lowStockItemsList.length}) أصناف وصلت لحد الأمان!</span>
             </div>
             <button 
               onClick={() => setActiveTab('LOW_STOCK')}
-              className="bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap"
+              className="bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0"
             >
-              عرض قائمة النواقص ➔
+              عرض النواقص ➔
             </button>
           </div>
         )}
 
         {/* شريط فلترة التاريخ المتقدم */}
-        <div className="max-w-7xl mx-auto mt-6 bg-slate-900/90 border border-slate-800 p-4 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl print:hidden">
-          <div className="flex items-center gap-3 flex-wrap w-full md:w-auto">
-            <div className="flex items-center gap-2 font-bold text-[14px]" style={{ color: primaryCol }}>
-              <Calendar className="w-4 h-4" />
+        <div className="max-w-7xl mx-auto mt-5 sm:mt-6 bg-slate-900/90 border border-slate-800 p-3 sm:p-4 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 shadow-xl print:hidden">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
+            <div className="flex items-center gap-1.5 font-bold text-xs sm:text-[14px]" style={{ color: primaryCol }}>
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>نطاق التحليل المالي للمخزون والتجارة:</span>
             </div>
 
-            <div className="flex items-center gap-2 text-[14px]">
-              <span className="text-slate-400">من:</span>
+            <div className="flex items-center gap-1.5 text-xs sm:text-[14px]">
+              <span className="text-slate-400 text-xs">من:</span>
               <input 
                 type="date" 
                 value={startDate} 
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono outline-none text-xs"
+                className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-white font-mono outline-none text-xs"
               />
             </div>
 
-            <div className="flex items-center gap-2 text-[14px]">
-              <span className="text-slate-400">إلى:</span>
+            <div className="flex items-center gap-1.5 text-xs sm:text-[14px]">
+              <span className="text-slate-400 text-xs">إلى:</span>
               <input 
                 type="date" 
                 value={endDate} 
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono outline-none text-xs"
+                className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1 text-white font-mono outline-none text-xs"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
+          <div className="flex items-center gap-1.5 self-end md:self-auto flex-wrap">
             <button
               onClick={() => setQuickRange('THIS_MONTH')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا الشهر
             </button>
             <button
               onClick={() => setQuickRange('THIS_YEAR')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer whitespace-nowrap"
             >
               هذا العام
             </button>
             <button
               onClick={() => setQuickRange('ALL')}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 cursor-pointer whitespace-nowrap"
               style={{ color: primaryCol }}
             >
               <RotateCcw className="w-3.5 h-3.5" /> الكل
@@ -566,31 +568,31 @@ export default function InventoryPage() {
         </div>
 
         {/* المؤشرات المالية والتشغيلية الموحدة */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 print:hidden">
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-sky-500/5 flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-5 sm:mt-6 print:hidden">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-lg shadow-sky-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <ArrowDownLeft className="w-4 h-4 text-sky-400" /> مبيعات التجارة الخارجية بالفترة
+                <span className="text-xs sm:text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
+                  <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" /> مبيعات التجارة الخارجية بالفترة
                 </span>
-                <div className="text-2xl font-black font-mono text-sky-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-sky-400 mt-1.5">
                   {formatNum(financialAnalytics.periodSales)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-2.5 bg-sky-500/10 text-sky-400 rounded-2xl border border-sky-500/20">
-                <Store className="w-5 h-5" />
+              <div className="p-2 sm:p-2.5 bg-sky-500/10 text-sky-400 rounded-xl sm:rounded-2xl border border-sky-500/20">
+                <Store className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[12px] text-slate-500 mt-2">إيرادات البيع التجاري المقيدة بحسابات الصندوق</p>
+            <p className="text-[11px] sm:text-[12px] text-slate-500 mt-1.5">إيرادات البيع التجاري المقيدة بحسابات الصندوق</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5 flex flex-col justify-center">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-lg shadow-emerald-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <Coins className="w-4 h-4 text-emerald-400" /> صافي الربح التجاري المحقق
+                <span className="text-xs sm:text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
+                  <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /> صافي الربح التجاري المحقق
                 </span>
-                <div className="text-2xl font-black font-mono text-emerald-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-emerald-400 mt-1.5">
                   {formatNum(financialAnalytics.netTradeProfit)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
@@ -598,81 +600,81 @@ export default function InventoryPage() {
                 {financialAnalytics.profitMargin}% هامش
               </div>
             </div>
-            <p className="text-[12px] text-slate-500 mt-2">المبيعات بعد استبعاد تكلفة البضاعة المباشرة</p>
+            <p className="text-[11px] sm:text-[12px] text-slate-500 mt-1.5">المبيعات بعد استبعاد تكلفة البضاعة المباشرة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5 flex flex-col justify-center">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-lg shadow-rose-500/5 flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <ArrowUpRight className="w-4 h-4 text-rose-400" /> توريدات واستيراد بضاعة جديدة
+                <span className="text-xs sm:text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" /> توريدات واستيراد بضاعة جديدة
                 </span>
-                <div className="text-2xl font-black font-mono text-rose-400 mt-2">
+                <div className="text-xl sm:text-2xl font-black font-mono text-rose-400 mt-1.5">
                   {formatNum(financialAnalytics.periodPurchases)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-2.5 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20">
-                <ShoppingBag className="w-5 h-5" />
+              <div className="p-2 sm:p-2.5 bg-rose-500/10 text-rose-400 rounded-xl sm:rounded-2xl border border-rose-500/20">
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[12px] text-slate-500 mt-2">إجمالي مشتريات المخزن في هذه الفترة</p>
+            <p className="text-[11px] sm:text-[12px] text-slate-500 mt-1.5">إجمالي مشتريات المخزن في هذه الفترة</p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl relative overflow-hidden flex flex-col justify-center">
+          <div className="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden flex flex-col justify-center">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
-                  <HardHat className="w-4 h-4" style={{ color: primaryCol }} /> مواد مصروفة لمشاريع الشركة
+                <span className="text-xs sm:text-[13px] text-slate-400 font-semibold block flex items-center gap-1.5">
+                  <HardHat className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: primaryCol }} /> مواد مصروفة لمشاريع الشركة
                 </span>
-                <div className="text-2xl font-black font-mono mt-2" style={{ color: primaryCol }}>
+                <div className="text-xl sm:text-2xl font-black font-mono mt-1.5" style={{ color: primaryCol }}>
                   {formatNum(financialAnalytics.periodProjectIssues)} <span className="text-xs font-sans text-slate-400">د.ع</span>
                 </div>
               </div>
-              <div className="p-2.5 rounded-2xl border" style={{ backgroundColor: `${primaryCol}10`, color: primaryCol, borderColor: `${primaryCol}20` }}>
-                <HardHat className="w-5 h-5" />
+              <div className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border" style={{ backgroundColor: `${primaryCol}10`, color: primaryCol, borderColor: `${primaryCol}20` }}>
+                <HardHat className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <p className="text-[12px] text-slate-500 mt-2">مرحّلة لتكاليف مشاريع المقاولات تلقائياً</p>
+            <p className="text-[11px] sm:text-[12px] text-slate-500 mt-1.5">مرحّلة لتكاليف مشاريع المقاولات تلقائياً</p>
           </div>
         </div>
 
         {/* شريط التحكم بالتبويبات الموحد */}
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 mt-8 print:hidden bg-slate-900/80 border border-slate-800 p-3 rounded-3xl backdrop-blur">
-          <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 mt-6 sm:mt-8 print:hidden bg-slate-900/80 border border-slate-800 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl backdrop-blur">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             <button
               onClick={() => setActiveTab('ITEMS_LIST')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'ITEMS_LIST' ? 'text-slate-950 font-black shadow-lg' : 'text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'ITEMS_LIST' ? { backgroundColor: primaryCol } : {}}
             >
-              <Boxes className="w-4 h-4" /> جرد الأصناف والمخزون ({items.length})
+              <Boxes className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> جرد الأصناف ({items.length})
             </button>
             <button
               onClick={() => setActiveTab('TRANSACTIONS_LOG')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'TRANSACTIONS_LOG' ? 'text-slate-950 font-black shadow-lg' : 'text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'TRANSACTIONS_LOG' ? { backgroundColor: primaryCol } : {}}
             >
-              <FileText className="w-4 h-4" /> سجل أذونات الحركات والطباعة ({transactions.length})
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> سجل الأذونات ({transactions.length})
             </button>
             <button
               onClick={() => setActiveTab('LOW_STOCK')}
-              className={`px-4 py-2.5 rounded-2xl text-[13px] font-bold transition flex items-center gap-2 cursor-pointer ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-bold transition flex items-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
                 activeTab === 'LOW_STOCK' ? 'text-slate-950 font-black shadow-lg' : 'text-slate-400 hover:text-white'
               }`}
               style={activeTab === 'LOW_STOCK' ? { backgroundColor: primaryCol } : {}}
             >
-              <AlertTriangle className="w-4 h-4 text-rose-400" /> النواقص وحد الطلب ({lowStockItemsList.length})
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" /> النواقص ({lowStockItemsList.length})
             </button>
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
+          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
             {canAdd && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="text-slate-950 font-bold px-4 py-2.5 rounded-2xl text-[13px] flex items-center gap-1.5 transition shadow-md cursor-pointer whitespace-nowrap"
+                className="w-full sm:w-auto text-slate-950 font-bold px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] flex items-center justify-center gap-1.5 transition shadow-md cursor-pointer whitespace-nowrap"
                 style={{ background: `linear-gradient(90deg, ${primaryCol}, ${secondaryCol})` }}
               >
                 <PlusCircle className="w-4 h-4" /> تعريف صنف جديد
@@ -683,7 +685,7 @@ export default function InventoryPage() {
 
         {/* 1. تبويب جرد ومخزون الأصناف */}
         {activeTab === 'ITEMS_LIST' && (
-          <div className="max-w-7xl mx-auto mt-6 space-y-4 print:hidden">
+          <div className="max-w-7xl mx-auto mt-5 sm:mt-6 space-y-4 print:hidden">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-2xl border border-slate-800/80">
               <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                 <div className="relative flex-1 sm:w-72">
@@ -710,12 +712,12 @@ export default function InventoryPage() {
                   <option value="أجهزة ومعدات">أجهزة ومعدات</option>
                 </select>
               </div>
-              <span className="text-[14px] text-slate-400 font-mono">
-                إجمالي الأصناف: <strong className="text-white">{filteredItems.length}</strong> | القيمة الكلية: <strong className="text-emerald-400">{formatNum(summary.totalInventoryValue || 0)} د.ع</strong>
+              <span className="text-xs sm:text-[14px] text-slate-400 font-mono">
+                الأصناف: <strong className="text-white">{filteredItems.length}</strong> | القيمة: <strong className="text-emerald-400">{formatNum(summary.totalInventoryValue || 0)} د.ع</strong>
               </span>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
               <div className="w-full overflow-x-auto pb-2">
                 <table className="w-full min-w-[850px] text-right text-[14px]">
                   <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[12px]">
@@ -726,7 +728,7 @@ export default function InventoryPage() {
                       <th className="p-3.5 whitespace-nowrap">التصنيف</th>
                       <th className="p-3.5 whitespace-nowrap">الرصيد المتاح</th>
                       <th className="p-3.5 whitespace-nowrap">سعر التكلفة</th>
-                      <th className="p-3.5 whitespace-nowrap">حد الأمان والطلب</th>
+                      <th className="p-3.5 whitespace-nowrap">حد الأمان</th>
                       <th className="p-3.5 whitespace-nowrap">إجمالي القيمة</th>
                       <th className="p-3.5 text-center whitespace-nowrap">إجراءات وأذونات</th>
                     </tr>
@@ -823,8 +825,8 @@ export default function InventoryPage() {
 
         {/* 2. تبويب سجل أذونات الحركات والطباعة */}
         {activeTab === 'TRANSACTIONS_LOG' && (
-          <div className="max-w-7xl mx-auto mt-6 space-y-4 print:hidden">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="max-w-7xl mx-auto mt-5 sm:mt-6 space-y-4 print:hidden">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
               <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                 <h4 className="text-[14px] font-bold text-white flex items-center gap-2">
                   <FileText className="w-4 h-4" style={{ color: primaryCol }} /> سجل أذونات التوريد، الصرف للمشاريع، والبيع التجاري
@@ -930,25 +932,25 @@ export default function InventoryPage() {
 
         {/* 3. تبويب النواقص وحد الطلب */}
         {activeTab === 'LOW_STOCK' && (
-          <div className="max-w-7xl mx-auto mt-6 space-y-4 print:hidden">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto mt-5 sm:mt-6 space-y-4 print:hidden">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-rose-400 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" /> قائمة المواد التي وصلت لحد إعادة الطلب
+                <h3 className="text-sm sm:text-base font-bold text-rose-400 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" /> قائمة المواد التي وصلت لحد إعادة الطلب
                 </h3>
-                <p className="text-[13px] text-slate-400 mt-0.5">ينصح بإصدار أذونات توريد وشراء فورية لتفادي توقف الأعمال الإنشائية والتجارية</p>
+                <p className="text-xs sm:text-[13px] text-slate-400 mt-0.5">ينصح بإصدار أذونات توريد وشراء فورية لتفادي توقف الأعمال الإنشائية والتجارية</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
               {lowStockItemsList.length > 0 ? (
                 lowStockItemsList.map((item: any) => {
                   const qty = Number(item.quantity_on_hand ?? item.current_qty ?? 0);
                   const min = Number(item.min_reorder_level ?? item.min_qty ?? 5);
 
                   return (
-                    <div key={item.item_id} className="bg-slate-900 border border-rose-500/30 p-5 sm:p-6 rounded-3xl space-y-3.5 shadow-xl flex flex-col justify-between">
-                      <div className="space-y-3">
+                    <div key={item.item_id} className="bg-slate-900 border border-rose-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 shadow-xl flex flex-col justify-between">
+                      <div className="space-y-2.5 sm:space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                           <span className="font-mono text-xs font-bold" style={{ color: primaryCol }}>{item.item_code}</span>
                           <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 font-sans">
@@ -957,18 +959,18 @@ export default function InventoryPage() {
                         </div>
 
                         <div>
-                          <h4 className="font-bold text-white text-base">{item.name || item.item_name}</h4>
-                          <p className="text-[13px] text-slate-400 mt-0.5">{item.category} • {item.location || item.warehouse_location}</p>
+                          <h4 className="font-bold text-white text-sm sm:text-base">{item.name || item.item_name}</h4>
+                          <p className="text-xs sm:text-[13px] text-slate-400 mt-0.5">{item.category} • {item.location || item.warehouse_location}</p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl font-mono text-[13px]">
+                        <div className="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-2xl font-mono text-xs sm:text-[13px]">
                           <div>
-                            <span className="text-slate-500 block text-[11px] font-sans">الرصيد المتوفر</span>
-                            <strong className="text-rose-400 text-sm">{qty} {item.unit}</strong>
+                            <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">الرصيد المتوفر</span>
+                            <strong className="text-rose-400 text-xs sm:text-sm">{qty} {item.unit}</strong>
                           </div>
                           <div>
-                            <span className="text-slate-500 block text-[11px] font-sans">حد الأمان الأدنى</span>
-                            <strong className="text-slate-300 text-sm">{min} {item.unit}</strong>
+                            <span className="text-slate-500 block text-[10px] sm:text-[11px] font-sans">حد الأمان الأدنى</span>
+                            <strong className="text-slate-300 text-xs sm:text-sm">{min} {item.unit}</strong>
                           </div>
                         </div>
                       </div>
@@ -982,7 +984,7 @@ export default function InventoryPage() {
                             setIsExternalSale(false);
                             setTargetProjectId('');
                           }}
-                          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-[13px] flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="w-full py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl sm:rounded-2xl text-xs sm:text-[13px] flex items-center justify-center gap-1.5 transition cursor-pointer mt-2"
                         >
                           <ArrowDownLeft className="w-4 h-4" /> إصدار إذن توريد وشراء الآن
                         </button>
@@ -991,7 +993,7 @@ export default function InventoryPage() {
                   );
                 })
               ) : (
-                <div className="col-span-full bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center text-slate-500">
+                <div className="col-span-full bg-slate-900 border border-slate-800 p-8 rounded-2xl sm:rounded-3xl text-center text-slate-500 text-xs sm:text-sm">
                   كافة الأصناف والمواد بالمخزن أعلى من حد الطلب ورصيدها كافٍ تماماً ✓
                 </div>
               )}
@@ -1022,7 +1024,6 @@ export default function InventoryPage() {
                 <div className="print-official-sheet w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 border border-slate-200 shadow-2xl print:border-none print:shadow-none print:p-0 space-y-4 flex flex-col justify-between min-h-[1080px] max-h-[1115px] print:min-h-0">
                   
                   <div className="relative z-10 flex flex-col flex-1">
-                    {/* 1. الترويسة الأصلية للشركة دون المساس بها */}
                     {hasLetterhead ? (
                       <div className="w-full border-b pb-3 mb-2">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1056,7 +1057,6 @@ export default function InventoryPage() {
                       </div>
                     )}
 
-                    {/* 2. شريط التوثيق الرسمي تحت الترويسة مباشرة: اليمين العدد، المنتصف اسم الفرع مأطر، اليسار التاريخ */}
                     <div className="flex items-center justify-between bg-slate-100/90 border border-slate-300 rounded-xl px-4 py-2 font-cairo shadow-xs text-xs font-bold text-slate-800 mt-2">
                       <div className="flex items-center gap-1.5" dir="rtl">
                         <span className="text-slate-500 font-bold">العدد :</span>
@@ -1158,9 +1158,9 @@ export default function InventoryPage() {
         {/* نافذة تعريف صنف جديد */}
         {showAddModal && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <Package className="w-4 h-4" style={{ color: primaryCol }} /> تعريف صنف / بضاعة جديدة بالمخزن
                 </h3>
                 <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white cursor-pointer p-1">
@@ -1178,7 +1178,7 @@ export default function InventoryPage() {
                       placeholder="ITM-01"
                       value={itemCode}
                       onChange={(e) => setItemCode(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono uppercase outline-none focus:border-amber-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono uppercase outline-none focus:border-amber-500 text-xs"
                     />
                   </div>
                   <div>
@@ -1300,9 +1300,9 @@ export default function InventoryPage() {
         {/* نافذة حركة مخزنية تجارية */}
         {selectedItemForTrans && canAdd && (
           <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto space-y-4">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
-                <h3 className="text-base font-bold text-white flex items-center gap-2 truncate">
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
                   {transType === 'IN' ? (
                     <ArrowDownLeft className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : isExternalSale ? (
@@ -1378,7 +1378,7 @@ export default function InventoryPage() {
 
                 {transType === 'OUT' && (
                   <div className="space-y-3 border-t border-slate-800 pt-3">
-                    <label className="block text-slate-400 font-semibold flex items-center gap-1 text-sky-400 text-xs">
+                    <label className="block font-semibold flex items-center gap-1 text-sky-400 text-xs">
                       <ShoppingBag className="w-3.5 h-3.5" /> مسار صرف البضاعة:
                     </label>
 

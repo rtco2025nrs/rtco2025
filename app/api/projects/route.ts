@@ -388,7 +388,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action } = body;
 
-    // حفظ وتحديث بيانات التندر وجدول الكميات (منعزل تماماً عن الحسابات)
     if (action === 'SAVE_TENDER') {
       const { project_id, tender_data } = body;
       await query(
@@ -523,7 +522,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, term: res.rows[0] });
     }
 
-    // إضافة مشروع جديد مع توثيق المستخدم المنشئ
+    // إضافة مشروع جديد مع توثيق المستخدم المنشئ واختيار الفرع
     const { 
       project_id, 
       id, 
@@ -545,7 +544,7 @@ export async function POST(req: Request) {
 
     const finalBranchId = branch_id && String(branch_id).trim() !== '' && String(branch_id).trim() !== 'ALL'
       ? String(branch_id).trim()
-      : null;
+      : 'BR-CONST-02';
 
     const finalCreator = created_by_user && String(created_by_user).trim() !== '' ? String(created_by_user).trim() : 'الإدارة العامة';
 
@@ -641,6 +640,52 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { action } = body;
 
+    // تعديل بيانات المشروع الأساسية ونقله لفرع آخر
+    if (action === 'UPDATE_PROJECT_DETAILS') {
+      const { 
+        project_id, 
+        branch_id, 
+        project_name, 
+        client_name, 
+        location, 
+        contract_value, 
+        currency, 
+        start_date, 
+        expected_end_date, 
+        notes 
+      } = body;
+
+      const validStartDate = start_date && String(start_date).trim() !== '' ? String(start_date).trim() : null;
+      const validEndDate = expected_end_date && String(expected_end_date).trim() !== '' ? String(expected_end_date).trim() : null;
+
+      await query(`
+        UPDATE projects SET 
+          branch_id = COALESCE($1, branch_id),
+          project_name = COALESCE($2, project_name),
+          client_name = COALESCE($3, client_name),
+          location = COALESCE($4, location),
+          contract_value = COALESCE($5, contract_value),
+          currency = COALESCE($6, currency),
+          start_date = COALESCE($7::date, start_date),
+          expected_end_date = $8::date,
+          notes = COALESCE($9, notes)
+        WHERE project_id::text = $10::text
+      `, [
+        branch_id || null,
+        project_name || null,
+        client_name || null,
+        location || null,
+        contract_value !== undefined ? Number(contract_value) : null,
+        currency || 'IQD',
+        validStartDate,
+        validEndDate,
+        notes || '',
+        String(project_id)
+      ]);
+
+      return NextResponse.json({ success: true, message: 'تم تحديث بيانات المشروع والفرع بنجاح' });
+    }
+
     if (action === 'UPDATE_MILESTONE_PROGRESS') {
       const { milestone_id, completion_percentage } = body;
       await query(
@@ -721,7 +766,6 @@ export async function DELETE(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // 1. حذف مقاول الباطن وإلغاء السند المرتبط
     if (body.action === 'DELETE_SUBCONTRACTOR') {
       const subIdStr = String(body.subcontractor_id);
       const sRes = await query(`SELECT name FROM project_subcontractors WHERE subcontractor_id::text = $1`, [subIdStr]);
@@ -746,7 +790,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 2. حذف المصروف التشغيلي وإلغاء السند المرتبط
     if (body.action === 'DELETE_OPERATING_EXPENSE') {
       const expIdStr = String(body.expense_id);
       const eRes = await query(`SELECT title FROM project_operating_expenses WHERE expense_id::text = $1`, [expIdStr]);
@@ -771,7 +814,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 3. حذف مادة التوريد وإلغاء السند المرتبط
     if (body.action === 'DELETE_MATERIAL') {
       const matIdStr = String(body.material_id);
       const mRes = await query(`SELECT material_name FROM project_materials WHERE material_id::text = $1`, [matIdStr]);
@@ -796,7 +838,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 4. حذف دفعة تعاقدية وإلغاء السند المرتبط
     if (body.action === 'DELETE_PAYMENT_TERM') {
       const termIdStr = String(body.term_id);
       const tRes = await query(`SELECT term_title, project_id FROM project_payment_terms WHERE term_id::text = $1`, [termIdStr]);
@@ -828,7 +869,6 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // 5. حذف المشروع بالكامل مع إلغاء كافة سنداته
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('id');
     if (projectId) {

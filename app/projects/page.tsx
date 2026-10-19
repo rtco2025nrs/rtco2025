@@ -43,7 +43,8 @@ import {
   Eye,
   Home,
   Sparkles,
-  Calculator
+  Calculator,
+  Settings
 } from 'lucide-react';
 import AuthGuard, { hasPermission } from '@/components/AuthGuard';
 import { useBranch } from '@/context/BranchContext';
@@ -73,7 +74,7 @@ function parseVoucherNotes(notes: string) {
 
 export default function ProjectsPage() {
   const router = useRouter();
-  const { selectedBranchId } = useBranch();
+  const { selectedBranchId, branches } = useBranch();
   const [mounted, setMounted] = useState(false);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [companySettings, setCompanySettings] = useState<any>({
@@ -103,6 +104,45 @@ export default function ProjectsPage() {
 
   const [tenderProject, setTenderProject] = useState<any | null>(null);
 
+  // التحقق التلقائي من تقييد حساب أحمد أو أي مستخدم مقيد بفرع التجارة
+  const isRestrictedBranch = useMemo(() => {
+    if (!currentUser) return false;
+    const isSuper = Boolean(currentUser.is_super_admin || currentUser.role === 'ADMIN' || currentUser.username === 'admin');
+    if (isSuper) return false;
+    const bId = currentUser.assigned_branch_id || currentUser.branch_id;
+    if (bId && bId !== 'ALL') return true;
+    const uName = String(currentUser.username || '').toLowerCase();
+    const fName = String(currentUser.full_name || '');
+    if (uName === 'ahmed' || fName.includes('احمد') || fName.includes('أحمد')) return true;
+    return false;
+  }, [currentUser]);
+
+  const userAssignedBranchId = useMemo(() => {
+    if (currentUser?.assigned_branch_id && currentUser.assigned_branch_id !== 'ALL') return currentUser.assigned_branch_id;
+    if (currentUser?.branch_id && currentUser.branch_id !== 'ALL') return currentUser.branch_id;
+    const uName = String(currentUser?.username || '').toLowerCase();
+    const fName = String(currentUser?.full_name || '');
+    if (uName === 'ahmed' || fName.includes('احمد') || fName.includes('أحمد')) return 'BR-TRADE-03';
+    return '';
+  }, [currentUser]);
+
+  const resolveBranchName = (bId?: string): string => {
+    if (!bId || bId === 'ALL') return 'كافة الفروع';
+    const cleanId = String(bId).trim().toUpperCase();
+    if (cleanId === 'BR-HQ-01' || cleanId === 'HQ-01') return 'المقر الرئيسي (النجف الأشرف)';
+    if (cleanId === 'BR-TRADE-03' || cleanId === 'TRD-01' || cleanId.includes('TRADE') || cleanId.includes('TRD')) return 'فرع التجارة العامة';
+    if (cleanId === 'BR-CONST-02' || cleanId === 'CNT-01' || cleanId.includes('CONST') || cleanId.includes('CNT')) return 'فرع المقاولات والمشاريع الهندسية';
+    if (cleanId === 'BR-TRANS-04' || cleanId === 'FLT-01' || cleanId.includes('TRANS') || cleanId.includes('FLT')) return 'فرع النقل العام';
+    if (cleanId === 'BR-RE-05' || cleanId === 'EST-01' || cleanId.includes('RE') || cleanId.includes('EST')) return 'فرع الاستثمارات العقارية';
+    if (cleanId === 'STR-01' || cleanId.includes('STR') || cleanId.includes('WAREHOUSE')) return 'فرع المخازن';
+
+    const found = (branches || []).find((b: any) => 
+      String(b.branch_id).trim().toUpperCase() === cleanId || 
+      String(b.branch_code || '').trim().toUpperCase() === cleanId
+    );
+    return found?.name_ar || `فرع ${bId}`;
+  };
+
   const permissions = useMemo(() => {
     if (!currentUser) {
       return {
@@ -117,11 +157,12 @@ export default function ProjectsPage() {
       };
     }
 
-    const canAdd = hasPermission(currentUser, 'contracting', 'add');
-    const canEdit = hasPermission(currentUser, 'contracting', 'edit');
-    const canDelete = hasPermission(currentUser, 'contracting', 'delete');
-    const canView = hasPermission(currentUser, 'contracting', 'view');
-    const canVouchers = hasPermission(currentUser, 'vouchers', 'add') || hasPermission(currentUser, 'vouchers', 'view');
+    const isSuperAdmin = Boolean(currentUser?.is_super_admin || currentUser?.role === 'ADMIN' || currentUser?.username === 'admin');
+    const canAdd = isSuperAdmin || hasPermission(currentUser, 'contracting', 'add');
+    const canEdit = isSuperAdmin || hasPermission(currentUser, 'contracting', 'edit');
+    const canDelete = isSuperAdmin || hasPermission(currentUser, 'contracting', 'delete');
+    const canView = isSuperAdmin || hasPermission(currentUser, 'contracting', 'view');
+    const canVouchers = isSuperAdmin || hasPermission(currentUser, 'vouchers', 'add') || hasPermission(currentUser, 'vouchers', 'view');
 
     return {
       canCreateProject: canAdd,
@@ -135,6 +176,8 @@ export default function ProjectsPage() {
     };
   }, [currentUser]);
 
+  // حقول إضافة مشروع جديد
+  const [newProjectBranchId, setNewProjectBranchId] = useState('BR-CONST-02');
   const [projectName, setProjectName] = useState('');
   const [clientName, setClientName] = useState('');
   const [location, setLocation] = useState('النجف الأشرف');
@@ -148,10 +191,25 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
+  // نافذة تعديل الإنجاز والحالة
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [editRate, setEditRate] = useState('0');
   const [editStatus, setEditStatus] = useState('IN_PROGRESS');
   const [savingEdit, setSavingEdit] = useState(false);
+
+  // نافذة تعديل بيانات المشروع والفرع الكاملة
+  const [editingFullProject, setEditingFullProject] = useState<any | null>(null);
+  const [editFullBranchId, setEditFullBranchId] = useState('');
+  const [editFullProjectName, setEditFullProjectName] = useState('');
+  const [editFullClientName, setEditFullClientName] = useState('');
+  const [editFullLocation, setEditFullLocation] = useState('');
+  const [editFullContractValue, setEditFullContractValue] = useState('');
+  const [editFullCurrency, setEditFullCurrency] = useState('IQD');
+  const [editFullStartDate, setEditFullStartDate] = useState('');
+  const [editFullEndDate, setEditFullEndDate] = useState('');
+  const [editFullNotes, setEditFullNotes] = useState('');
+  const [savingFullEdit, setSavingFullEdit] = useState(false);
+
   const [deleteModalProject, setDeleteModalProject] = useState<any | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -189,6 +247,12 @@ export default function ProjectsPage() {
 
   const [termTitle, setTermTitle] = useState('');
   const [termPct, setTermPct] = useState('');
+
+  useEffect(() => {
+    if (isRestrictedBranch && userAssignedBranchId) {
+      setNewProjectBranchId(userAssignedBranchId);
+    }
+  }, [isRestrictedBranch, userAssignedBranchId]);
 
   const handleQuickVoucherFromProject = (
     partyName: string, 
@@ -233,8 +297,8 @@ export default function ProjectsPage() {
   const loadData = async (branchFilterId?: string) => {
     try {
       let activeBranch = branchFilterId !== undefined ? branchFilterId : selectedBranchId;
-      if (currentUser?.assigned_branch_id && currentUser.assigned_branch_id !== 'ALL') {
-        activeBranch = currentUser.assigned_branch_id;
+      if (isRestrictedBranch && userAssignedBranchId) {
+        activeBranch = userAssignedBranchId;
       }
 
       const projUrl = activeBranch && activeBranch !== 'ALL'
@@ -678,11 +742,16 @@ export default function ProjectsPage() {
 
   const filteredProjects = useMemo(() => {
     return calculatedProjects.filter((p) => {
+      if (isRestrictedBranch && userAssignedBranchId) {
+        const pBranch = String(p.branch_id || '').trim().toUpperCase();
+        const uBranch = String(userAssignedBranchId).trim().toUpperCase();
+        if (pBranch !== uBranch) return false;
+      }
       const matchSearch = p.project_name?.toLowerCase().includes(searchQuery.toLowerCase()) || p.client_name?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus = statusFilter === 'ALL' || p.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [calculatedProjects, searchQuery, statusFilter]);
+  }, [calculatedProjects, searchQuery, statusFilter, isRestrictedBranch, userAssignedBranchId]);
 
   const activeOngoingProjects = useMemo(() => {
     return calculatedProjects.filter((p) => {
@@ -730,16 +799,9 @@ export default function ProjectsPage() {
     setLoading(true);
     setMessage('');
     try {
-      let targetBranch = 'BR-CONST-02';
-      if (currentUser?.assigned_branch_id && currentUser.assigned_branch_id !== 'ALL') {
-        targetBranch = currentUser.assigned_branch_id;
-      } else if (selectedBranchId && selectedBranchId !== 'ALL') {
-        targetBranch = selectedBranchId;
-      } else {
-        const storedBranch = typeof window !== 'undefined' ? localStorage.getItem('rtco_selected_branch_id') : null;
-        if (storedBranch && storedBranch !== 'ALL') {
-          targetBranch = storedBranch;
-        }
+      let targetBranch = newProjectBranchId || 'BR-CONST-02';
+      if (isRestrictedBranch && userAssignedBranchId) {
+        targetBranch = userAssignedBranchId;
       }
 
       const creatorName = currentUser?.full_name || currentUser?.username || 'الإدارة العامة';
@@ -781,6 +843,70 @@ export default function ProjectsPage() {
       setMessage(`خطأ: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenEditFullProject = (project: any) => {
+    if (!permissions.canEditContract) {
+      alert('ليس لديك صلاحية تعديل بيانات المشروع');
+      return;
+    }
+    setEditingFullProject(project);
+    setEditFullBranchId(project.branch_id || 'BR-CONST-02');
+    setEditFullProjectName(project.project_name || '');
+    setEditFullClientName(project.client_name || '');
+    setEditFullLocation(project.location || '');
+    setEditFullContractValue(String(project.contract_value || ''));
+    setEditFullCurrency(project.currency || 'IQD');
+    setEditFullStartDate(project.start_date ? String(project.start_date).split('T')[0] : '');
+    setEditFullEndDate(project.expected_end_date ? String(project.expected_end_date).split('T')[0] : '');
+    setEditFullNotes(project.notes || '');
+  };
+
+  const handleSaveFullProjectEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!permissions.canEditContract) {
+      alert('ليس لديك صلاحية تعديل بيانات المشروع');
+      return;
+    }
+    if (!editingFullProject) return;
+    setSavingFullEdit(true);
+    try {
+      let finalBranch = editFullBranchId;
+      if (isRestrictedBranch && userAssignedBranchId) {
+        finalBranch = userAssignedBranchId;
+      }
+
+      const res = await fetch('/api/projects', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'UPDATE_PROJECT_DETAILS',
+          project_id: editingFullProject.project_id,
+          branch_id: finalBranch,
+          project_name: editFullProjectName.trim(),
+          client_name: editFullClientName.trim(),
+          location: editFullLocation.trim(),
+          contract_value: Number(editFullContractValue) || 0,
+          currency: editFullCurrency,
+          start_date: editFullStartDate || null,
+          expected_end_date: editFullEndDate || null,
+          notes: editFullNotes.trim()
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('تم تعديل بيانات المشروع والفرع بنجاح!');
+        setEditingFullProject(null);
+        await loadData();
+      } else {
+        alert(data.error || 'فشل حفظ التعديلات');
+      }
+    } catch (err: any) {
+      alert(err.message || 'حدث خطأ في الاتصال');
+    } finally {
+      setSavingFullEdit(false);
     }
   };
 
@@ -1217,11 +1343,10 @@ export default function ProjectsPage() {
     <AuthGuard moduleName="contracting" requiredAction="view">
       <div dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-cairo text-[14px] print:bg-white print:p-0">
         
-        {/* الترويسة الرئيسية المحسنة بتصميم متناسق ومؤطر بالكامل لجميع الشاشات والموبايل */}
+        {/* الترويسة الرئيسية */}
         <div className="max-w-7xl mx-auto pb-5 sm:pb-6 border-b border-slate-800/80 print:hidden">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5 bg-slate-900/60 border border-slate-800/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl backdrop-blur-md shadow-2xl">
             
-            {/* الطرف الأيمن: الشعار والعنوان والشارة */}
             <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <div 
                 className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-2xl overflow-hidden bg-slate-950 border flex items-center justify-center shrink-0 p-2 shadow-xl mt-0.5 sm:mt-0"
@@ -1264,7 +1389,6 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            {/* الطرف الأيسر: شارة المستخدم وأزرار التنقل السريع - متناسقة وكاملة على الموبايل بدون أي قص */}
             <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto overflow-x-auto pb-1 sm:pb-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
               <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950 border border-slate-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl shrink-0">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border bg-slate-800 flex items-center justify-center shrink-0" style={{ borderColor: primaryCol }}>
@@ -1277,9 +1401,16 @@ export default function ProjectsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-[11px] sm:text-xs font-bold text-white leading-tight truncate max-w-[80px] sm:max-w-[120px]">{currentUser.full_name}</p>
-                  <span className={`px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-bold border inline-block mt-0.5 whitespace-nowrap ${roleColor}`}>
-                    {roleTitle}
-                  </span>
+                  <div className="flex items-center gap-1 flex-wrap mt-0.5">
+                    <span className={`px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-bold border whitespace-nowrap ${roleColor}`}>
+                      {roleTitle}
+                    </span>
+                    {isRestrictedBranch && (
+                      <span className="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-flex items-center gap-0.5 whitespace-nowrap">
+                        <Lock className="w-2.5 h-2.5" /> مقيد على: فرع التجارة العامة
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -1339,7 +1470,7 @@ export default function ProjectsPage() {
         {/* المحتوى الرئيسي */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 print:hidden">
           
-          {/* تسجيل مشروع جديد */}
+          {/* تسجيل مشروع جديد مع قفل واختيار الفرع بحسب الصلاحية */}
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl h-fit space-y-4 relative overflow-hidden shadow-2xl">
             {!permissions.canCreateProject && (
               <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 text-center space-y-2">
@@ -1358,6 +1489,33 @@ export default function ProjectsPage() {
               </div>
             )}
             <form onSubmit={handleCreateProject} className="space-y-3.5 text-[14px]">
+              <div>
+                <label className="block text-amber-400 mb-1 font-bold text-xs">الفرع المسؤول عن المشروع *</label>
+                {isRestrictedBranch ? (
+                  <div className="w-full bg-slate-950 border border-amber-500/50 rounded-xl p-2.5 text-amber-300 font-bold text-xs flex items-center justify-between shadow-inner">
+                    <span>🏢 {resolveBranchName(userAssignedBranchId)}</span>
+                    <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 text-amber-300 flex items-center gap-1 font-mono">
+                      <Lock className="w-3 h-3" /> مقيد على: فرع التجارة العامة
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    value={newProjectBranchId}
+                    onChange={(e) => setNewProjectBranchId(e.target.value)}
+                    className="w-full bg-slate-800 border border-amber-500/40 rounded-xl p-2.5 text-amber-300 font-bold outline-none cursor-pointer text-xs"
+                  >
+                    <option value="BR-CONST-02">فرع المقاولات والمشاريع الهندسية (الرئيسي)</option>
+                    {(branches || [])
+                      .filter((b: any) => b.branch_id !== 'BR-CONST-02')
+                      .map((b: any) => (
+                        <option key={b.branch_id} value={b.branch_id}>
+                          {b.name_ar || `فرع ${b.branch_id}`}
+                        </option>
+                      ))}
+                  </select>
+                )}
+              </div>
+
               <div>
                 <label className="block text-slate-400 mb-1 font-semibold">اسم المشروع *</label>
                 <input type="text" required placeholder="مجمع الفرات السكني" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-amber-500" />
@@ -1427,9 +1585,7 @@ export default function ProjectsPage() {
                 const costRatio = contract > 0 ? (project.total_site_costs / contract) * 100 : 0;
                 const isCostAlert = costRatio >= 80;
 
-                const displayBranchName = project.branch_id === 'BR-CONST-02'
-                  ? 'فرع المقاولات والمشاريع الهندسية'
-                  : (project.branch_name || 'فرع المقاولات والمشاريع الهندسية');
+                const displayBranchName = project.branch_name || resolveBranchName(project.branch_id);
 
                 return (
                   <div key={project.project_id} className="bg-slate-900 border border-slate-800 p-5 rounded-3xl hover:border-slate-700 transition space-y-4 shadow-xl">
@@ -1479,6 +1635,18 @@ export default function ProjectsPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5 self-start lg:self-auto w-full lg:w-auto mt-2 lg:mt-0">
+                        {/* زر تعديل المشروع والفرع يظهر لجميع المستخدمين الذين يملكون صلاحية التعديل */}
+                        {permissions.canEditContract && (
+                          <button 
+                            type="button"
+                            onClick={() => handleOpenEditFullProject(project)} 
+                            className="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer shadow-md flex-1 sm:flex-none active:scale-95"
+                            title="تعديل بيانات المشروع والفرع التابع له"
+                          >
+                            <Settings className="w-3.5 h-3.5" /> تعديل المشروع
+                          </button>
+                        )}
+
                         <button 
                           onClick={() => setTenderProject(project)} 
                           className="bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer shadow-sm flex-1 sm:flex-none active:scale-95"
@@ -1561,6 +1729,217 @@ export default function ProjectsPage() {
             </div>
           </div>
         </div>
+
+        {/* نافذة تعديل بيانات المشروع والفرع الكاملة مع القفل لحساب أحمد */}
+        {editingFullProject && (
+          <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right space-y-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-sky-400" /> تعديل بيانات المشروع والفرع التابع له
+                </h3>
+                <button onClick={() => setEditingFullProject(null)} className="text-slate-400 hover:text-white p-1 cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveFullProjectEdit} className="space-y-3.5 text-xs">
+                <div className="bg-slate-950 p-3 rounded-2xl border border-amber-500/30">
+                  <label className="block text-amber-400 mb-1 font-bold text-xs">الفرع المسؤول عن المشروع *</label>
+                  {isRestrictedBranch ? (
+                    <div className="w-full bg-slate-900 border border-amber-500/50 rounded-xl p-2.5 text-amber-300 font-bold text-xs flex items-center justify-between shadow-inner">
+                      <span>🏢 {resolveBranchName(userAssignedBranchId)}</span>
+                      <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40 text-amber-300 flex items-center gap-1 font-mono">
+                        <Lock className="w-3 h-3" /> مقيد على: فرع التجارة العامة
+                      </span>
+                    </div>
+                  ) : (
+                    <select
+                      value={editFullBranchId}
+                      onChange={(e) => setEditFullBranchId(e.target.value)}
+                      className="w-full bg-slate-900 border border-amber-500/40 rounded-xl p-2.5 text-amber-300 font-bold outline-none cursor-pointer text-xs"
+                    >
+                      <option value="BR-CONST-02">فرع المقاولات والمشاريع الهندسية (الرئيسي)</option>
+                      {(branches || [])
+                        .filter((b: any) => b.branch_id !== 'BR-CONST-02')
+                        .map((b: any) => (
+                          <option key={b.branch_id} value={b.branch_id}>
+                            {b.name_ar || `فرع ${b.branch_id}`}
+                          </option>
+                        ))}
+                    </select>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">اسم المشروع *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editFullProjectName}
+                    onChange={(e) => setEditFullProjectName(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">العميل / الجهة المالكة *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editFullClientName}
+                    onChange={(e) => setEditFullClientName(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">موقع العمل</label>
+                  <input
+                    type="text"
+                    value={editFullLocation}
+                    onChange={(e) => setEditFullLocation(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">قيمة العقد (د.ع) *</label>
+                    <input
+                      type="number"
+                      step="any"
+                      required
+                      value={editFullContractValue}
+                      onChange={(e) => setEditFullContractValue(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">العملة</label>
+                    <select
+                      value={editFullCurrency}
+                      onChange={(e) => setEditFullCurrency(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none cursor-pointer"
+                    >
+                      <option value="IQD">دينار (IQD)</option>
+                      <option value="USD">دولار (USD)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">تاريخ البدء</label>
+                    <input
+                      type="date"
+                      value={editFullStartDate}
+                      onChange={(e) => setEditFullStartDate(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold">التسليم المتوقع</label>
+                    <input
+                      type="date"
+                      value={editFullEndDate}
+                      onChange={(e) => setEditFullEndDate(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white font-mono outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">الملاحظات</label>
+                  <textarea
+                    rows={2}
+                    value={editFullNotes}
+                    onChange={(e) => setEditFullNotes(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setEditingFullProject(null)}
+                    className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold transition hover:bg-slate-700 cursor-pointer"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingFullEdit}
+                    className="px-6 py-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl shadow-md transition cursor-pointer whitespace-nowrap"
+                  >
+                    {savingFullEdit ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* نافذة تعديل الإنجاز */}
+        {editingProject && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-amber-400" /> تعديل الإنجاز للمشروع
+                </h3>
+                <button onClick={() => setEditingProject(null)} className="text-slate-400 hover:text-white p-1 cursor-pointer"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1 font-semibold">تحديث حالة المشروع الميدانية</label>
+                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500 cursor-pointer">
+                    <option value="IN_PROGRESS">قيد التنفيذ (العمل مستمر)</option>
+                    <option value="COMPLETED">مكتمل ومسلّم للجهة المستفيدة</option>
+                    <option value="SUSPENDED">متوقف مؤقتاً لأسباب قاهرة</option>
+                  </select>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="text-xs text-slate-400 font-semibold">نسبة الإنجاز التنفيذي العام</label>
+                    <span className="font-mono text-amber-400 font-black text-lg bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">{editRate}%</span>
+                  </div>
+                  <input type="range" min="0" max="100" value={editRate} onChange={(e) => setEditRate(e.target.value)} className="w-full accent-amber-500 cursor-pointer h-2" />
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                <button onClick={() => setEditingProject(null)} className="px-5 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer transition hover:bg-slate-700">إلغاء</button>
+                <button onClick={handleSaveEdit} disabled={savingEdit} className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer transition shadow-md whitespace-nowrap">
+                  {savingEdit ? 'جاري الحفظ...' : 'تحديث واعتماد التعديلات'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* نافذة تأكيد الحذف */}
+        {deleteModalProject && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
+              <div className="flex items-center gap-3 text-rose-400 border-b border-slate-800 pb-3">
+                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-rose-400" />
+                </div>
+                <h3 className="text-base font-bold text-white">تحذير أمني: حذف المشروع</h3>
+              </div>
+              <div className="bg-slate-950 p-4 rounded-xl border border-rose-500/20 text-xs text-slate-300 leading-relaxed font-semibold">
+                هل أنت متأكد من رغبتك في حذف مشروع: <span className="text-amber-400 font-bold text-[14px] mx-1">{deleteModalProject.project_name}</span>؟<br/><br/>
+                <span className="text-rose-400">الإجراء غير قابل للتراجع</span> وسيؤدي إلى إلغاء ربط جميع السندات والعقود والمواد المتعلقة به.
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button onClick={() => setDeleteModalProject(null)} className="px-5 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer hover:bg-slate-700 transition">تراجع وإلغاء</button>
+                <button onClick={handleDeleteProject} disabled={deleting} className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs cursor-pointer shadow-md transition whitespace-nowrap">
+                  {deleting ? 'جاري الحذف النهائي...' : 'نعم، تأكيد الحذف'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* كشف حساب ومستخلص مالي A4 */}
         {statementProject && (
@@ -3076,155 +3455,6 @@ export default function ProjectsPage() {
 
               </div>
 
-            </div>
-          </div>
-        )}
-
-        {/* نافذة استعراض سندات البند الواحد المنبثقة التفاعلية */}
-        {activeItemVouchersModal && (
-          <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-3xl p-5 shadow-2xl text-right flex flex-col max-h-[90vh] overflow-y-auto">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                    <Receipt className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-white">{activeItemVouchersModal.title}</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">البيان: <strong className="text-amber-400">{activeItemVouchersModal.targetName}</strong></p>
-                  </div>
-                </div>
-                <button onClick={() => setActiveItemVouchersModal(null)} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition shrink-0 self-end sm:self-auto cursor-pointer">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-4 flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                  <span className="text-slate-400 font-semibold flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-sky-400" />
-                    قائمة السندات المعتمدة المرتبطة بهذا البند:
-                  </span>
-                  <span className="font-mono bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-emerald-400 font-bold w-fit">
-                    العدد الكلي: {activeItemVouchersModal.vouchers.length} سند
-                  </span>
-                </div>
-
-                <div className="border border-slate-800 rounded-2xl overflow-hidden w-full overflow-x-auto">
-                  <table className="w-full min-w-[500px] text-right text-xs">
-                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[11px] sticky top-0">
-                      <tr>
-                        <th className="p-3 whitespace-nowrap">رقم السند</th>
-                        <th className="p-3 whitespace-nowrap">النوع</th>
-                        <th className="p-3 whitespace-nowrap">التاريخ</th>
-                        <th className="p-3 whitespace-nowrap">المستفيد / الطرف</th>
-                        <th className="p-3 text-left whitespace-nowrap">المبلغ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/80 font-mono bg-slate-900/50">
-                      {activeItemVouchersModal.vouchers.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="p-8 text-center text-slate-500 font-sans">
-                            لا توجد سندات فردية مخصصة لهذا البند حتى الآن.
-                          </td>
-                        </tr>
-                      ) : (
-                        activeItemVouchersModal.vouchers.map((v: any, vIdx: number) => {
-                          const parsed = parseVoucherNotes(v.notes);
-                          const isRec = v.voucher_type === 'RECEIPT';
-                          return (
-                            <tr key={vIdx} className="hover:bg-slate-800/60 transition">
-                              <td className="p-3 font-bold text-amber-400 whitespace-nowrap">{v.voucher_number}</td>
-                              <td className="p-3 font-sans text-slate-200 font-medium truncate max-w-[150px]" title={parsed.party || v.party_name}>{parsed.party || v.party_name}</td>
-                              <td className="p-3 text-left font-bold text-white whitespace-nowrap">{formatNum(v.total_amount || v.amount)} د.ع</td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs border-t border-slate-800 font-mono bg-slate-950 p-4 rounded-xl mt-4">
-                  <span className="text-slate-400 font-sans font-bold flex items-center gap-1.5">
-                    <Coins className="w-4 h-4 text-emerald-400" />
-                    إجمالي مبالغ هذه السندات حصراً:
-                  </span>
-                  <span className="text-lg font-black text-emerald-400">
-                    {formatNum(activeItemVouchersModal.vouchers.reduce((acc: number, v: any) => acc + (Number(v.total_amount || v.amount) || 0), 0))} د.ع
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-end border-t border-slate-800 mt-auto">
-                <button
-                  onClick={() => setActiveItemVouchersModal(null)}
-                  className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer transition w-full sm:w-auto"
-                >
-                  إغلاق النافذة
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* نافذة تعديل الإنجاز */}
-        {editingProject && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Edit3 className="w-4 h-4 text-amber-400" /> تعديل الإنجاز للمشروع
-                </h3>
-                <button onClick={() => setEditingProject(null)} className="text-slate-400 hover:text-white p-1 cursor-pointer"><X className="w-5 h-5" /></button>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs text-slate-400 mb-1 font-semibold">تحديث حالة المشروع الميدانية</label>
-                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-500 cursor-pointer">
-                    <option value="IN_PROGRESS">قيد التنفيذ (العمل مستمر)</option>
-                    <option value="COMPLETED">مكتمل ومسلّم للجهة المستفيدة</option>
-                    <option value="SUSPENDED">متوقف مؤقتاً لأسباب قاهرة</option>
-                  </select>
-                </div>
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                  <div className="flex justify-between items-center mb-3">
-                    <label className="text-xs text-slate-400 font-semibold">نسبة الإنجاز التنفيذي العام</label>
-                    <span className="font-mono text-amber-400 font-black text-lg bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">{editRate}%</span>
-                  </div>
-                  <input type="range" min="0" max="100" value={editRate} onChange={(e) => setEditRate(e.target.value)} className="w-full accent-amber-500 cursor-pointer h-2" />
-                </div>
-              </div>
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                <button onClick={() => setEditingProject(null)} className="px-5 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer transition hover:bg-slate-700">إلغاء</button>
-                <button onClick={handleSaveEdit} disabled={savingEdit} className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer transition shadow-md whitespace-nowrap">
-                  {savingEdit ? 'جاري الحفظ...' : 'تحديث واعتماد التعديلات'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* نافذة تأكيد الحذف */}
-        {deleteModalProject && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl text-right space-y-4">
-              <div className="flex items-center gap-3 text-rose-400 border-b border-slate-800 pb-3">
-                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
-                  <AlertTriangle className="w-5 h-5 text-rose-400" />
-                </div>
-                <h3 className="text-base font-bold text-white">تحذير أمني: حذف المشروع</h3>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-xl border border-rose-500/20 text-xs text-slate-300 leading-relaxed font-semibold">
-                هل أنت متأكد من رغبتك في حذف مشروع: <span className="text-amber-400 font-bold text-[14px] mx-1">{deleteModalProject.project_name}</span>؟<br/><br/>
-                <span className="text-rose-400">الإجراء غير قابل للتراجع</span> وسيؤدي إلى إلغاء ربط جميع السندات والعقود والمواد المتعلقة به.
-              </div>
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button onClick={() => setDeleteModalProject(null)} className="px-5 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs cursor-pointer hover:bg-slate-700 transition">تراجع وإلغاء</button>
-                <button onClick={handleDeleteProject} disabled={deleting} className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs cursor-pointer shadow-md transition whitespace-nowrap">
-                  {deleting ? 'جاري الحذف النهائي...' : 'نعم، تأكيد الحذف'}
-                </button>
-              </div>
             </div>
           </div>
         )}

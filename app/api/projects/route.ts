@@ -55,6 +55,7 @@ async function initTables() {
         completion_rate NUMERIC(5, 2) DEFAULT 0,
         notes TEXT,
         created_by_user VARCHAR(150),
+        assigned_engineer VARCHAR(255),
         tender_data JSONB DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -134,6 +135,7 @@ async function initTables() {
 
       ALTER TABLE projects ADD COLUMN IF NOT EXISTS branch_id VARCHAR(50);
       ALTER TABLE projects ADD COLUMN IF NOT EXISTS created_by_user VARCHAR(150);
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS assigned_engineer VARCHAR(255);
       ALTER TABLE projects ADD COLUMN IF NOT EXISTS tender_data JSONB DEFAULT '{}';
       ALTER TABLE vouchers ADD COLUMN IF NOT EXISTS project_id VARCHAR(50);
       ALTER TABLE project_subcontractors ADD COLUMN IF NOT EXISTS paid_amount NUMERIC(15, 2) DEFAULT 0;
@@ -522,7 +524,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, term: res.rows[0] });
     }
 
-    // إضافة مشروع جديد مع توثيق المستخدم المنشئ واختيار الفرع
+    // إضافة مشروع جديد مع توثيق المستخدم المنشئ واختيار الفرع وتخصيص المهندس
     const { 
       project_id, 
       id, 
@@ -536,7 +538,8 @@ export async function POST(req: Request) {
       expected_end_date, 
       completion_rate = 0, 
       notes,
-      created_by_user
+      created_by_user,
+      assigned_engineer
     } = body;
 
     const validStartDate = start_date && String(start_date).trim() !== '' ? String(start_date).trim() : null;
@@ -558,9 +561,9 @@ export async function POST(req: Request) {
     if (isProjectUuid) {
       res = await query(`
         INSERT INTO projects (
-          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user
+          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user, assigned_engineer
         )
-        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, COALESCE($7::date, CURRENT_DATE), $8::date, $9, $10, $11)
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, COALESCE($7::date, CURRENT_DATE), $8::date, $9, $10, $11, $12)
         RETURNING *
       `, [
         finalBranchId,
@@ -573,15 +576,16 @@ export async function POST(req: Request) {
         validEndDate,
         Number(completion_rate) || 0,
         notes || '',
-        finalCreator
+        finalCreator,
+        assigned_engineer || null
       ]);
     } else {
       const finalProjectId = String(project_id || id || `PRJ-${Date.now()}`);
       res = await query(`
         INSERT INTO projects (
-          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user
+          project_id, branch_id, project_name, client_name, location, contract_value, currency, start_date, expected_end_date, completion_rate, notes, created_by_user, assigned_engineer
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::date, CURRENT_DATE), $9::date, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8::date, CURRENT_DATE), $9::date, $10, $11, $12, $13)
         RETURNING *
       `, [
         finalProjectId,
@@ -595,7 +599,8 @@ export async function POST(req: Request) {
         validEndDate,
         Number(completion_rate) || 0,
         notes || '',
-        finalCreator
+        finalCreator,
+        assigned_engineer || null
       ]);
     }
 
@@ -640,7 +645,7 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { action } = body;
 
-    // تعديل بيانات المشروع الأساسية ونقله لفرع آخر
+    // تعديل بيانات المشروع الأساسية ونقله لفرع آخر أو تغيير المهندس
     if (action === 'UPDATE_PROJECT_DETAILS') {
       const { 
         project_id, 
@@ -652,7 +657,8 @@ export async function PATCH(req: Request) {
         currency, 
         start_date, 
         expected_end_date, 
-        notes 
+        notes,
+        assigned_engineer
       } = body;
 
       const validStartDate = start_date && String(start_date).trim() !== '' ? String(start_date).trim() : null;
@@ -668,8 +674,9 @@ export async function PATCH(req: Request) {
           currency = COALESCE($6, currency),
           start_date = COALESCE($7::date, start_date),
           expected_end_date = $8::date,
-          notes = COALESCE($9, notes)
-        WHERE project_id::text = $10::text
+          notes = COALESCE($9, notes),
+          assigned_engineer = COALESCE($10, assigned_engineer)
+        WHERE project_id::text = $11::text
       `, [
         branch_id || null,
         project_name || null,
@@ -680,6 +687,7 @@ export async function PATCH(req: Request) {
         validStartDate,
         validEndDate,
         notes || '',
+        assigned_engineer || null,
         String(project_id)
       ]);
 

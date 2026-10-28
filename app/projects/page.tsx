@@ -93,6 +93,7 @@ export default function ProjectsPage() {
 
   const [projects, setProjects] = useState<any[]>([]);
   const [vouchers, setVouchers] = useState<any[]>([]);
+  const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -104,7 +105,26 @@ export default function ProjectsPage() {
 
   const [tenderProject, setTenderProject] = useState<any | null>(null);
 
-  // التحقق التلقائي من تقييد حساب أحمد أو أي مستخدم مقيد بفرع التجارة
+  // جلب قائمة المستخدمين للاختيار منهم في قائمة المهندس المسؤول
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('/api/auth/users');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setUsersList(data);
+          } else if (data.users) {
+            setUsersList(data.users);
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching users:", e);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const isRestrictedBranch = useMemo(() => {
     if (!currentUser) return false;
     const isSuper = Boolean(currentUser.is_super_admin || currentUser.role === 'ADMIN' || currentUser.username === 'admin');
@@ -187,6 +207,7 @@ export default function ProjectsPage() {
   const [expectedEndDate, setExpectedEndDate] = useState('');
   const [completionRate, setCompletionRate] = useState('0');
   const [notes, setNotes] = useState('');
+  const [assignedEngineer, setAssignedEngineer] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -208,6 +229,7 @@ export default function ProjectsPage() {
   const [editFullStartDate, setEditFullStartDate] = useState('');
   const [editFullEndDate, setEditFullEndDate] = useState('');
   const [editFullNotes, setEditFullNotes] = useState('');
+  const [editFullAssignedEngineer, setEditFullAssignedEngineer] = useState('');
   const [savingFullEdit, setSavingFullEdit] = useState(false);
 
   const [deleteModalProject, setDeleteModalProject] = useState<any | null>(null);
@@ -315,7 +337,7 @@ export default function ProjectsPage() {
       ]);
 
       if (resV && resV.ok) {
-        const dataV = await resV.json();
+        const dataV = await resV.ok ? await resV.json() : { vouchers: [] };
         if (dataV.vouchers) setVouchers(dataV.vouchers);
       }
 
@@ -820,7 +842,8 @@ export default function ProjectsPage() {
           expected_end_date: expectedEndDate && expectedEndDate.trim() !== '' ? expectedEndDate : null,
           completion_rate: Number(completionRate) || 0,
           notes: notes.trim(),
-          created_by_user: creatorName
+          created_by_user: creatorName,
+          assigned_engineer: assignedEngineer.trim()
         }),
       });
 
@@ -835,6 +858,7 @@ export default function ProjectsPage() {
         setCompletionRate('0');
         setNotes('');
         setExpectedEndDate('');
+        setAssignedEngineer('');
         await loadData(targetBranch);
       } else {
         setMessage(`خطأ: ${data.error || 'فشل تسجيل المشروع'}`);
@@ -861,6 +885,7 @@ export default function ProjectsPage() {
     setEditFullStartDate(project.start_date ? String(project.start_date).split('T')[0] : '');
     setEditFullEndDate(project.expected_end_date ? String(project.expected_end_date).split('T')[0] : '');
     setEditFullNotes(project.notes || '');
+    setEditFullAssignedEngineer(project.assigned_engineer || '');
   };
 
   const handleSaveFullProjectEdit = async (e: React.FormEvent) => {
@@ -891,7 +916,8 @@ export default function ProjectsPage() {
           currency: editFullCurrency,
           start_date: editFullStartDate || null,
           expected_end_date: editFullEndDate || null,
-          notes: editFullNotes.trim()
+          notes: editFullNotes.trim(),
+          assigned_engineer: editFullAssignedEngineer.trim()
         }),
       });
 
@@ -1470,7 +1496,7 @@ export default function ProjectsPage() {
         {/* المحتوى الرئيسي */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 print:hidden">
           
-          {/* تسجيل مشروع جديد مع قفل واختيار الفرع بحسب الصلاحية */}
+          {/* تسجيل مشروع جديد مع قائمة منسدلة لاختيار المهندس */}
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl h-fit space-y-4 relative overflow-hidden shadow-2xl">
             {!permissions.canCreateProject && (
               <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 text-center space-y-2">
@@ -1527,6 +1553,21 @@ export default function ProjectsPage() {
               <div>
                 <label className="block text-slate-400 mb-1">موقع العمل</label>
                 <input type="text" placeholder="النجف - حي الفرات" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500" />
+              </div>
+              <div>
+                <label className="block text-amber-400 mb-1 font-semibold text-xs">المهندس المسؤول (تخصيص)</label>
+                <select 
+                  value={assignedEngineer} 
+                  onChange={(e) => setAssignedEngineer(e.target.value)} 
+                  className="w-full bg-slate-800 border border-amber-500/30 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 cursor-pointer text-xs"
+                >
+                  <option value="">-- اختر المهندس المسؤول --</option>
+                  {usersList.map((u: any) => (
+                    <option key={u.user_id || u.username} value={u.username}>
+                      {u.full_name ? `${u.full_name} (${u.username})` : u.username}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
@@ -1631,17 +1672,22 @@ export default function ProjectsPage() {
                           <User className="w-3.5 h-3.5 text-slate-500 shrink-0" /> {project.client_name}
                           <span className="text-slate-600 hidden sm:inline">•</span>
                           <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 sm:ml-0 ml-2" /> {project.location || 'النجف'}
+                          {project.assigned_engineer && (
+                            <>
+                              <span className="text-slate-600 hidden sm:inline">•</span>
+                              <span className="text-amber-400 font-bold ml-2">مهندس: {project.assigned_engineer}</span>
+                            </>
+                          )}
                         </p>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5 self-start lg:self-auto w-full lg:w-auto mt-2 lg:mt-0">
-                        {/* زر تعديل المشروع والفرع يظهر لجميع المستخدمين الذين يملكون صلاحية التعديل */}
                         {permissions.canEditContract && (
                           <button 
                             type="button"
                             onClick={() => handleOpenEditFullProject(project)} 
                             className="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition whitespace-nowrap cursor-pointer shadow-md flex-1 sm:flex-none active:scale-95"
-                            title="تعديل بيانات المشروع والفرع التابع له"
+                            title="تعديل اسم المشروع، الفرع، العقد والموقع"
                           >
                             <Settings className="w-3.5 h-3.5" /> تعديل المشروع
                           </button>
@@ -1730,7 +1776,7 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* نافذة تعديل بيانات المشروع والفرع الكاملة مع القفل لحساب أحمد */}
+        {/* نافذة تعديل بيانات المشروع والفرع الكاملة مع القفل وقائمة المهندسين */}
         {editingFullProject && (
           <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50">
             <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6 shadow-2xl text-right space-y-4 max-h-[90vh] overflow-y-auto">
@@ -1801,6 +1847,22 @@ export default function ProjectsPage() {
                     onChange={(e) => setEditFullLocation(e.target.value)}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-amber-400 mb-1 font-semibold text-xs">المهندس المسؤول</label>
+                  <select
+                    value={editFullAssignedEngineer}
+                    onChange={(e) => setEditFullAssignedEngineer(e.target.value)}
+                    className="w-full bg-slate-800 border border-amber-500/30 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 cursor-pointer text-xs"
+                  >
+                    <option value="">-- اختر المهندس المسؤول --</option>
+                    {usersList.map((u: any) => (
+                      <option key={u.user_id || u.username} value={u.username}>
+                        {u.full_name ? `${u.full_name} (${u.username})` : u.username}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1940,7 +2002,6 @@ export default function ProjectsPage() {
             </div>
           </div>
         )}
-
         {/* كشف حساب ومستخلص مالي A4 */}
         {statementProject && (
           <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto flex flex-col items-center p-2 sm:p-4 print:p-0 print:bg-white print:static print:overflow-visible print:block print:w-full">
@@ -3148,6 +3209,13 @@ export default function ProjectsPage() {
                                             </span>
                                           </div>
                                         </div>
+
+                                        {batch.notes && (
+                                          <div className="bg-slate-950/70 border border-slate-800 p-2.5 rounded-lg text-[11px] text-slate-300 flex items-start gap-2 mt-1">
+                                            <FileText className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
+                                            <span><strong className="text-amber-300 font-medium">الملاحظات:</strong> {batch.notes}</span>
+                                          </div>
+                                        )}
 
                                         <div className="space-y-1.5 pt-2 border-t border-slate-800 mt-1">
                                           <div className="flex justify-between text-[11px] font-mono text-slate-400">
